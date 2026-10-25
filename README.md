@@ -44,10 +44,9 @@ Settings > Rho Network, or the gear on the map itself: theme, planet colours, da
 
 ## Install
 
-Until it's in the community directory:
+In Obsidian: Settings > Community plugins > Browse, search for **Rho Network**, Install, then Enable.
 
-- **BRAT:** install the BRAT plugin, then "Add beta plugin" with this repository's address.
-- **By hand:** from the latest release, download `main.js`, `manifest.json` and `styles.css` into `<your vault>/.obsidian/plugins/rho-network/`, then switch Rho Network on in Settings > Community plugins.
+Or by hand: from the latest release, download `main.js`, `manifest.json` and `styles.css` into `<your vault>/.obsidian/plugins/rho-network/`, then switch Rho Network on in Settings > Community plugins.
 
 Desktop only.
 
@@ -55,6 +54,10 @@ Desktop only.
 
 Rho Network makes no network requests and has no telemetry. It reads your vault and Obsidian's link cache. It keeps a little state of its own (the note box's size, how often notes are opened, the sky's stars) in local storage, and a spare copy of its settings in your vault's config folder so an update that replaces the plugin folder doesn't lose them. It writes to a note only when you type in the note box with EDIT on.
 
+## Support
+
+Rho Network is free to use. Bug reports and ideas are welcome in the [issues](https://github.com/clowsuzu/rho-network/issues).
+
 ## Licence
 
-MIT, see [LICENSE](LICENSE).
+[PolyForm Strict 1.0.0](https://polyformproject.org/licenses/strict/1.0.0), see [LICENSE](LICENSE). Free to use for yourself and for any other noncommercial purpose. Selling it, passing copies on and publishing changed versions are not allowed.

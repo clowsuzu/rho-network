@@ -1,5 +1,5 @@
 'use strict';
-// Rho Network: your vault as a living 3D star system. MIT licence, (c) 2026 Clowsuzu.
+// Rho Network: your vault as a living 3D star system. PolyForm Strict 1.0.0 licence, (c) 2026 Clowsuzu.
 // Each top folder is an orbit, its notes the planets, links the lines between them; the sky reacts as you write.
 // Drawn on a canvas (the asteroid belts on WebGL2 where there is one). No libraries and no network: it reads the vault
 // and Obsidian's link cache, keeps its own small state (the note box's size, how often notes are opened, the sky's
