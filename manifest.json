@@ -1,0 +1,9 @@
+{
+  "id": "rho-network",
+  "name": "Rho Network",
+  "version": "2.0.0",
+  "minAppVersion": "1.4.0",
+  "description": "Your vault as a living galaxy: notes orbit as planets, and the sky reacts as you write.",
+  "author": "Clowsuzu",
+  "isDesktopOnly": true
+}
