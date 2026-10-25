@@ -2,7 +2,7 @@
 
 Your Obsidian vault as a living 3D star system. Each top folder becomes an orbit, its notes the planets, and the links between notes the faint lines across the sky. It turns slowly, it reacts as you write, and now and then a star goes off.
 
-![Rho Network: a vault of 1,500 notes as a star system](images/hero.png)
+![Rho Network: a vault of 1,500 notes as a star system](hero.png)
 
 ## What you get
 
@@ -19,11 +19,11 @@ Your Obsidian vault as a living 3D star system. Each top folder becomes an orbit
 - **The sky.** Supernovas now and then, and a black hole that keeps the graveyard of notes you deleted (click it to see them).
 - **Themes:** Deep space, Dusk, Ember and Paper (the light one). **Planet colours:** Sand, Black & white, Halloween and Classic.
 
-![Close up on the globe](images/close.png)
+![Close up on the globe](close.png)
 
 ## Controls
 
-| | |
+| Key | What it does |
 |---|---|
 | Scroll | Zoom |
 | Drag | Spin the system |
