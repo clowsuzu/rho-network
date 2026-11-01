@@ -22,9 +22,9 @@ Desktop only.
 - **Never lose your place.** Notes with unticked tasks glow and the last three sit in an Open notes strip. Notes with a due date are listed bottom right, soonest first.
 - **Sit back.** Press A and the camera drifts through the system on its own. Press T to watch your vault grow in the order you made it.
 
-![A note open on top of the map](images/note-open.png)
+![A note open on top of the map](note-open.png)
 
-![The Open notes strip and the due date list](images/open-notes-and-due-dates.png)
+![The Open notes strip and the due date list](open-notes-and-due-dates.png)
 
 ### Due dates
 
@@ -34,11 +34,11 @@ Give a note a property called `due`, `deadline`, `due-date`, `dueDate` or `due_d
 
 Deep space, Dusk, Ember and Paper (the light one), plus six planet colour sets: Sand, Black & white, Dusk, Halloween, Age and Classic.
 
-![Ember](images/theme-ember.png)
+![Ember](theme-ember.png)
 
-![Dusk](images/theme-dusk.png)
+![Dusk](theme-dusk.png)
 
-![Paper](images/theme-paper.png)
+![Paper](theme-paper.png)
 
 ## Settings
 
@@ -47,9 +47,9 @@ Settings > Rho Network, or the gear on the map. Both show the same two tabs.
 - **General:** theme, planet colours, darkness, glow, spacing, size, spin, grouping and folders to leave off the map.
 - **Advanced:** dark rim, ring tilt, stars, link lines, tour when idle, supernovas, the black hole, open notes, due date notes, the second belt and quality.
 
-![Settings, General tab](images/settings-general.png)
+![Settings, General tab](settings-general.png)
 
-![Settings, Advanced tab](images/settings-advanced.png)
+![Settings, Advanced tab](settings-advanced.png)
 
 Updating keeps your settings as you left them.
 
