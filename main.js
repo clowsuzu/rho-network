@@ -295,7 +295,7 @@ const bandAt = (b) => {
 const OUTER_SLOTS = 7, BELT2_W = 0.82;
 const BELT2_PAD = 0.2;
 const INNER_MAX = 6, MID_MAX = 5;
-const INTRO_MS = 8000, REST_PITCH = 0.3, ZOOM_MIN = 0.02;
+const INTRO_MS = 8000, REST_PITCH = 0.3, ZOOM_MIN = 0.01;
 const HELD_MS = 11, FADE_MS = 2400;
 const DRAG_EASE = 55;
 const TOUR_STILL_MS = 2500, TOUR_GLIDE_MS = 6500, TOUR_GLIDE_MORE = 4500, TOUR_GLIDE_FREE = 12000, TOUR_SWING = 3.2, TOUR_AIM_HW = 0.13, TOUR_SHOT_MS = [45000, 65000];
@@ -431,16 +431,16 @@ const GRAVE_TE = 1.15, GRAVE_R = 6;
 const INTRO_ZOOM = 1;
 const WAVE_AMP = 6;
 const LIFT_R = 0.75;
-const GLOW_BASE = 1.8, GLOW_CAP = 4, GLOW_PAD = 60, GLOW_CORE = [0.2, 0.5], GLOW_DISC = [1.0, 0.38], GLOW_DISC_P = 1.4, GLOW_HALO = [1.0, 0.55], GLOW_HALO_K = 0.7, RIM_REACH = [1.2, 0.65], RIM_FROM = 0.42, RIM_SPAN = 0.55;
+const GLOW_BASE = 1.8, GLOW_CAP = 4, GLOW_PAD = 60, GLOW_CORE = [0.2, 0.5], GLOW_DISC = [1.0, 0.38], GLOW_DISC_P = 1.4, GLOW_HALO = [1.0, 0.55], GLOW_HALO_K = 0.7, RIM_REACH = [1.2, 0.65], RIM_FROM = 0.3, RIM_SPAN = 0.55;
 const SIZE_HOLD = 160;
 const MORPH_MS = 900, MORPH_NUM = ['rmax', 'outerMax', 'outerIn', 'grow', 'spr'], MORPH_EXT = ['ext', 'extAll', 'extLand', 'extCore', 'extOpen'];
 const GLOBE_R = 256;
 const liftAt = (d, th = THEMES.deep, k = 1) => { const f = Math.exp(-((d / 0.5) ** 2)), c = Math.exp(-((d / 0.42) ** 2)), L = th.lift; return [L[0] + L[3] * c, L[1] + L[4] * c, L[2] + L[5] * c, d >= 1 ? 0 : Math.min(1, 0.41 * f * k)]; };
 const paperLum = (dk) => +(0.95 - Math.max(0, Math.min(100, +dk || 0)) / 1000).toFixed(3);
 const THEMES = {
-  deep: { bg: '#040405', lift: [17, 20, 25, 11, 12, 15], vig: [4, 4, 5], amb: { core: [8, 11, 14], disc: [8, 10, 13], halo: [4, 6, 9], rim: 0.55 } },
-  dusk: { bg: '#060409', lift: [22, 17, 32, 15, 10, 22], vig: [6, 4, 9], amb: { core: [12, 7, 9], disc: [9, 7, 14], halo: [4, 3, 9], rim: 0.55 } },
-  ember: { bg: '#080505', lift: [30, 18, 14, 17, 9, 6], vig: [8, 5, 5], amb: { core: [14, 7, 2], disc: [12, 8, 5], halo: [6, 3, 2], rim: 0.55 } },
+  deep: { bg: '#040405', lift: [17, 20, 25, 11, 12, 15], vig: [4, 4, 5], amb: { core: [8, 11, 14], disc: [8, 10, 13], halo: [4, 6, 9], rim: 0.95 } },
+  dusk: { bg: '#060409', lift: [22, 17, 32, 15, 10, 22], vig: [6, 4, 9], amb: { core: [12, 7, 9], disc: [9, 7, 14], halo: [4, 3, 9], rim: 0.95 } },
+  ember: { bg: '#080505', lift: [30, 18, 14, 17, 9, 6], vig: [8, 5, 5], amb: { core: [14, 7, 2], disc: [12, 8, 5], halo: [6, 3, 2], rim: 0.95 } },
   paper: { bg: '#060606', lift: [0, 0, 0, 0, 0, 0], vig: [6, 6, 6], edge: [0.03, 0.42], edgeCol: [20, 20, 20], ink: true, flash: '#a5a5a5' },
 };
 const PAPER = { stars: 0.75, glow: 0.3, band: '#888888', bandK: 2, dot: 0.92, ring: 0.35, shine: 1.4, speck: '#767676', speckLo: '#585858', grain: 0.6,
@@ -2799,7 +2799,11 @@ class NetworkView extends ItemView {
       } catch (e) { return 0; }
     });
   }
-  mdRender(src, el, path, comp) { return MarkdownRenderer.render ? MarkdownRenderer.render(this.app, src, el, path, comp) : MarkdownRenderer.renderMarkdown(src, el, path, comp); }
+  async mdRender(src, el, path, comp) {
+    const r = MarkdownRenderer.render ? await MarkdownRenderer.render(this.app, src, el, path, comp) : await MarkdownRenderer.renderMarkdown(src, el, path, comp);
+    for (const c of el.querySelectorAll('pre > code.language-mermaid')) c.parentElement.classList.add('rn-chart-code');
+    return r;
+  }
   async drawCharts(slots, comp, path, stale, before) {
     let first = !before;
     for (const s of slots) {
@@ -2964,7 +2968,7 @@ class NetworkView extends ItemView {
       if (!this.bandAt || !this.sky) return null;
       const a = skyAim(this.bandAt.x, this.bandAt.y, this.sky, W, H, 0.5, 0.4, near, 0);
       if (Math.abs(a.yaw - near) > TOUR_SWING) return null;
-      E = { x: 0, y: -1.03 * GLOBE_R, z: 0 }; yaw = a.yaw; pitch = -0.22; g = gOf(1.25);
+      E = { x: 0, y: -1.03 * GLOBE_R * (this.gk || 1), z: 0 }; yaw = a.yaw; pitch = -0.22; g = gOf(1.25);
     } else if (at && at.whole && (kind === 'fhorizon' || kind === 'fbelt')) {
       const el = kind === 'fhorizon' ? 0.2 : 0.4, d = (gOf(1.0) * W) / (CG_FOOT * k * (this.zoomLand || this.zoom || 1));
       g = gOf(1.0); roll = kind === 'fbelt' ? 0.1 : 0; E = { x: -d * Math.cos(el), y: -d * Math.sin(el), z: 0 };
@@ -4235,7 +4239,8 @@ class NetworkView extends ItemView {
     const R0 = this.rmax || 400, om = this.outerMax || 0, E = this.ext || { x: 1.22 * R0, up: 0.6 * R0, down: 0.8 * R0 };
     const BIG = 1.885;
     this.k = BIG * Math.min((W * 0.9) / E.x, (cyRest - 12) / E.up) * (this.grow || 1);
-    const EA = this.extAll || E, fit = (X) => Math.max(ZOOM_MIN, Math.min(1, (W * 0.148) / (X.x * this.k), (H * 0.304) / ((X.up + X.down) * this.k)));
+    this.gk = Math.max(1, Math.min(2.6, 0.5 / this.k, (0.075 * R0) / GLOBE_R));
+    const EA = this.extAll || E, fit = (X) => Math.max(ZOOM_MIN, Math.min(1, (W * 0.085) / (X.x * this.k), (H * 0.175) / ((X.up + X.down) * this.k)));
     this.zoomMin = fit(EA);
     if (this.keepK) {
       const f = this.keepK / (this.k * this.zoom), lim = (z) => Math.max(this.zoomMin, Math.min(this.zoomMax || 14, z * f));
@@ -4251,7 +4256,7 @@ class NetworkView extends ItemView {
     const cyC = H / 2 + ((EA.up - EA.down) * this.k * zm) / 2;
     this.cy = H / 2 + (cyC - H / 2) * lo * lo * (3 - 2 * lo) - this.shiftY;
     if (this.fr) this.cy += (H * FREE_CYP - this.shiftY - this.cy) * this.fr.w;
-    this.zoomMax = Math.max((3.2 * 1.45) / BIG, Math.min(14, (0.45 * H) / (GLOBE_R * this.k)));
+    this.zoomMax = Math.max((3.2 * 1.45) / BIG, Math.min(14, (0.45 * H) / (GLOBE_R * this.gk * this.k)));
     const Lz = this.zoom < 1 ? -Math.log(this.zoom) : 0;
     this.D0 = Math.max(3400, 1.7 * Math.max(1.8 * R0, om)); this.D = this.D0 * Math.exp((Lz * Lz) / (Lz + 0.5));
     if (this.fr) this.frLens();
@@ -4429,7 +4434,7 @@ class NetworkView extends ItemView {
     this.drawBelts(tm, W, H);
     if (this.rippleQ.length && t - this.lastRipple > this.rippleGap) { const s = this.rippleQ.shift(); this.ripples.push({ t0: t, s, dur: 3000 * (0.8 + 0.25 * s) }); this.lastRipple = t; }
     this.ripples = this.ripples.filter((r) => t - r.t0 < r.dur);
-    const GR = GLOBE_R;
+    const GR = GLOBE_R * (this.gk || 1);
     for (const rp of this.ripples) {
       const age = (t - rp.t0) / rp.dur, rr = GR * (1.08 + 2.6 * (0.55 + 0.45 * rp.s) * age);
       ctx.strokeStyle = rgba(globeColor, 0.22 * (0.4 + 0.6 * rp.s) * Math.pow(1 - age, 1.6) * thinA(1)); ctx.lineWidth = thin(1); ctx.beginPath();

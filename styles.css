@@ -275,7 +275,7 @@
 }
 .rho-network-view .rn-chart-cap { font-size: 10.5px; letter-spacing: 0.16em; text-transform: uppercase; color: rgba(233, 230, 223, 0.5); }
 @keyframes rn-chart-breathe { 0%, 100% { opacity: 0.5; } 50% { opacity: 1; } }
-.rho-network-view .rn-box-body pre:has(> code.language-mermaid) { display: none; }
+.rho-network-view .rn-box-body pre.rn-chart-code { display: none; }
 .rho-network-view .rn-boot {
   position: absolute; inset: 0; z-index: 60; background: var(--rn-boot-bg, #040405); pointer-events: none; overflow: hidden;
   display: flex; align-items: center; justify-content: center; transition: opacity 0.9s ease 0.15s;
@@ -295,10 +295,11 @@
 .rho-network-view .rn-boot-path { border: 1px solid rgba(232, 230, 225, 0.1); transform: translate(-50%, -50%); }
 .rho-network-view .rn-boot-ring {
   background: conic-gradient(from 0deg, rgba(239, 224, 176, 0) 0turn 0.62turn, rgba(239, 224, 176, 0.88) 0.995turn, rgba(255, 244, 214, 0) 1turn);
-  -webkit-mask: radial-gradient(farthest-side, transparent calc(100% - 2.2px), #000 calc(100% - 1.6px), #000 calc(100% - 0.4px), transparent 100%);
-  mask: radial-gradient(farthest-side, transparent calc(100% - 2.2px), #000 calc(100% - 1.6px), #000 calc(100% - 0.4px), transparent 100%);
   animation: rn-boot-spin 3s linear infinite;
 }
+.rho-network-view .rn-boot-ring.r1 { clip-path: path(evenodd, "M55 0A55 55 0 1 1 55 110A55 55 0 1 1 55 0ZM55 1.8A53.2 53.2 0 1 1 55 108.2A53.2 53.2 0 1 1 55 1.8Z"); }
+.rho-network-view .rn-boot-ring.r2 { clip-path: path(evenodd, "M100 0A100 100 0 1 1 100 200A100 100 0 1 1 100 0ZM100 1.8A98.2 98.2 0 1 1 100 198.2A98.2 98.2 0 1 1 100 1.8Z"); }
+.rho-network-view .rn-boot-ring.r3 { clip-path: path(evenodd, "M160 0A160 160 0 1 1 160 320A160 160 0 1 1 160 0ZM160 1.8A158.2 158.2 0 1 1 160 318.2A158.2 158.2 0 1 1 160 1.8Z"); }
 @keyframes rn-boot-spin { from { transform: translate(-50%, -50%) rotate(0deg); } to { transform: translate(-50%, -50%) rotate(360deg); } }
 .rho-network-view .rn-boot-path.p1, .rho-network-view .rn-boot-ring.r1 { width: 110px; height: 110px; }
 .rho-network-view .rn-boot-path.p2, .rho-network-view .rn-boot-ring.r2 { width: 200px; height: 200px; }
@@ -373,10 +374,10 @@
 .rho-network-view .rn-box-body h2 { padding-top: 10px; border-top: 1px solid rgba(232, 230, 225, 0.075); color: var(--h2-color); }
 .rho-network-view .rn-box-body strong, .rho-network-view .rn-box-body b { font-weight: 600; color: var(--bold-color); }
 .rho-network-view .rn-box-body a.internal-link, .rho-network-view .rn-box-body a.external-link {
-  color: var(--link-color); text-decoration: underline; text-decoration-color: rgba(239, 224, 176, 0.3); text-underline-offset: 3px;
+  color: var(--link-color); text-decoration: none; border-bottom: 1px solid rgba(239, 224, 176, 0.3);
 }
-.rho-network-view .rn-box-body a.internal-link:hover, .rho-network-view .rn-box-body a.external-link:hover { color: var(--link-color-hover); text-decoration-color: rgba(255, 244, 214, 0.7); }
-.rho-network-view .rn-box-body a.internal-link.is-unresolved { color: var(--link-unresolved-color); text-decoration-color: rgba(133, 135, 139, 0.35); }
+.rho-network-view .rn-box-body a.internal-link:hover, .rho-network-view .rn-box-body a.external-link:hover { color: var(--link-color-hover); border-bottom-color: rgba(255, 244, 214, 0.7); }
+.rho-network-view .rn-box-body a.internal-link.is-unresolved { color: var(--link-unresolved-color); border-bottom-color: rgba(133, 135, 139, 0.35); }
 .rho-network-view .rn-box-body a.tag {
   display: inline-block; padding: 0 6px; border: 1px solid rgba(239, 224, 176, 0.2); border-radius: 2px; background: var(--tag-background);
   color: var(--tag-color); font-family: var(--font-monospace); font-size: 10px; letter-spacing: 0.08em; line-height: 1.7; text-decoration: none;
