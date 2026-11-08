@@ -42,10 +42,11 @@ Deep space, Dusk, Ember and Paper (the light one), plus six planet colour sets: 
 
 ## Settings
 
-Settings > Rho Network, or the gear on the map. Both show the same two tabs.
+Settings > Rho Network, or the gear on the map. Both show the same single list; the **General** and **Advanced** names at the top glide to their part.
 
-- **General:** theme, planet colours, darkness, glow, spacing, size, spin, grouping and folders to leave off the map.
+- **General:** theme, planet colours, darkness, glow, spacing, planet and globe size, spin, rocket boost, grouping and folders to leave off the map.
 - **Advanced:** dark rim, ring tilt, stars, link lines, tour when idle, supernovas, the black hole, open notes, due date notes, the second belt and quality.
+- **What it can do** lists the features in one place, and **Show the welcome again** brings the first-run tour back.
 
 ![Settings, General tab](settings-general.png)
 
@@ -68,6 +69,8 @@ Updating keeps your settings as you left them.
 | T | Time-lapse |
 | Backspace | Out of an orbit |
 | Esc | Close / stop |
+
+The **?** in the top bar opens a short sheet with all of this, and a four-step welcome shows once per vault the first time you open the map.
 
 ## Pairs well with
 

@@ -12,46 +12,52 @@ const PUBLIC = true;
 const DEFAULTS = {
   log: false, groupBy: 'auto',
   theme: 'deep', darkness: 50, ringSpacing: 100, stars: 100, glow: 100, spin: 100, intro: true, quality: 'balanced', novas: 'normal', blackHole: true, exclude: [],
-  ringNames: true, nearNames: false, belt2: true,
-  planetSize: 100,
+  ringNames: true, nearNames: false, rockets: false, rocketsPer5: 0, belt2: true,
+  planetSize: 100, globeSize: 100,
   links: 5, ringTilt: 100,
   planetColors: 'sand',
   tourIdle: 'off',
   panelWidth: 220, openLoops: true, comets: true,
   flyToNotes: true, ambient: 100, rim: 100,
+  twoNotes: false,
+  welcomed: false,
 };
 const SETTINGS = [
   { sec: 'Look' },
   { key: 'theme', name: 'Theme', desc: 'The colour of the space round the system. Paper is the light one.', choice: [['deep', 'Deep space'], ['dusk', 'Dusk'], ['ember', 'Ember'], ['paper', 'Paper']] },
   { key: 'planetColors', name: 'Planet colours', desc: 'Sand: shades of sand, lighter in the middle. Black & white: white to grey. Dusk: deep jewel colours, the dark one. Halloween: pumpkin, purple, blood, slime and bone, the orbit lines too. Age: by when a note was last edited, from pale yellow this week through orange and rose to blue for the ones left alone longest. Classic: the colours your graph view\'s colour groups give your notes, then other plugins\', then nine colours by folder.', choice: [['sand', 'Sand'], ['mono', 'Black & white'], ['dusk', 'Dusk'], ['halloween', 'Halloween'], ['age', 'Age'], ['rainbow', 'Classic']] },
   { key: 'darkness', name: 'Darkness', desc: 'How dark the space is: the soft light round the system and the shadow at the edges.', range: [0, 100, 5] },
-  { key: 'ambient', name: 'Ambient glow', desc: 'A soft light that fills the space round the whole system, so it stands out from the dark behind it. (Not on Paper.)', range: [0, 200, 10], unit: '%' },
+  { key: 'ambient', name: 'Ambient glow', desc: 'A soft light that fills the space round the whole system, so it stands out from the dark behind it. (Not on Paper.)', range: [0, 100, 1], unit: '%' },
   { key: 'rim', name: 'Dark rim', desc: 'A faint shadow round the outside of the network, where the glow ends. (Not on Paper.)', range: [0, 200, 10], unit: '%', adv: 'Look' },
   { key: 'ringSpacing', name: 'Ring spacing', desc: 'How far apart the orbits sit.', range: [70, 400, 1], unit: '%' },
   { key: 'ringTilt', name: 'Ring tilt', desc: 'How steeply the orbits tilt, every other one the other way. 100% is how they\'ve always been, 0 lays them flat.', range: [0, 400, 1], unit: '%', adv: 'Look' },
   { key: 'stars', name: 'Star density', desc: 'How many stars the sky has.', range: [25, 200, 5], unit: '%', adv: 'Look' },
   { key: 'glow', name: 'Glow', desc: 'How much the planets shine.', range: [0, 200, 10], unit: '%', adv: 'Look' },
   { key: 'links', name: 'Link lines', desc: 'How bright the lines between linked notes are. 0 hides them; the note under the mouse and the open one still show theirs.', range: [0, 100, 1], unit: '%', adv: 'Look' },
-  { key: 'planetSize', name: 'Planet size', desc: 'How big the planets are. The dust of a big vault grows a little with them.', range: [30, 150, 5], unit: '%' },
+  { key: 'planetSize', name: 'Planet size', desc: 'How big the planets are. In a big vault the notes drawn as specks of dust on their orbit grow a little with them.', range: [30, 150, 5], unit: '%' },
+  { key: 'globeSize', name: 'Globe size', desc: 'How big the globe at the middle is. Past 100% the orbits move out to make room for it, so it never sits on your notes.', range: [50, 500, 10], unit: '%' },
   { key: 'ringNames', name: 'Ring names', desc: 'Each orbit\'s name along its ring. Off, only a ring in focus shows its name.', toggle: true, hidden: true },
   { key: 'nearNames', name: 'Names near the mouse', desc: 'Every planet near the mouse shows its name, not just your most-read ones.', toggle: true, hidden: true },
   { sec: 'Motion' },
   { key: 'spin', name: 'Spin', desc: 'How fast the system turns. 0 holds it still, 400 is four times the usual.', range: [0, 400, 10], unit: '%' },
-  { key: 'flyToNotes', name: 'Fly to notes', desc: 'Click a planet and the camera glides out to a wide look at the system, the way the tour does, with that planet clear of the note. Off, it just turns the map as before. Only clicks on planets do it: search, links inside a note and the open notes strip keep turning the map.', toggle: true, hidden: PUBLIC },
+  { key: 'rockets', name: 'Rocket boost', desc: 'A rocket flies to a note when it is made, moved or edited. On, there are a lot more of them: about one every 3 s while the vault is calm (one in 5 minutes when off), and three times as many while you work.', toggle: true },
+  { key: 'rocketsPer5', name: 'Rockets per 5 s', desc: 'For videos: this many rockets leave every 5 seconds, whatever is going on. 0 is the usual rate.', range: [0, 20, 1], only: 'videoTools' },
+  { key: 'flyToNotes', name: 'Fly to notes', desc: 'Open a note, from a planet, search or a link, and the camera glides out to a wide look at the system, the way the tour does, with that planet clear of the note. Off, it just turns the map as before.', toggle: true, hidden: PUBLIC },
   { key: 'tourIdle', name: 'Tour when idle', desc: 'After this long with no mouse or keys while another window is in front of Obsidian, the map starts its tour by itself, like a screensaver. A starts it any time; any key or click ends it (moving the mouse does not).', choice: [['off', 'Off'], ['1', '1 minute'], ['2', '2 minutes'], ['5', '5 minutes'], ['10', '10 minutes']], adv: 'Motion' },
   { key: 'intro', name: 'Opening', desc: 'The fly-in from the globe each time the map opens.', toggle: true, hidden: true },
   { sec: 'Sky events' },
   { key: 'novas', name: 'Supernovas', desc: 'Now and then a star goes off somewhere in view.', choice: [['normal', 'Normal'], ['rare', 'Rare'], ['off', 'Off']], adv: 'Sky events' },
-  { key: 'blackHole', name: 'Black hole', desc: 'The graveyard\'s hole, where deleted notes go (click it to see them), and the rare visitor.', toggle: true, adv: 'Sky events' },
+  { key: 'blackHole', name: 'Black hole', desc: 'A black hole by the system that deleted notes fall into (click it to see what it took), and about once a day a second one drifting across the sky. Off: neither.', toggle: true, adv: 'Sky events' },
   { sec: 'Work' },
   { key: 'openLoops', name: 'Open notes', desc: 'Notes with unchecked tasks (- [ ]) glow softly. The three you left mid-task most recently glow brighter and sit in the Open notes strip under the top bar: click one to jump back in at its first open task, hold its ✕ to drop one you won\'t get to. Tick the boxes off and the glow goes.', toggle: true, adv: 'Work' },
   { key: 'comets', name: 'Due date notes', desc: 'Notes with a due date are listed bottom right, the soonest first, coloured by how close: rose late, orange today, amber this week, pale gold later. Give the note due: 2026-11-03 in its properties, or a task line 📅 2026-11-03 or [due:: 2026-11-03]. Ticked tasks, and notes with done: true or status: done, drop out. Click a row to open its note.', toggle: true, adv: 'Work' },
+  { key: 'twoNotes', name: 'Two notes at once', desc: 'Open a second note and the first stays up beside it on the left (as it was when you opened the next one), the new one in the main box on its right. ⇄ on the left one swaps them, ✕ lets it go; a third note takes the left one\'s place, and a link inside the left note opens in the main box. Needs a wide window (about 1,200 px with the cards tucked, 1,450 with them out); on a narrower one it is one note at a time as ever. Off: one note at a time.', toggle: true, adv: 'Work', hidden: PUBLIC },
   { sec: 'Layout' },
-  { key: 'groupBy', name: 'Group by', desc: 'What the rings are made of. G on the map goes to the next.', choice: [['auto', 'Auto'], ['folders', 'Folders'], ['tags', 'Tags'], ['clusters', 'Links']] },
+  { key: 'groupBy', name: 'Group by', desc: 'What each orbit holds: a folder, a tag, or a group of notes that link to each other (Links). Auto picks what suits your vault. G on the map goes to the next.', choice: [['auto', 'Auto'], ['folders', 'Folders'], ['tags', 'Tags'], ['clusters', 'Links']] },
   { key: 'belt2', name: 'Second belt', desc: 'A wider, fainter asteroid belt far out, past the outer orbits.', toggle: true, adv: 'Layout' },
   { key: 'exclude', name: 'Excluded folders', desc: 'Their notes stay off the map and out of the widgets. + folder picks one, its ✕ lets it back.', list: true },
   { key: 'panelWidth', name: 'Cards width', desc: 'How wide the cards down the left are. Drag the column\'s right edge in the map; a double-click there puts it back.', range: [180, 480, 1], unit: 'px', hidden: true },
-  { key: 'quality', name: 'Quality', desc: 'Balanced: sharp far out, crisp stars up close; eases off if frames run slow.', choice: [['balanced', 'Balanced'], ['high', 'High'], ['low', 'Low']], adv: 'Performance' },
+  { key: 'quality', name: 'Quality', desc: 'How sharp the map is drawn. Balanced: sharp, easing off by itself if frames run slow. High: always sharp, the most work for the graphics card. Low: at your screen\'s own resolution, the lightest.', choice: [['balanced', 'Balanced'], ['high', 'High'], ['low', 'Low']], adv: 'Performance' },
 ];
 const SETTINGS_TABS = ['General', 'Advanced'];
 const settingsOn = (tab) => {
@@ -100,6 +106,7 @@ const editRuns = (text) => {
   return out;
 };
 const BOX_MIN_W = 400, BOX_EDGE = 0.64;
+const BOX_EDGE2 = 0.74, PIN_GAP = 10;
 function bootMark(el, vig, name) {
   const mk = (cls, at) => { const d = at.appendChild(document.createElement('div')); d.className = cls; return d; };
   const B = mk('rn-boot', el), W = el.clientWidth || 1200, H = el.clientHeight || 800;
@@ -139,6 +146,36 @@ function migrateSettings(S) {
 }
 const excludeList = (S) => settingOf(S, 'exclude').map((s) => s.trim().replace(/\\/g, '/').replace(/^\/+|\/+$/g, '')).filter(Boolean).map((s) => `${s}/`);
 const LAPSE_MS = 24000;
+const WELCOME_MS = 1200, WELCOME_RETRY_MS = 3000;
+const WELCOME_STEPS = [
+  ['Your vault as a star system', 'Every **planet** is a note and every **orbit** a folder (or a tag, or a group of notes that link to each other). The lines are links, and the **globe** in the middle is your home note.'],
+  ['Moving around', '**Drag** to turn it, the **wheel** to zoom, **double-click** to come back to the start. **O** leaves only the sky and the system on screen, **A** sets off a slow tour.'],
+  ['Reading a note', '**Click** a planet and its note opens here, in a box on the map: **✎ EDIT** to write in it, **OPEN ↗** for a tab of its own. **/** searches your notes, **Esc** steps back.'],
+  ['Settings, and this again', '**⚙** at the top right has the settings (they are in Obsidian\'s Settings too, under Rho Network). **?** lists every key and what you see in the sky, and **How to use** in the command palette shows these steps again.'],
+];
+const helpSheet = (keys = []) => [
+  ['Moving and reading', [
+    ['Drag', 'turn the system'], ['Wheel', 'zoom in and out'], ['Double-click', 'back to where it started'],
+    ['Click a planet', 'its note opens in a box on the map'], ['Click the globe', 'your home note'],
+    ['Click an orbit', 'lights it up; click its name again to go inside'], ['/', 'search names and what notes say'],
+    ['Esc', 'back a step: a note, a panel, an orbit'], ['Hold on empty sky', 'a star of your own'],
+  ]],
+  ['Keys', [
+    ['O', 'viewing spot: only the sky and the system'], ['A', 'tour: the camera drifts by itself'], ['T', 'time-lapse: notes appear in the order you made them'],
+    ['G', 'group the orbits another way'], ['Enter · Backspace', 'into the lit orbit, and back out'], ...keys, ['?', 'this sheet'],
+  ]],
+  ['What you see', [
+    ['Planets', 'notes; the more links, the bigger'], ['Orbits', 'folders, tags or linked groups (Group by)'], ['Lines', 'links between notes'],
+    ['Rockets', 'a note was made, moved or edited'], ['Glowing planets', 'notes with unticked tasks'], ['Black hole', 'deleted notes fall in: click it to see them'],
+    ['Supernovas', 'a star going off, now and then'], ['Halos and moons', 'other plugins pointing things out'],
+  ]],
+  ['What it can do', [
+    ['✎ EDIT', 'write in the note right on the map'], ['Cards', 'recent edits, activity, tasks, stats: + adds one, right-click for its menu'],
+    ['Open notes', 'the strip under the top bar: notes left mid-task'], ['Due dates', 'notes with a due date, listed bottom right'],
+    ['⚙', 'settings, also in Obsidian\'s Settings'],
+  ]],
+];
+const richText = (el, text) => { String(text).split('**').forEach((part, i) => { if (part) el.appendChild(document.createElement(i % 2 ? 'b' : 'span')).textContent = part; }); return el; };
 const C = { bg: '#040405', text: '#e9e6df', text2: '#b9b6ae', muted: '#85878b', faint: '#55585e', mint: '#8fd9b6', salmon: '#e88b7a', sand: '#efe0b0', lilac: '#b8a8f0', sky: '#9cc8f0' };
 const rgba = (hex, a) => { const n = parseInt(hex.slice(1), 16); return `rgba(${n >> 16},${(n >> 8) & 255},${n & 255},${Math.max(0, Math.min(1, a))})`; };
 const stepOf = (a) => Math.max(0, Math.min(63, Math.round(-8 * Math.log2(a))));
@@ -234,8 +271,8 @@ void main() {
     near = clamp(1.0 - (z2 + U[4].x) / (2.0 * U[4].x), 0.0, 1.0);
   }
   float vis = (U[4].y * o3.y - o3.z + 0.085) / 0.25;
-  float lv = min(9.0, floor(10.0 * min(1.0, o3.x * U[4].z * (0.7 + 0.4 * o3.y) * min(1.0, vis) * (0.45 + 0.55 * near))));
-  float al0 = (lv + 0.5) / 10.0, al = U[5].x > 0.5 ? U[5].y + (1.0 - U[5].y) * al0 : al0;
+  float lv = min(9.0, floor(10.0 * min(1.0, o3.x * U[4].z * (0.7 + 0.4 * o3.y) * min(1.0, vis) * (U[4].w + (1.0 - U[4].w) * near))));   // (dev.17: the far side's floor, 0.45, was fixed)
+  float al0 = (lv + 0.5) / 10.0, al = (U[5].x > 0.5 ? U[5].y + (1.0 - U[5].y) * al0 : al0) * U[6].w;
   float tone = floor((cl + 0.5) / 3.0), big = cl - tone * 3.0;
   float z0 = (big > 1.5 ? U[5].w * 1.35 : big > 0.5 ? U[5].w * 0.92 : U[5].z) * o3.w * (0.84 + 0.28 * near) * (big > 0.5 ? scw : min(scw, 1.5));
   bool rk = big > 0.5;
@@ -250,7 +287,37 @@ void main() {
   bool gone = vis <= 0.0 || behind || pp.x < -4.0 || pp.y < -4.0 || pp.x > wh.x + 4.0 || pp.y > wh.y + 4.0;
   gl_Position = gone ? vec4(2.0, 2.0, 2.0, 1.0) : vec4(p.x / S.x * 2.0 - 1.0, 1.0 - p.y / S.y * 2.0, 0.0, 1.0);
 }`;
-const hex3 = (h) => (/^#[0-9a-f]{6}$/i.test(h) ? ((n) => [(n >> 16) / 255, ((n >> 8) & 255) / 255, (n & 255) / 255])(parseInt(h.slice(1), 16)) : null);
+const DOT_VS = `#version 300 es
+in vec2 q; in vec4 a; in vec4 c; in float w;
+uniform vec2 S;
+flat out vec4 va; flat out vec4 vc; flat out float vw;
+void main() {
+  float s = a.z, k = a.w;
+  vec2 lo, hi;
+  if (k > 3.5) { lo = a.xy; hi = a.xy + s; }
+  else if (k > 2.5) { lo = a.xy - 1.0; hi = a.xy + s + 1.0; }
+  else { float e = s + (k < 0.5 ? 0.0 : w + 1.0); lo = a.xy - e; hi = a.xy + e; }
+  vec2 p = mix(lo, hi, q);
+  va = a; vc = c; vw = w;
+  gl_Position = vec4(p.x / S.x * 2.0 - 1.0, 1.0 - p.y / S.y * 2.0, 0.0, 1.0);
+}`;
+const DOT_FS = `#version 300 es
+precision highp float;
+flat in vec4 va; flat in vec4 vc; flat in float vw;
+uniform vec2 S; uniform sampler2D T; uniform sampler2D U;
+out vec4 o;
+void main() {
+  vec2 f = vec2(gl_FragCoord.x, S.y - gl_FragCoord.y);
+  float s = va.z, k = va.w, cov;
+  if (k > 3.5) cov = texelFetch(U, ivec2(gl_FragCoord.xy), 0).r;
+  else if (k < 0.5) cov = texture(T, (f - va.xy + s) / (2.0 * s)).a;
+  else if (k < 1.5) cov = clamp(s + 0.5 - length(f - va.xy), 0.0, 1.0);
+  else if (k < 2.5) { float d = length(f - va.xy); cov = clamp(s + vw + 0.5 - d, 0.0, 1.0) * clamp(d - s + vw + 0.5, 0.0, 1.0); }
+  else { vec2 e = max(min(f + 0.5, va.xy + s) - max(f - 0.5, va.xy), 0.0); cov = e.x * e.y; }
+  if (cov <= 0.0) discard;
+  o = vec4(vc.rgb, 1.0) * (vc.a * cov);
+}`;
+const hex3 =(h) => (/^#[0-9a-f]{6}$/i.test(h) ? ((n) => [(n >> 16) / 255, ((n >> 8) & 255) / 255, (n & 255) / 255])(parseInt(h.slice(1), 16)) : null);
 const SHIFT = 300, SHIFT_UP = 25;
 const CG_WHOLE = false;
 const CG_FOOT = 0.8;
@@ -260,7 +327,47 @@ const SKY_STEPS = 3, SKY_MS = 6, SKY_FADE_MS = 1200, SKY_SLICE = 1500;
 const SPIN = 0.000066;
 const RING_SPIN = [0.5, 0.9, -1.7, 0.35, 1.3, -2.1, 0.7, -1.5, 1.1, 0.2];
 const BELT_SPIN = -1.6;
+const BELT1_BAND = 5400, BELT1_SKIRT = 4700, RING_GAIN = 5.2, LAND_GAIN = RING_GAIN / 1.3;
 const BELT_INK = [4, 6, 10], BELT_DARK = '#8f8170';
+const BELT_A = 0.8;
+const BELT_NEAR = { size: 0.15, light: 0.2, more: 0.25, far: 0.15, tilt: 0.6 }, BELT_GREY = '#c9bb9f';
+function beltNear(zoom, land, pitch, ink) {
+  if (ink || !(land > 0) || !(zoom > 0)) return 0;
+  const ss = (a, b, x) => { const k = Math.max(0, Math.min(1, (x - a) / (b - a))); return k * k * (3 - 2 * k); };
+  const lz = Math.log2(zoom / land), cb = ss(0, 1, lz), tb = (1 - ss(0.12, 0.3, Math.abs(pitch))) * ss(-1.5, -0.5, lz);
+  return 1 - (1 - cb) * (1 - BELT_NEAR.tilt * tb);
+}
+const HAZE_VS = `#version 300 es
+in vec2 q; in vec4 a; in vec4 b;
+uniform vec2 S;
+flat out vec4 va; flat out vec4 vb;
+void main() {
+  vec2 p = a.xy + (q * 2.0 - 1.0) * a.zw;
+  va = a; vb = b;
+  gl_Position = vec4(p.x / S.x * 2.0 - 1.0, 1.0 - p.y / S.y * 2.0, 0.0, 1.0);
+}`;
+const HAZE_FS = `#version 300 es
+precision highp float;
+flat in vec4 va; flat in vec4 vb;
+uniform vec2 S; uniform vec3 P;
+out vec4 o;
+void main() {
+  vec2 d = vec2(gl_FragCoord.x, S.y - gl_FragCoord.y) - va.xy;
+  float m = vb.x * d.x * d.x + 2.0 * vb.y * d.x * d.y + vb.z * d.y * d.y;
+  if (m >= 9.0) discard;
+  float a = vb.w * exp(-0.5 * m) * (1.0 - m / 9.0);
+  o = vec4(P * a, a);
+}`;
+const BELT_HAZE = { a: 0.05, col: '#b4a17c', n1: 130, n2: 170 };
+function makeHaze(belt, n) {
+  const R = rng(0x6a2e + Math.round(belt.c * 1000)), B = () => (R() + R() + R() - 1.5) / 1.5, out = [];
+  for (let k = 0; out.length < n && k < n * 8; k++) {
+    const a0 = R() * TAU, r = belt.c + B() * 0.15, d = belt.D[((a0 + (r - belt.c) * 1.4) * (1024 / TAU)) & 1023];
+    if (R() > d * d) continue;
+    out.push({ a0, r, y: B() * 0.02, w: belt.wm * Math.pow(r / belt.c, -1.5), lt: (0.05 + 0.11 * R()) * r, lr: 0.025 + 0.035 * R(), lv: 0.01 + 0.012 * R(), al: (0.35 + 0.65 * R() * R()) * d });
+  }
+  return out;
+}
 const NEBULA_MS = 20 * 60000;
 const DISPERSE_MS = 8 * 60000;
 const VISIT_GAP = 18 * 3600000, VISIT_SPREAD = 12 * 3600000;
@@ -277,12 +384,14 @@ const ROCKET_MIN = 900, ROCKET_MAX = 3200, ROCKET_LAG = 0.2, TYPED_MS = 5000, RO
 const ROCKET_CAP = 44;
 const FLOOD_N = 10, FLOOD_MS = 2000, FLOOD_QUIET = 1600, WAVE_MS = 3600, WAVE_N = 900, MASS_N = 8, HOLD_MS = 500, MOVE_MS = 2000;
 const ROGUE_N = 0;
-const AMB_IDLE = 0.003, AMB_BUSY = 0.7, WORK_TAU = 75000, WORK_FULL = 1.6, AMB_MAX = 12;
+const AMB_IDLE = 0.003, AMB_BUSY = 0.7, WORK_TAU = 75000, WORK_FULL = 1.6, AMB_MAX = 12, ROCKETS_IDLE = 100, ROCKETS_BUSY = 3, ROCKETS_PER5_MAX = 20;
+const MAIL_MIN = 2.4, MAIL_GLOW = 0.55;
 const CHAT_TAU = 10 * 60 * 1000, CHAT_AT = 4;
 const TIDY_MS = 10 * 60 * 1000;
 const starScale = (v) => { const s = v / 100; return s > 1 ? s * (1 + 0.25 * (s - 1)) : s; };
 const NOVA_SHRINK = 0.72;
 const smooth01 = (k) => { k = Math.max(0, Math.min(1, k)); return k * k * (3 - 2 * k); };
+const clearStops = (gr, a, col, f0 = CLEAR_F0) => { gr.addColorStop(0, col(a)); for (let j = 0; j <= 16; j++) { const t = j / 16; gr.addColorStop(f0 + (1 - f0) * t, col(a * (1 - t * t * t * (t * (6 * t - 15) + 10)))); } };
 const TWIN_P = 0.03;
 const BELT_OUT = 1.8, OUTER_GAP = 0.26;
 const RING_W = 1.8, CORE = 1.3 * RING_W, REACH = 2.6, BAND_CORE = CORE / REACH, BAND_H = 2 / (1 + BAND_CORE);
@@ -295,21 +404,26 @@ const bandAt = (b) => {
 const OUTER_SLOTS = 7, BELT2_W = 0.82;
 const BELT2_PAD = 0.2;
 const INNER_MAX = 6, MID_MAX = 5;
-const INTRO_MS = 8000, REST_PITCH = 0.3, ZOOM_MIN = 0.01;
+const INTRO_MS = 8000, REST_PITCH = 0.3, ZOOM_MIN = 0.005;
+const ZOOM_OUT_LAND = 0.1;
 const HELD_MS = 11, FADE_MS = 2400;
 const DRAG_EASE = 55;
 const TOUR_STILL_MS = 2500, TOUR_GLIDE_MS = 6500, TOUR_GLIDE_MORE = 4500, TOUR_GLIDE_FREE = 12000, TOUR_SWING = 3.2, TOUR_AIM_HW = 0.13, TOUR_SHOT_MS = [45000, 65000];
 const TOUR_CRANE_MS = [55000, 80000], TOUR_FREE_MS = [40000, 55000], TOUR_EXIT_MS = 3600;
 const CG_IN_MS = 1300, CG_OUT_MS = 1200;
+const CG_UP = 0.17, CG_DRIFT = 1.0, CG_DRIFT_SP = 1.8, CG_HZ_EYE = 0.825, CG_BELT_EYE = 0.75, CG_HZ_Y = 0.6, CG_BELT_OUT = 0.85, CG_OUTS = [1.15, 1.35, 1.6];
+const CG_TILT = { fhorizon: 0.157, fbelt: 0.157 };
 const TOUR_GO = [7000, 34000], TOUR_DT_MAX = 400, TOUR_HIDDEN_MS = 1500;
+const TOUR_ZOOM_IN_MS = 5000;
 const TOUR_RATE = { orbit: 0.000055, crane: 0.000028, skim: 0.0000975, dive: 0.0000275, horizon: 0.00004, milky: 0.0000625, ring: 0.00005, top: 0.0000413, flat: 0.00005 };
 const TOUR_ZONE = 0.25, TOUR_FAR = 0.04, TOUR_FAR_TOP = -0.2, TOUR_PITCH = [0.18, 1.22], TOUR_TOP = 1.42, TOUR_START_SWING = 1.6;
+const TOUR_LAND = 0.45;
 const smooth5 = (k) => { k = Math.max(0, Math.min(1, k)); return k * k * k * (k * (k * 6 - 15) + 10); };
 const springStep = (x, v, to, w, dt) => { const d = x - to, c = v + w * d, e = Math.exp(-w * dt); return { x: to + (d + c * dt) * e, v: (v - w * c * dt) * e }; };
-const TOUR_KINDS = ['orbit', 'crane', 'skim', 'dive', 'horizon', 'milky', 'ring', 'top', 'flat', 'fglobe'];
-const TOUR_FREE_KINDS = ['fglobe'];
+const TOUR_KINDS = ['orbit', 'crane', 'skim', 'dive', 'horizon', 'milky', 'ring', 'top', 'flat'];
+const TOUR_FREE_KINDS = [];
 const TOUR_NAMES = { orbit: 'ORBIT', crane: 'CRANE', skim: 'SKIM', dive: 'DIVE', horizon: 'EVENT HORIZON', milky: 'MILKY WAY', ring: 'RING', top: 'OVERHEAD', flat: 'FLAT', fglobe: 'FROM THE GLOBE', fhorizon: 'HORIZON', fbelt: 'BELT' };
-const TOUR_WEIGHT = { orbit: 1.3, crane: 1.3, skim: 1.3, dive: 0.6, ring: 0.6, flat: 0.8 };
+const TOUR_WEIGHT = { orbit: 1.3, crane: 1.3, skim: 1.3, dive: 0.6, ring: 0.3, flat: 0.8 };
 const FREE_CYP = 0.4943, FREE_KZ = 0.1431;
 function orbitEye(yaw, pitch, D) { return rotY(rotX({ x: 0, y: 0, z: -D }, -pitch), -yaw); }
 function orbitEq(yaw, pitch, zoom, D, k, W) {
@@ -370,20 +484,27 @@ function poseProject(pose, p, W, cx, cy) {
   const s = (pose.g * W) / q.z, cr = Math.cos(pose.roll), sr = Math.sin(pose.roll);
   return { x: cx + (q.x * cr - q.y * sr) * s, y: cy + (q.x * sr + q.y * cr) * s, z: q.z };
 }
-function clickPose(base, p, win, cx, cy, W, ref, rmax) {
+function clickPose(base, p, win, cx, cy, W, ref, rmax, amp = 0) {
   const TWO = Math.PI * 2, e0 = Math.atan2(base.ex, -base.ez), mx = 70, my = 50;
+  const ins = (pose, m, n, zr) => { const q = poseProject(pose, p, W, cx, cy); return q && q.x > win.x0 + m && q.x < win.x1 - m && q.y > win.y0 + n && q.y < win.y1 - n && q.z > zr * rmax ? q : null; };
   for (let i = 0; i <= 126; i++) {
     const d = i === 0 ? 0 : (i % 2 ? 1 : -1) * Math.ceil(i / 2) * 0.05;
     const pose = turnPose(base, ref + d - e0);
     pose.yaw += TWO * Math.round((ref + d - pose.yaw) / TWO);
-    const q = poseProject(pose, p, W, cx, cy);
-    if (q && q.x > win.x0 + mx && q.x < win.x1 - mx && q.y > win.y0 + my && q.y < win.y1 - my && q.z > 0.42 * rmax) return { pose, d, q };
+    const q = ins(pose, mx, my, 0.42);
+    if (!q) continue;
+    let ok = true;
+    if (amp) for (let c = 0; c < 16 && ok; c++) ok = !!ins(driftAt(pose, amp, c & 1 ? 1 : -1, c & 2 ? 1 : -1, c & 4 ? 1 : -1, c & 8 ? 1 : -1), 0, 0, 0.3);
+    if (ok) return { pose, d, q };
   }
   return null;
 }
-function driftPose(p, e, amp) {
-  const fl = smooth01(e / 4000) * amp, R = p.R || 1;
-  const a = Math.sin(e / 9300 + 0.6), b = Math.sin(e / 5700 + 2.2), c = Math.sin(e / 7900 + 1.1), d = Math.sin(e / 12100 + 4.0);
+function driftPose(p, e, amp, sp = 1) {
+  const es = e * sp;
+  return driftAt(p, smooth01(e / 4000) * amp, Math.sin(es / 9300 + 0.6), Math.sin(es / 5700 + 2.2), Math.sin(es / 7900 + 1.1), Math.sin(es / 12100 + 4.0));
+}
+function driftAt(p, fl, a, b, c, d) {
+  const R = p.R || 1;
   const turn = fl * (0.085 * a + 0.03 * b), dolly = 1 + fl * 0.035 * d, rise = fl * R * 0.025 * c;
   const o = rotY({ x: p.ex * dolly, y: p.ey * dolly + rise, z: p.ez * dolly }, -turn);
   return { ex: o.x, ey: o.y, ez: o.z, yaw: p.yaw + turn, pitch: p.pitch + fl * (0.008 * c - 0.006 * b), roll: p.roll + fl * 0.012 * d, g: p.g, dref: p.dref * dolly, zoom: p.zoom, w: p.w, R: p.R };
@@ -412,8 +533,8 @@ function tourBase(kind, u, e, P) {
 function tourPose(kind, u, e, P) {
   const B = tourBase(kind, u, e, P);
   if (!P.go) return B;
-  const w = smooth5(e / P.go);
-  return { yaw: P.y0 + (B.yaw - P.y0) * w, pitch: P.p0 + (B.pitch - P.p0) * w, zoom: Math.exp(Math.log(P.f0) + (Math.log(B.zoom) - Math.log(P.f0)) * w) };
+  const w = smooth5(e / P.go), wz = P.gz ? smooth5(e / P.gz) : w;
+  return { yaw: P.y0 + (B.yaw - P.y0) * w, pitch: P.p0 + (B.pitch - P.p0) * w, zoom: Math.exp(Math.log(P.f0) + (Math.log(B.zoom) - Math.log(P.f0)) * wz) };
 }
 function skyAim(sx, sy, F, W, H, fx, fy, near, hw) {
   const per = F.width / SKY_PX, c = -(sx - fx * W) / SKY_PX, mid = c + Math.round((near - c) / per) * per, half = (hw || 0) * W / SKY_PX;
@@ -431,7 +552,13 @@ const GRAVE_TE = 1.15, GRAVE_R = 6;
 const INTRO_ZOOM = 1;
 const WAVE_AMP = 6;
 const LIFT_R = 0.75;
-const GLOW_BASE = 1.8, GLOW_CAP = 4, GLOW_PAD = 60, GLOW_CORE = [0.2, 0.5], GLOW_DISC = [1.0, 0.38], GLOW_DISC_P = 1.4, GLOW_HALO = [1.0, 0.55], GLOW_HALO_K = 0.7, RIM_REACH = [1.2, 0.65], RIM_FROM = 0.3, RIM_SPAN = 0.55;
+const GLOW_BASE = 1.8, GLOW_CAP = 4, GLOW_PAD = 60, GLOW_CORE = [0.34, 0.62], GLOW_CORE_K = 0.55, GLOW_DISC = [1.0, 0.42], GLOW_DISC_P = 1.4, GLOW_HALO = [1.2, 0.7], GLOW_HALO_K = 0.85, RIM_REACH = [1.2, 0.65], RIM_FROM = 0.2, RIM_SPAN = 0.6, RIM_VIEW = 0.59, RIM_BELTS = 0.6, GLOW_VIEW = 0.75, CRISP_MAX = 0.7;
+const GLOW_EASE = 260, GLOW_XF = 650, GLOW_EDGE = [0.12, 0.34], GLOW_FADE = [0.12, 0.12], CLEAR_F0 = 0.4, CLEAR_GROW = 1.2, SET_XF = 450;
+const CLEAR_D = { f0: 0, grow: 1.6 };
+const INK_AMB = { core: [0, 0, 0], disc: [0, 0, 0], halo: [0, 0, 0], rim: 0.5 }, INK_RIM = '#3b342c';
+const SET_FADES = new Set(['ringNames', 'nearNames', 'blackHole', 'novas', 'openLoops']);
+const SET_EASE = 110, SET_EASED = ['links', 'planetSize', 'glow', 'darkness'];
+const XF_HOLD = 700, XF_FADE = 500, XF_DROP = 4000;
 const SIZE_HOLD = 160;
 const MORPH_MS = 900, MORPH_NUM = ['rmax', 'outerMax', 'outerIn', 'grow', 'spr'], MORPH_EXT = ['ext', 'extAll', 'extLand', 'extCore', 'extOpen'];
 const GLOBE_R = 256;
@@ -445,7 +572,7 @@ const THEMES = {
 };
 const PAPER = { stars: 0.75, glow: 0.3, band: '#888888', bandK: 2, dot: 0.92, ring: 0.35, shine: 1.4, speck: '#767676', speckLo: '#585858', grain: 0.6,
   curve: 1.6, soft: 4, wash: 0.14, bandStars: 900, orbit: 2.2, inkA: 65, inkK: 2, extra: 130, clear: 0.55, clearR: 1.05,
-  rock: 1.5, rockA: 0.6, halo: 1.6 };
+  rock: 1.5, rockA: 0.6, halo: 0 };
 const INK = { [C.mint]: '#3e3e3e', [C.sky]: '#2c2c2c', [C.sand]: '#626262', [C.lilac]: '#1a1a1a', [C.salmon]: '#505050', [C.text]: '#080808' };
 const unmirror = (hex) => {
   const n = parseInt(hex.slice(1), 16), r = n >> 16, g = (n >> 8) & 255, b = n & 255;
@@ -606,7 +733,6 @@ const suggTone = (c) => {
   const h = typeof c === 'string' && /^#[0-9a-f]{6}$/i.test(c) ? c : '#efe0b0';
   return { '--sg': mixHex(h, '#ffffff', 0.22), '--sg-hi': mixHex(h, '#ffffff', 0.6), '--sg-lo': mixHex(h, '#000000', 0.62), '--sg-w': rgba(h, 0.14), '--sg-g': rgba(h, 0.4) };
 };
-const searchAccent = (mode) => mode === 'age' ? AGE_STEPS[1][1] : mode !== 'sand' && PRESETS[mode] ? PRESETS[mode][0] : C.sand;
 const SUGG_READ = 120000, SUGG_STOP =new Set('an and are as at be by for from has have how in is it its of on or that the this to was what when where which who with'.split(' '));
 const suggTerms = (q) => {
   const all = [...new Set(String(q).toLowerCase().split(/\s+/).filter((w) => w.length > 1))].slice(0, 8), keep = all.filter((w) => !SUGG_STOP.has(w));
@@ -909,19 +1035,26 @@ function layout(paths, hub = null, opts = {}) {
   const band = (n) => 34 + 8 * Math.sqrt(n);
   const n0 = (groups.get('') || []).length, loose = (groups.get('') || []).filter((p) => p !== hub).length;
   const sp = opts.spacing || 1;
-  const orbits = (c, e, sp = opts.spacing || 1) => {
+  const GS = Math.max(1, opts.globe || 1), GRL = GLOBE_R * GS;
+  const orbits = (c, e, sp = opts.spacing || 1, room = true) => {
     const LANE = (a, b) => (c + 0.35) * (a + b) + 80, CLEAR = (b) => (e + 0.35) * b + 80;
-    const out = [Math.max(180, GLOBE_R + CLEAR(band(loose)))];
+    const out = [Math.max(180, GRL + CLEAR(band(loose)))];
     folders.forEach((name, i) => {
       const count = groups.get(name).length, pc = i ? groups.get(folders[i - 1]).length : n0;
-      const from = i || loose ? out[i] + LANE(band(pc), band(count)) * sp : GLOBE_R + CLEAR(band(count)) * sp;
+      const from = i || loose ? out[i] + LANE(band(pc), band(count)) * sp : GRL + CLEAR(band(count)) * sp;
       out.push(Math.max(180 + (70 + i * 118) * sp, from));
     });
     const first = loose ? 0 : 1, last0 = out[out.length - 1], fr = NG ? 0.2 : 0.12;
     if (out.length > first + 1) { const d = Math.max(0, (fr * last0 - out[first]) / (1 - fr)); for (let i = first; i < out.length; i++) out[i] += d; }
+    if (room && (GS > 1 || opts.globeR) && out.length > first + 1) {
+      const nF = loose || groups.get(folders[0]).length;
+      let s = 0;
+      for (let it = 0; it < 4; it++) { const Ge = GS * (opts.globeR || GLOBE_R * Math.max(1, Math.min(2.6, (0.075 * (out[out.length - 1] + s)) / GLOBE_R))); s = Math.max(0, 2.4 * Ge + CLEAR(band(nF)) - out[first]); }
+      if (s) for (let i = first; i < out.length; i++) out[i] += s;
+    }
     return out;
   };
-  const R1 = orbits(CORE, REACH), R0 = orbits(1.3, 1.3, 1), R1u = sp === 1 ? R1 : orbits(CORE, REACH, 1);
+  const R1 = orbits(CORE, REACH), R0 = orbits(1.3, 1.3, 1, false), R1u = sp === 1 && !opts.globeR && GS <= 1 ? R1 : orbits(CORE, REACH, 1, false);
   const tf = opts.tilt === undefined ? 1 : opts.tilt, ti = (a) => ({ incl: a * tf, inclFit: a });
   const rings = [{ name: '', count: n0, radius: R1[0], ...ti(0.1), asc: 0 }];
   folders.forEach((name, i) => {
@@ -968,10 +1101,11 @@ function layout(paths, hub = null, opts = {}) {
   const grow = Math.max(1, rmax1 / (R0[R0.length - 1] + tail)) * spr;
   const line = 2 * REACH * (34 + 8 * Math.sqrt(10)) + 0.12 * rmax, start = (BELT_OUT + OUTER_GAP) * rmax;
   const outs = [...outerSet].filter((k) => groups.has(k)).concat([...giants]).sort(bySize), capped = NG > NG0 || outs.length > MID_MAX;
-  const lane = (name) => (giants.has(name) && !capped ? 0.3 : 0.12) * rmax * sp;
-  let need = start + 0.12 * rmax * sp;
+  const lw = opts.oldLanes ? rmax * sp : rmax1 * sp;
+  const lane = (name) => (giants.has(name) && !capped ? 0.3 : 0.12) * lw;
+  let need = start + 0.12 * lw;
   outs.slice(0, MID_MAX).forEach((name, j, a) => { need += 2 * REACH * band(groups.get(name).length) + (j < a.length - 1 ? lane(name) : 0); });
-  const b2in = Math.max(start + OUTER_SLOTS * line, need);
+  const b2in = outs.length && !opts.oldLanes ? need : Math.max(start + OUTER_SLOTS * line, need);
   const b2 = opts.belt2 ? { in: b2in, out: b2in + BELT2_W * rmax, c: b2in / rmax + BELT2_W / 2 } : null;
   let edge = start, outerMax = 0, outerNear = 0;
   outs.forEach((name, j) => {
@@ -1200,6 +1334,7 @@ function xyNode(n) {
   return e;
 }
 function chartSvg(src, measure) { const t = chartTree(src, measure); return t ? xyOut(['svg', t.root, undefined, t.kids]) : null; }
+let PLUGIN_CHARTS = false;
 function chartEl(src, measure) { const t = chartTree(src, measure); return t ? xyNode(['svg', t.root, undefined, t.kids]) : null; }
 function chartTree(src, measure) { try { return chartTreeOf(src, measure); } catch (e) { return null; } }
 function chartTreeOf(src, measure) {
@@ -1329,7 +1464,7 @@ class NetworkView extends ItemView {
       const r = 0.22 + 1.2 * Math.sqrt(R()), big = R() > 0.92;
       return { r, a0: R() * TAU, y: B() * 0.16, w: (0.6 + 0.8 * R()) * 1.1e-5 / (0.5 + r), al: (big ? 0.22 : 0.1) + Math.pow(R(), 1.6) * 0.36, big };
     });
-    this.belt = makeBelt(R, 1.53, 8000, 7000, 0.25);
+    this.belt = makeBelt(R, 1.53, BELT1_BAND, BELT1_SKIRT, 0.25);
     this.deep = Array.from({ length: 320 }, () => {
       const u = R() * 2 - 1, ph = R() * TAU, s = Math.sqrt(1 - u * u), r = 1.25 + 1.6 * R();
       return { x: s * Math.cos(ph) * r, y: u * r * 0.7, z: s * Math.sin(ph) * r, al: 0.12 + 0.4 * Math.pow(R(), 2), warm: R() < 0.25 };
@@ -1361,6 +1496,18 @@ class NetworkView extends ItemView {
     await this.graphLoad();
     try { this.open0(); } catch (e) { this.fail('opening', e); }
   }
+  dawnCards() {
+    this.dawnOn = false;
+    const kids = this.colEls();
+    kids.forEach((k, i) => k.style.setProperty('--rn-d', `${(0.9 + i * 0.28).toFixed(2)}s`));
+    this.contentEl.removeClass('rn-dawn');
+    setTimeout(() => { for (const k of kids) k.style.removeProperty('--rn-d'); }, 1200 + 900 + kids.length * 280 + 300);
+  }
+  cardIn(el) {
+    if (this.dawnOn || !el.classList.contains('rn-hidden')) { el.classList.remove('rn-hidden'); return; }
+    this.flip(() => { el.classList.add('rn-new'); el.classList.remove('rn-hidden'); }, el);
+    void el.offsetHeight; el.classList.remove('rn-new');
+  }
   bootOut() {
     const B = this.boot; this.boot = null;
     if (!B) return;
@@ -1383,7 +1530,9 @@ class NetworkView extends ItemView {
     this.editing = this.loadFlag('edit');
     this.syncEditBtn();
     this.intro = settingOf(this.plugin.settings, 'intro') ? { t0: 0 } : null;
-    if (!this.intro) { this.zoom = INTRO_ZOOM; this.openOut = true; }
+    if (this.plugin.wantWelcome) { this.plugin.wantWelcome = false; this.wantWel = true; }
+    if (!this.intro) { this.zoom = INTRO_ZOOM; this.openOut = true; this.welcomeSoon(); }
+    else { this.dawnOn = true; el.addClass('rn-dawn'); }
     this.paintTheme();
     this.plugin.views.add(this);
     this.setMoons(this.plugin.hub.allMoons());
@@ -1393,10 +1542,11 @@ class NetworkView extends ItemView {
 
     const md = (f) => f && f.extension === 'md';
     this.registerEvent(this.app.vault.on('create', (f) => { if (md(f)) { this.activity('create', f.path); this.soon(); this.wSoon(f.path); } }));
-    this.registerEvent(this.app.vault.on('delete', (f) => { if (md(f)) { if (f.path === this.shown) this.closeNote(); this.activity('delete', f.path); this.soon(); this.wSoon(f.path); } }));
+    this.registerEvent(this.app.vault.on('delete', (f) => { if (md(f)) { if (f.path === this.shown) this.closeNote(); else if (f.path === this.pinPath) this.dropPin(); this.activity('delete', f.path); this.soon(); this.wSoon(f.path); } }));
     this.registerEvent(this.app.vault.on('rename', (f, old) => {
       if (!md(f)) return;
       if (old === this.shown) { this.shown = f.path; if (this.edit) this.edit.path = f.path; this.boxHead(); }
+      if (old === this.pinPath) this.pinPath = f.path;
       if (this.views[old]) { this.views[f.path] = (this.views[f.path] || 0) + this.views[old]; delete this.views[old]; this.saveViews(); }
       this.activity('rename', f.path, old);
       this.soon(); this.wSoon(f.path, old);
@@ -1460,10 +1610,11 @@ class NetworkView extends ItemView {
     }
     this.note(`tidy ${this.tidyN}: ${did.length ? did.join(', ') : 'nothing had piled up'}`);
   }
-  async onClose() { this.settleDeletes(); this.plugin.views.delete(this); cancelAnimationFrame(this.raf); this.dropGL(); this.suggHide(); clearTimeout(this.wT); clearTimeout(this.setT); clearTimeout(this.legendT); if (this.ro) this.ro.disconnect(); if (this.cro) this.cro.disconnect(); if (this.demoT) this.demoT.forEach(clearTimeout); }
+  async onClose() { this.welGone = true; clearTimeout(this.welT); this.settleDeletes(); this.plugin.views.delete(this); cancelAnimationFrame(this.raf); this.dropGL(); this.suggHide(); clearTimeout(this.wT); clearTimeout(this.setT); clearTimeout(this.legendT); if (this.ro) this.ro.disconnect(); if (this.cro) this.cro.disconnect(); if (this.demoT) this.demoT.forEach(clearTimeout); }
 
   ui(el) {
     const div = (cls, parent = el) => { const d = parent.appendChild(document.createElement('div')); d.className = cls; return d; };
+    this.uiEl = el;
     const top = div('rn-top');
     const topL = div('rn-top-l', top), topM = div('rn-top-m', top), topR = div('rn-top-r', top);
     const title = div('rn-title', topL);
@@ -1479,6 +1630,7 @@ class NetworkView extends ItemView {
     this.suggEl = div('rn-sugg', topM); this.suggEl.classList.add('rn-hidden');
     this.suggEl.addEventListener('mousedown', (e) => e.preventDefault());
     this.clock = div('rn-live', topR);
+    this.clock.title = 'The map follows your vault live: what changes shows as it happens';
     this.togEls = new Map();
     for (const [key, label, tip] of [['ringNames', 'RINGS', 'Ring names on/off'], ['nearNames', 'NAMES', 'Names of the planets near the mouse on/off']]) {
       const b = div('rn-tog', topR); b.textContent = label; b.title = tip;
@@ -1490,8 +1642,10 @@ class NetworkView extends ItemView {
     view.onclick = () => this.setLook(true);
     const tour = div('rn-tog', topR); tour.textContent = 'TOUR'; tour.title = 'Cinematic tour: the camera drifts on its own (A; any key or click ends it)';
     tour.onclick = () => this.startTour();
+    this.helpBtn = div('rn-tog rn-helpbtn', topR); this.helpBtn.textContent = '?'; this.helpBtn.title = 'How to use: the keys, and what you see (?)';
+    this.helpBtn.onclick = () => this.toggleHelp();
     this.gearBtn = div('rn-gearbtn', topR);
-    this.gearBtn.textContent = '⚙'; this.gearBtn.title = 'Settings';
+    this.gearBtn.textContent = '⚙'; this.gearBtn.title = 'Settings (also in Obsidian\'s Settings, under Rho Network)';
     this.gearBtn.onclick = () => (this.gear ? this.closeGear() : this.openGear());
     this.cards = div('rn-cards'); wheelScroll(this.cards);
     this.cfoot = div('rn-cfoot', this.cards);
@@ -1532,10 +1686,7 @@ class NetworkView extends ItemView {
     this.openBtn = btn('OPEN ↗', 'Open in a tab', () => this.shown && this.shown !== GRAVE && this.openNote(this.shown));
     btn('✕', 'Close (Esc)', () => this.closeNote());
     this.boxBody = div('rn-box-body markdown-rendered', this.box);
-    this.grip(div('rn-grip rn-grip-x', this.box), 1, 0);
-    this.grip(div('rn-grip rn-grip-y', this.box), 0, 1);
-    this.grip(div('rn-grip rn-grip-xy', this.box), 1, 1);
-    this.grip(div('rn-grip rn-grip-l', this.box), -1, 0);
+    for (const [cls, dx, dy] of [['x', 1, 0], ['y', 0, 1], ['xy', 1, 1], ['l', -1, 0]]) { const g = div(`rn-grip rn-grip-${cls}`, this.box); g.title = 'Drag to resize'; this.grip(g, dx, dy); }
     this.boxBody.addEventListener('click', (e) => this.boxClick(e));
     this.boxLoad = div('rn-boxload'); this.boxLoadName = div('rn-boxload-name', this.boxLoad);
     this.stage = div('rn-stage markdown-rendered');
@@ -1718,7 +1869,10 @@ class NetworkView extends ItemView {
     return this.tasks.by;
   }
   syncLoops() {
-    const on = settingOf(this.plugin.settings, 'openLoops'), by = on ? this.openTasks() : new Map(), G = this.loopsGone, now = Date.now(), cand = [];
+    const on = settingOf(this.plugin.settings, 'openLoops');
+    if (!on && this.tge && this.tge.openLoops && this.tge.openLoops.u > 0) { this.loopHold = true; return; }
+    this.loopHold = false;
+    const by = on ? this.openTasks() : new Map(), G = this.loopsGone, now = Date.now(), cand = [];
     if (on) {
       let ch = false;
       for (const [p, k] of G) if (!(by.get(p) <= k)) { G.delete(p); ch = true; }
@@ -2060,9 +2214,13 @@ class NetworkView extends ItemView {
       d.el.classList.add('lifted'); this.cards.classList.add('sorting');
       try { d.el.setPointerCapture(d.pid); } catch {   }
     }
-    const top = Math.max(d.base, Math.min(d.max, d.top0 + dy)), mid = top + d.h / 2, others = this.colEls().filter((k) => k !== d.el);
-    let y = d.base, at = others.length;
-    for (let i = 0; i < others.length; i++) { const h = others[i].offsetHeight; if (mid < y + h / 2) { at = i; break; } y += h + d.gap; }
+    const top = Math.max(d.base, Math.min(d.max, d.top0 + dy)), others = this.colEls().filter((k) => k !== d.el);
+    let y = d.base, at = 0, best = Infinity;
+    for (let i = 0; i <= others.length; i++) {
+      const gap = Math.abs(top - y);
+      if (gap < best) { best = gap; at = i; }
+      if (i < others.length) y += others[i].offsetHeight + d.gap;
+    }
     const ref = others[at] || this.cfoot;
     if (d.el.nextElementSibling !== ref) this.flip(() => this.cards.insertBefore(d.el, ref), d.el);
     d.el.style.transform = `translateY(${top - d.el.offsetTop}px)`;
@@ -2155,8 +2313,10 @@ class NetworkView extends ItemView {
       nbrs: (p) => nbr[idx.get(p)].map((j) => all[j]) });
     this.grouping = grp.mode;
     const lm = this.lmemo || (this.lmemo = new Map()), lc = this.lcache || (this.lcache = new Map());
-    const sp0 = settingOf(this.plugin.settings, 'ringSpacing') / 100, spc = 1.3 * sp0, lo = { groupOf: grp.groupOf, outer, fresh, belt2, memo: lm };
-    const { nodes, rings, rmax, outerMax, outerIn, belt2: b2, grow, spr, capped } = layout(members, hub, { ...lo, cache: lc, spacing: spc, tilt: settingOf(this.plugin.settings, 'ringTilt') / 100 });
+    const sp0 = settingOf(this.plugin.settings, 'ringSpacing') / 100, spc = RING_GAIN * sp0, lo ={ groupOf: grp.groupOf, outer, fresh, belt2, memo: lm, globe: 1 };
+    const csp = (this.coreSp || (this.coreSp = spc)) / LAND_GAIN, CL = layout(members, hub, { ...lo, spacing: csp, fitOnly: true, oldLanes: true, globe: 1 });
+    const globeR = GLOBE_R * Math.max(1, Math.min(2.6, (0.075 * CL.rmax) / GLOBE_R));
+    const { nodes, rings, rmax, outerMax, outerIn, belt2: b2, grow, spr, capped } = layout(members, hub, { ...lo, cache: lc, spacing: spc, tilt: settingOf(this.plugin.settings, 'ringTilt') / 100, globe: this.globeScale(), globeR });
     const fsp = this.fitSp || (this.fitSp = Math.min(sp0, 1.6)), F =fsp === spc ? null : layout(members, hub, { ...lo, spacing: fsp, fitOnly: true });
     this.fit1 = F ? { rings: F.rings, rmax: F.rmax, outerIn: F.outerIn || F.outerMax } : null;
     this.outerMax = outerMax; this.outerIn = outerIn || outerMax; this.grow = (F ? F.grow : grow) || 1; this.spr = (F ? F.spr : spr) || 1; this.orbits = rings.filter((r, i) => i && !r.fresh).length;
@@ -2189,18 +2349,21 @@ class NetworkView extends ItemView {
     this.byPath = new Map();
     const plan = preset === 'age' ? agePlan(nodes.filter((n) => n.path !== hub).map((n) => n.path), (p) => { const f = fileOf.get(p); return f && f.stat ? f.stat.mtime : 0; }, now) : null;
     this.ageCount = plan ? plan.count : null;
+    const pcW = !!this.pcWant && !!this.palette, palW = this.palette;
+    let pcN = 0;
     nodes.forEach((n, k) => {
-      const gi = idx.get(n.path), gk = n.path === hub ? '' : grp.groupOf.get(n.path);
+      const gi = idx.get(n.path), gk = n.path === hub ? '' : grp.groupOf.get(n.path), c0 = n.color, i0 = n.ci;
       n.gi = gi; at[gi] = k;
       n.file = fileOf.get(n.path); n.name = baseName(n.path); n.lname = n.name.toLowerCase();
       n.color = (fixed && fixed(n.path)) || (plan && n.path !== hub && plan.of.get(n.path)) || (PRE ? (n.path === hub ? C.text : PRE[Math.abs(n.ring | 0) % PRE.length]) : (gcol && n.path !== hub && gcol(n.path)) || (custom && custom(n.path)) || (gk ? classic(gk, n.path) : C.text)); n.ci = colorIx(n.color);
+      n.colW = pcW && c0 && c0 !== n.color ? c0 : null; n.ciW = pcW && c0 ? i0 : -1; if (n.colW) pcN++;
       n.deg = 0; n.sz = 0; n.gdeg = gdeg[gi]; n.adj = []; n.v = 1; n.promo = 0; n.m = 0; n.qr = 0; n.pl = true; n.px = n.py = -1e4; n.ps = 0; n.pn = 0;
       n.rank = 0; n.sec = -1; n.star = 0; n.wd = 0;
       n.loop = (this.loopBy && this.loopBy.get(n.path)) || 0; n.loopFront = !!(this.loopFront && this.loopFront.includes(n.path));
       n.score = planetScore(n.gdeg, now - (n.file && n.file.stat ? n.file.stat.mtime : 0), views[n.path]);
       this.byPath.set(n.path, n);
     });
-    this.palette = pal;
+    this.palette = pal; this.pcx = pcN ? { at: performance.now(), palW, tones: rings.map((r, i) => (this.rings && this.rings[i] ? this.rings[i].tone : null)) } : null;
     const edges = [];
     for (let k = 0; k < nodes.length; k++) {
       const a = nodes[k], gi = a.gi;
@@ -2244,7 +2407,7 @@ class NetworkView extends ItemView {
     this.extAll = viewExtent(rings, rmax, Math.max(this.outerMax || 0, 1.75 * rmax), 6);
     this.capped = !!capped;
     this.extLand = capped ? viewExtent(FR.filter((r) => !r.outer), FM, 1.75 * FM, 6) : viewExtent(FN, FM, Math.max(FI || 0, 1.75 * FM), 6);
-    const csp = this.coreSp || (this.coreSp = spc), CL = csp === spc ? { rings, rmax, outerMax } : layout(members, hub, { ...lo, spacing: csp, fitOnly: true });
+    this.globeReach = CL.rmax;
     const DB = (m) => Math.max(3400, 1.7 * Math.max(1.8 * CL.rmax, m));
     this.extCore = viewExtent(CL.rings.filter((r) => (!r.outer || (r.giant && !capped)) && !r.far), CL.rmax, 1.75 * CL.rmax, DB(CL.outerMax || 0) / DB(1.75 * CL.rmax));
     this.extOpen = viewExtent(CL.rings, CL.rmax, Math.max(CL.outerMax || 0, 1.75 * CL.rmax), 6);
@@ -2320,7 +2483,7 @@ class NetworkView extends ItemView {
       if (i) el.appendChild(document.createElement('i')).textContent = '›';
       const b = el.appendChild(document.createElement('span'));
       b.textContent = i ? s.name : 'Vault';
-      if (i < this.scopes.length - 1) { b.className = 'up'; b.onclick = () => this.scopeUp(i); }
+      if (i < this.scopes.length - 1) { b.className = 'up'; b.title = `Back out to ${i ? s.name : 'the whole vault'} (Backspace)`; b.onclick = () => this.scopeUp(i); }
     });
   }
   back() {
@@ -2336,30 +2499,77 @@ class NetworkView extends ItemView {
     this.toast(`grouped by ${st.groupBy === 'auto' ? `auto (${this.grouping})` : st.groupBy}`);
   }
   theme() { return THEMES[settingOf(this.plugin.settings, 'theme')] || THEMES.deep; }
-  planetScale() { return (settingOf(this.plugin.settings, 'planetSize') / 100) * 0.7; }
+  planetScale() { return (this.sv('planetSize') / 100) * 0.7; }
+  sv(key) { const e = this.evv && this.evv[key]; return e === undefined ? settingOf(this.plugin.settings, key) : e; }
+  globeScale() { return settingOf(this.plugin.settings, 'globeSize') / 100; }
   paintTheme() {
     const st = this.plugin.settings, th = settingOf(st, 'theme'), cl = this.contentEl.classList, el = this.contentEl.style;
     cl.toggle('rn-paper', th === 'paper'); cl.toggle('rn-dusk', th === 'dusk'); cl.toggle('rn-ember', th === 'ember');
-    if (el && el.setProperty) {
-      el.setProperty('--rn-paper-lum', String(paperLum(settingOf(st, 'darkness'))));
-      const a = searchAccent(settingOf(st, 'planetColors'));
-      el.setProperty('--rn-acc', mixHex(a, '#ffffff', 0.18)); el.setProperty('--rn-acc-e', rgba(a, 0.42)); el.setProperty('--rn-acc-w', rgba(a, 0.12));
+    this.lumV = null; this.lumSet(this.sv('darkness'));
+  }
+  lumSet(dk) {
+    const v = String(+paperLum(dk).toFixed(3)), el = this.contentEl && this.contentEl.style;
+    if (v === this.lumV) return;
+    this.lumV = v; if (el && el.setProperty) el.setProperty('--rn-paper-lum', v);
+  }
+  tgl(key, on) {
+    const E = this.tge || (this.tge = {}), want = on ? 1 : 0, now = this.wnow || performance.now();
+    let e = E[key];
+    if (!e) E[key] = e = { u: want, t: now };
+    else if (e.t !== now) { const d = Math.max(0, Math.min(100, now - e.t)) / SET_XF; e.t = now; e.u = want > e.u ? Math.min(1, e.u + d) : Math.max(0, e.u - d); }
+    return smooth01(e.u);
+  }
+  xfStart(wasInk) {
+    const cv = this.canvas, el = this.contentEl;
+    if (!cv || !cv.width || !el || this.opening() || typeof document === 'undefined') return;
+    let O = this.xfCv;
+    if (!O || O.parentNode !== el) {
+      O = this.xfCv = document.createElement('canvas'); O.className = 'rn-xf';
+      if (cv.nextSibling) el.insertBefore(O, cv.nextSibling); else el.appendChild(O);
     }
+    if (O.width !== cv.width || O.height !== cv.height) { O.width = cv.width; O.height = cv.height; }
+    const g = O.getContext('2d'); g.setTransform(1, 0, 0, 1, 0, 0); g.globalAlpha = 1; g.globalCompositeOperation = 'source-over'; g.clearRect(0, 0, O.width, O.height); g.drawImage(cv, 0, 0);
+    const VF = 'invert(1) hue-rotate(180deg)', lum = paperLum(settingOf(this.plugin.settings, 'darkness'));
+    if (wasInk === null) O.style.removeProperty('filter');
+    else O.style.filter = wasInk ? `grayscale(1) invert(1) brightness(${lum}) sepia(0.2) hue-rotate(180deg) invert(1) ${VF}` : VF;
+    this.xfOp(1);
+    this.xf = { at: performance.now(), go: 0 };
+  }
+  xfOp(f) {
+    const O = this.xfCv; if (!O) return;
+    O.classList.toggle('rn-xf-off', f <= 0); O.style.opacity = f.toFixed(3);
+  }
+  xfTick() {
+    const X = this.xf, O = this.xfCv, now = this.wnow;
+    if (!O) return;
+    if (!X) { if (O.width > 1 && now - (this.xfEnd || 0) > XF_DROP) { O.width = 1; O.height = 1; } return; }
+    if (!X.go) {
+      const ready = !this.glJob && !this.vigJob && this.vig && this.bake && this.bake.done && this.bake.key === this.bakeWant;
+      if (ready || now - X.at > XF_HOLD) { X.go = now; if (this.gl && this.gl.at > 0) this.gl.at = now - GLOW_XF; }
+    }
+    const f = X.go ? 1 - smooth01((now - X.go) / XF_FADE) : 1;
+    if (f <= 0.002) { this.xfOp(0); this.xf = null; this.xfEnd = now; return; }
+    this.xfOp(f);
   }
   applySetting(key) {
     const later = (ms, fn) => { clearTimeout(this.setT); this.setT = setTimeout(() => { try { fn(); } catch (e) { this.fail('a setting', e); } }, ms); };
-    if (key === 'theme') { this.paintTheme(); this.liftKey = null; this.vig = null; }
+    if (key === 'theme') {
+      if (this.lastInk !== undefined && !!this.theme().ink !== this.lastInk) { this.xfStart(this.lastInk); this.gl = null; this.glJob = null; this.vig = null; this.vigJob = null; }
+      this.paintTheme(); this.liftKey = null;
+    }
     else if (key === 'darkness') { this.liftKey = null; this.paintTheme(); }
-    else if (key === 'glow') { this.glows = null; this.spots = null; }
+    else if (key === 'glow') {   }
     else if (key === 'stars') this.starsDirty = true;
     else if (key === 'quality') { this.scale = 0; this.ftimes.length = 0; if (this.resize()) this.redraw(); }
-    else if (key === 'groupBy') this.regroup();
+    else if (key === 'groupBy') { this.xfStart(null); this.regroup(); }
     else if (key === 'ringSpacing' || key === 'ringTilt') later(180, () => this.reflow());
     else if (key === 'belt2') later(180, () => this.reflow(true));
-    else if (key === 'planetColors') { this.paintTheme(); this.hideAgeKey(); later(180, () => { this.build(); if (settingOf(this.plugin.settings, 'planetColors') === 'age') this.showAgeKey(); }); }
+    else if (key === 'globeSize') { this.gsFrom = this.gsv === undefined ? 1 : this.gsv; this.gsTo = this.globeScale(); this.gsAt = performance.now(); later(180, () => this.reflow()); }
+    else if (key === 'planetColors') { this.paintTheme(); this.hideAgeKey(); later(180, () => { this.pcWant = true; this.build(); this.pcWant = false; if (settingOf(this.plugin.settings, 'planetColors') === 'age') this.showAgeKey(); }); }
     else if (key === 'exclude') later(600, () => { this.reflow(true); this.wSoon(); });
     else if (key === 'panelWidth') { this.cardsW(settingOf(this.plugin.settings, 'panelWidth')); this.fitBox(); later(300, () => this.mountCards()); }
     else if (key === 'openLoops' || key === 'comets') { this.loopsKey = null; this.workDue = true; }
+    else if (key === 'rockets') { const A = this.act; if (A && A.ambAt) A.ambAt = Math.min(A.ambAt, performance.now() + 900); }
     else if (key === 'flyToNotes') { if (!settingOf(this.plugin.settings, 'flyToNotes')) this.cgRelease(); }
     this.syncToggles();
     if (this.gear) this.gearSync();
@@ -2430,20 +2640,26 @@ class NetworkView extends ItemView {
     if (this.gear) return;
     const mk = (tag, cls, parent) => { const d = parent.appendChild(document.createElement(tag)); if (cls) d.className = cls; return d; };
     const g = (this.gear = mk('div', 'rn-gear', this.contentEl)), P = this.plugin;
-    wheelScroll(g);
     const head = mk('div', 'rn-gear-head', g);
     mk('span', '', head).textContent = 'SETTINGS';
     const x = mk('span', 'rn-gear-x', head); x.textContent = '✕'; x.title = 'Close (Esc)'; x.onclick = () => this.closeGear();
-    this.gearRows = new Map(); this.gearParts = []; this.gearTabEls = new Map();
-    const part = (tab, el) => { this.gearParts.push([tab, el]); return el; }, tabs = mk('div', 'rn-gtabs', g), items = [];
+    this.gearRows = new Map(); this.gearAnchors = []; this.gearTabEls = new Map();
+    const tabs = mk('div', 'rn-gtabs', g), body = (this.gearBody = mk('div', 'rn-gbody', g)), items = [];
+    wheelScroll(body); body.addEventListener('scroll', () => this.gearLit(), { passive: true });
     for (const name of SETTINGS_TABS) {
       const t = mk('span', 'rn-gtab', tabs); t.textContent = name; t.onclick = () => this.gearTab(name); this.gearTabEls.set(name, t);
       for (const o of settingsOn(name)) items.push([name, o]);
     }
+    let lastTab = null;
     for (const [tabName, o] of items) {
-      if (o.hidden) continue;
-      if (o.sec) { part(tabName, mk('div', 'rn-gsec', g)).textContent = o.sec; continue; }
-      const row = part(tabName, mk('div', 'rn-grow', g)), lab = mk('div', 'rn-glabel', row);
+      if (o.hidden || (o.only && !this.plugin.settings[o.only])) continue;
+      if (tabName !== lastTab) {
+        let at = null;
+        if (lastTab !== null) { at = mk('div', 'rn-gdiv', body); mk('span', '', at).textContent = tabName; }
+        this.gearAnchors.push([tabName, at]); lastTab = tabName;
+      }
+      if (o.sec) { mk('div', 'rn-gsec', body).textContent = o.sec; continue; }
+      const row = mk('div', 'rn-grow', body), lab = mk('div', 'rn-glabel', row);
       mk('span', '', lab).textContent = o.name;
       const val = mk('b', '', lab);
       let ctl, rst = null;
@@ -2477,21 +2693,107 @@ class NetworkView extends ItemView {
       this.gearRows.set(o.key, { o, ctl, val, rst });
     }
     this.gearBtn.classList.add('on'); this.contentEl.toggleClass('rn-gear-on', true);
-    this.gearTab(this.gearTabName || 'General');
     this.gearSync();
+    this.gearTab(this.gearTabName || 'General', true);
   }
-  gearTab(name) {
+  gearTab(name, now = false) {
     this.gearTabName = name;
-    for (const [tab, el] of this.gearParts || []) el.classList.toggle('rn-hidden', tab !== name);
+    const body = this.gearBody, at = (this.gearAnchors || []).find((a) => a[0] === name);
     for (const [tab, el] of this.gearTabEls || []) el.classList.toggle('on', tab === name);
-    if (this.gear) this.gear.scrollTop = 0;
+    if (!body || !at) return;
+    const top = at[1] ? Math.max(0, at[1].offsetTop - 2) : 0;
+    this.gearGo = performance.now();
+    body.scrollTo({ top, behavior: now ? 'instant' : 'smooth' });
+  }
+  gearLit() {
+    const body = this.gearBody, A = this.gearAnchors;
+    if (!body || !A || A.length < 2 || performance.now() - (this.gearGo || 0) < 700) return;
+    let name = A[0][0];
+    for (const [n, el] of A) if (el && el.offsetTop - 2 <= body.scrollTop + 24) name = n;
+    if (body.scrollHeight - body.clientHeight - body.scrollTop < 2) name = A[A.length - 1][0];
+    if (name === this.gearTabName) return;
+    this.gearTabName = name;
+    for (const [tab, el] of this.gearTabEls || []) el.classList.toggle('on', tab === name);
   }
   closeGear() {
     if (!this.gear) return;
-    this.gear.remove(); this.gear = null; this.gearRows = null; this.gearParts = null; this.gearTabEls = null;
+    this.gear.remove(); this.gear = null; this.gearRows = null; this.gearBody = null; this.gearAnchors = null; this.gearTabEls = null;
     this.gearBtn.classList.remove('on'); this.contentEl.toggleClass('rn-gear-on', false);
     try { this.contentEl.focus({ preventScroll: true }); } catch {   }
   }
+  welcomeSoon(ms = WELCOME_MS) {
+    const S = this.plugin.settings;
+    if (this.welGone || this.welcomeEl || (!this.wantWel && (S.welcomed || S.videoTools))) return;
+    clearTimeout(this.welT); this.welT = setTimeout(() => this.welcomeTry(), ms);
+  }
+  welcomeTry() {
+    this.welT = 0;
+    const S = this.plugin.settings;
+    if (this.welGone || this.welcomeEl || (!this.wantWel && (S.welcomed || S.videoTools))) return;
+    if (this.intro || this.tour || this.look || this.lapse || this.shown || this.gear || this.helpEl) { this.welcomeSoon(WELCOME_RETRY_MS); return; }
+    this.openWelcome(0);
+  }
+  openWelcome(at = 0) {
+    if (this.welGone) return;
+    clearTimeout(this.welT); this.welT = 0; this.wantWel = false;
+    if (this.tour) this.endTour();
+    if (this.look) this.setLook(false);
+    this.closeHelp();
+    const P = this.plugin;
+    if (!P.settings.welcomed) { P.settings.welcomed = true; P.saveSettings(); }
+    if (!this.welcomeEl) {
+      const mk = (tag, cls, parent) => { const d = parent.appendChild(document.createElement(tag)); if (cls) d.className = cls; return d; };
+      const w = (this.welcomeEl = mk('div', 'rn-welcome', this.contentEl));
+      this.welKick = mk('div', 'rn-wel-kick', w); this.welTitle = mk('div', 'rn-wel-title', w); this.welText = mk('div', 'rn-wel-text', w);
+      const foot = mk('div', 'rn-wel-foot', w);
+      const skip = mk('span', 'rn-wel-btn rn-wel-skip', foot); skip.textContent = 'SKIP'; skip.title = 'Close (Esc) · "How to use" in the command palette shows it again'; skip.onclick = () => this.closeWelcome();
+      this.welDots = mk('span', 'rn-wel-dots', foot);
+      WELCOME_STEPS.forEach((s, i) => { const d = mk('i', '', this.welDots); d.title = s[0]; d.onclick = () => this.welcomeStep(i); });
+      this.welBack = mk('span', 'rn-wel-btn rn-wel-back', foot); this.welBack.textContent = '‹ BACK'; this.welBack.onclick = () => this.welcomeStep(this.welAt - 1);
+      this.welNext = mk('span', 'rn-wel-btn rn-wel-next', foot); this.welNext.onclick = () => this.welcomeNext();
+    }
+    this.welcomeStep(at);
+  }
+  welcomeStep(i) {
+    if (!this.welcomeEl) return;
+    const n = WELCOME_STEPS.length; i = Math.max(0, Math.min(n - 1, i | 0)); this.welAt = i;
+    const [title, text] = WELCOME_STEPS[i];
+    this.welKick.textContent = `RHO NETWORK · ${i + 1} / ${n}`; this.welTitle.textContent = title;
+    this.welText.textContent = ''; richText(this.welText, text);
+    [...this.welDots.children].forEach((d, j) => d.classList.toggle('on', j === i));
+    this.welBack.classList.toggle('rn-off', i === 0);
+    this.welNext.textContent = i === n - 1 ? 'GOT IT' : 'NEXT ›';
+  }
+  welcomeNext() { if (this.welAt >= WELCOME_STEPS.length - 1) this.closeWelcome(); else this.welcomeStep(this.welAt + 1); }
+  closeWelcome() {
+    if (!this.welcomeEl) return;
+    this.welcomeEl.remove(); this.welcomeEl = null; this.welKick = this.welTitle = this.welText = this.welDots = this.welBack = this.welNext = null;
+    try { this.contentEl.focus({ preventScroll: true }); } catch {   }
+  }
+  openHelp() {
+    if (this.helpEl || this.look) return;
+    if (this.gear) this.closeGear();
+    this.closeWelcome();
+    const mk = (tag, cls, parent) => { const d = parent.appendChild(document.createElement(tag)); if (cls) d.className = cls; return d; };
+    const h = (this.helpEl = mk('div', 'rn-help', this.contentEl));
+    const head = mk('div', 'rn-help-head', h); mk('span', '', head).textContent = 'HOW TO USE';
+    const x = mk('span', 'rn-help-x', head); x.textContent = '✕'; x.title = 'Close (Esc or ?)'; x.onclick = () => this.closeHelp();
+    const body = mk('div', 'rn-help-body', h); wheelScroll(body);
+    const keys = [...this.plugin.hub.keys.entries()].map(([k, o]) => [k.toUpperCase(), String(o.label || '').toLowerCase()]);
+    for (const [sec, rows] of helpSheet(keys)) {
+      const col = mk('div', 'rn-help-sec', body); mk('div', 'rn-help-h', col).textContent = sec;
+      for (const [k, what] of rows) { const r = mk('div', 'rn-help-r', col); mk('b', '', r).textContent = k; mk('span', '', r).textContent = what; }
+    }
+    const foot = mk('div', 'rn-help-foot', h); foot.textContent = 'New here? ';
+    const again = mk('span', 'rn-help-again', foot); again.textContent = 'The welcome, step by step ›'; again.onclick = () => this.openWelcome(0);
+    this.helpBtn.classList.add('on');
+  }
+  closeHelp(refocus = true) {
+    if (!this.helpEl) return;
+    this.helpEl.remove(); this.helpEl = null; this.helpBtn.classList.remove('on');
+    if (refocus) try { this.contentEl.focus({ preventScroll: true }); } catch {   }
+  }
+  toggleHelp() { if (this.helpEl) this.closeHelp(); else this.openHelp(); }
   gearSync() {
     const S = this.plugin.settings;
     for (const [key, { o, ctl, val, rst }] of this.gearRows || []) {
@@ -2587,10 +2889,11 @@ class NetworkView extends ItemView {
   suggGo(i) { const p = this.suggRows[i]; this.suggHide(); if (p) this.goToNote(p); }
 
   card(el, name, state, cls, rows, { down = false, foot = '', ver = null, body = null, onHead = null } = {}) {
-    el.textContent = ''; el.classList.remove('rn-hidden'); el.classList.toggle('down', down); el.dataset.label = name;
+    el.textContent = ''; this.cardIn(el); el.classList.toggle('down', down); el.dataset.label = name;
     const head = el.appendChild(document.createElement('div')); head.className = 'rn-head';
+    head.title = 'Drag to move it · right-click for its menu';
     const nm = head.appendChild(document.createElement('span')); nm.className = 'rn-hname'; nm.textContent = name;
-    if (onHead) { nm.classList.add('go'); nm.onclick = onHead; }
+    if (onHead) { nm.classList.add('go'); nm.onclick = onHead; nm.title = 'Show this note on the map'; }
     if (ver) { const v = nm.appendChild(document.createElement('span')); v.className = 'rn-ver'; v.textContent = ver.text; v.title = ver.title; }
     if (state) { const st = head.appendChild(document.createElement('span')); st.className = cls || ''; st.textContent = state; }
     for (const r of rows) {
@@ -2706,6 +3009,7 @@ class NetworkView extends ItemView {
   async showNote(path, fly = true, how) {
     const f = this.app.vault.getAbstractFileByPath(path);
     if (!f) return;
+    if (this.shown !== path && how !== 'pinlink') this.pinNote();
     if (this.shown !== path) { this.flushEdit(); this.edit = null; this.countView(path); this.boxDrag = null; this.scrollFrac = null; }
     this.shown = path;
     this.syncTuck();
@@ -2714,7 +3018,7 @@ class NetworkView extends ItemView {
     if (fly && n && path !== this.hub) {
       if (this.zoomBack == null) this.zoomBack = this.zoomTo !== null ? this.zoomTo : this.zoom;
       this.keepIn = path;
-      if (!((how === 'click' || this.cg) && this.cgStart(n, how))) {
+      if (!(how !== 'pinlink' && this.cgStart(n, how || 'open'))) {
         this.cgDrop();
         const A = this.flyAim(n); this.fly = { from: this.yaw, to: A.yaw, at: 0, dur: 900 }; if (A.zoom) this.zoomTo = A.zoom;
       }
@@ -2770,7 +3074,7 @@ class NetworkView extends ItemView {
       if (gone()) return;
       if (/\S/.test(text.slice(from, c.from))) await this.drawText(text.slice(from, c.from), out, path, comp, gone);
       if (gone()) return;
-      const el = document.createElement('div'), svg = chartEl(c.src, this.chartMeasure());
+      const el = document.createElement('div'), svg = PLUGIN_CHARTS ? chartEl(c.src, this.chartMeasure()) : null;
       if (svg) {
         const m = document.createElement('div');
         m.className = 'mermaid'; m.appendChild(svg);
@@ -2908,7 +3212,7 @@ class NetworkView extends ItemView {
   setLook(on, cue) {
     this.look = !!on; this.contentEl.toggleClass('rn-look', this.look);
     this.cue.textContent = cue || 'VIEWING SPOT · O OR ESC TO COME BACK';
-    if (this.look) { this.closeNote(); this.tip.classList.remove('show'); this.cue.classList.remove('show'); void this.cue.offsetWidth; this.cue.classList.add('show'); this.stir(); }
+    if (this.look) { this.closeNote(); this.closeHelp(false); this.tip.classList.remove('show'); this.cue.classList.remove('show'); void this.cue.offsetWidth; this.cue.classList.add('show'); this.stir(); }
     else { this.cue.classList.remove('show'); clearTimeout(this.stirT); this.contentEl.toggleClass('rn-stir', false); }
   }
   stir() {
@@ -2970,15 +3274,18 @@ class NetworkView extends ItemView {
       if (Math.abs(a.yaw - near) > TOUR_SWING) return null;
       E = { x: 0, y: -1.03 * GLOBE_R * (this.gk || 1), z: 0 }; yaw = a.yaw; pitch = -0.22; g = gOf(1.25);
     } else if (at && at.whole && (kind === 'fhorizon' || kind === 'fbelt')) {
-      const el = kind === 'fhorizon' ? 0.2 : 0.4, d = (gOf(1.0) * W) / (CG_FOOT * k * (this.zoomLand || this.zoom || 1));
+      const el = kind === 'fhorizon' ? 0.2 : 0.4, d = Math.max((gOf(1.0) * W) / (CG_FOOT * k * (this.zoomLand || this.zoom || 1)), 1.85 * (this.outerMax || 1.8 * R));
       g = gOf(1.0); roll = kind === 'fbelt' ? 0.1 : 0; E = { x: -d * Math.cos(el), y: -d * Math.sin(el), z: 0 };
       const ox = at.cx - W / 2, oy = at.cy - H / 2, rc = Math.cos(roll), rs = Math.sin(roll);
       const a = freeAim(E, { x: 0, y: 0, z: 0 }, roll, g, W, H, at.cx, at.cy, 0.5 + (ox * rc - oy * rs) / W, 0.5 + (ox * rs + oy * rc) / H); yaw = nearest(a.yaw); pitch = a.pitch;
     } else if (kind === 'fhorizon') {
-      E = { x: -1.312 * R, y: -0.42 * R, z: 0 }; yaw = nearest(-Math.PI / 2); pitch = (5 * Math.PI) / 180; g = gOf(1.2);
+      E = { x: -1.312 * R, y: -(at ? CG_HZ_EYE : 0.42) * R, z: 0 }; g = gOf(1.2);
+      if (at && at.hy !== undefined) { const a = freeAim(E, { x: 0, y: 0, z: 0 }, 0, g, W, H, at.cx, at.cy, at.hx, at.hy); yaw = nearest(a.yaw); pitch = a.pitch - (at.tilt || 0); }
+      else { yaw = nearest(-Math.PI / 2); pitch = (5 * Math.PI) / 180; }
     } else if (kind === 'fbelt') {
-      E = { x: -2.6 * R, y: -0.47 * R, z: 0 }; roll = 0.1; g = gOf(1.25);
-      const a = freeAim(E, { x: 0, y: 0, z: 0 }, roll, g, W, H, at ? at.cx : W / 2, at ? at.cy : H * FREE_CYP, at ? at.tx : 0.86, at ? at.ty : 0.46); yaw = nearest(a.yaw); pitch = a.pitch;
+      const bc = this.belt && Number.isFinite(this.belt.c) ? this.belt.c : 1.75;
+      E = { x: -(at ? Math.min(2.6, bc + CG_BELT_OUT) : 2.6) * R, y: -(at ? CG_BELT_EYE : 0.47) * R, z: 0 }; roll = 0.1; g = gOf(1.25);
+      const a = freeAim(E, { x: 0, y: 0, z: 0 }, roll, g, W, H, at ? at.cx : W / 2, at ? at.cy : H * FREE_CYP, at ? at.tx : 0.86, at ? at.ty : 0.46); yaw = nearest(a.yaw); pitch = a.pitch - ((at && at.tilt) || 0);
     } else return null;
     return { ex: E.x, ey: E.y, ez: E.z, yaw, pitch, roll, g, dref: Math.max(R, Math.hypot(E.x, E.y, E.z)), zoom: (FREE_KZ * W) / R / k, w: 1, R };
   }
@@ -3004,7 +3311,7 @@ class NetworkView extends ItemView {
   }
   noteWin() {
     const W = this.W, H = this.H, B = this.box, up = B.classList.contains('open') && B.offsetWidth > 0;
-    return { x0: (up ? B.offsetLeft + B.offsetWidth : Math.min(Math.round(BOX_EDGE * W), this.boxRoom().left + 600)) + 40, x1: W - 60, y0: 84, y1: H - 76 };
+    return { x0: (up ? B.offsetLeft + B.offsetWidth : Math.min(this.edgeAt(), this.boxRoom().left + 600)) + 40, x1: W - 60, y0: 84, y1: H - 76 };
   }
   ringRank(n) {
     const rs = this.rings, has = new Set(), ids = [];
@@ -3017,13 +3324,36 @@ class NetworkView extends ItemView {
     const W = this.W, H = this.H;
     if (PUBLIC || !settingOf(this.plugin.settings, 'flyToNotes') || this.tour || this.look || this.intro || !W || W < 980 || !this.k || !n || n === this.hubNode || n.ring === undefined || !Number.isFinite(n.x)) return false;
     const old = this.cg, rk = this.ringRank(n), kind = old && how !== 'click' ? old.kind : clickKind(rk.rank, rk.count, Math.random());
-    const cx = W / 2 + SHIFT, cy = H * FREE_CYP - SHIFT_UP, base = this.tourFree(kind, CG_WHOLE ? { cx, cy, whole: true } : { cx, cy, tx: 0.86, ty: 0.46 });
-    if (!base) return false;
-    const res = clickPose(base, n, this.noteWin(), cx, cy, W, this.yaw, this.rmax || 400);
+    const cx = W / 2 + SHIFT, win = this.noteWin();
+    let res = null, up = 0, out = 1;
+    const rp = Math.hypot(n.x, n.z), atOf = (u, tilt) => (CG_WHOLE ? { cx, cy: H * FREE_CYP - SHIFT_UP - H * u, whole: true } : { cx, cy: H * FREE_CYP - SHIFT_UP - H * u, tx: 0.86, ty: 0.46 - u, hx: cx / W, hy: CG_HZ_Y - u, tilt });
+    const outBy = (base, s) => (s > 1 ? { ...base, ex: base.ex * s, ey: base.ey * s, ez: base.ez * s, dref: Math.max(base.dref, (Math.hypot(base.ex, base.ey, base.ez) || 1) * s) } : base);
+    let amp = CG_DRIFT;
+    for (const u of [CG_UP, CG_UP * 0.75, CG_UP / 2, CG_UP / 4, 0]) {
+      const cy = H * FREE_CYP - SHIFT_UP - H * u, base = this.tourFree(kind, atOf(u, 0));
+      if (!base) return false;
+      for (const K of [0, ...CG_OUTS]) {
+        const s = K ? (K * rp) / Math.hypot(base.ex, base.ez || 0) : 1;
+        if (K && s <= out) continue;
+        res = clickPose(outBy(base, s), n, win, cx, cy, W, this.yaw, this.rmax || 400, CG_DRIFT);
+        if (res) { up = u; out = Math.max(1, s); break; }
+        if (s > out) out = s;
+      }
+      if (res) break;
+      out = 1;
+      if (u === 0) { res = clickPose(base, n, win, cx, cy, W, this.yaw, this.rmax || 400); amp = 0; }
+    }
     if (!res) return false;
+    let tilt = 0;
+    const T = CG_WHOLE ? 0 : CG_TILT[kind] || 0;
+    if (T) for (const f of [1, 2 / 3, 1 / 3]) {
+      const tb = this.tourFree(kind, atOf(up, T * f));
+      const r2 = tb && clickPose(outBy(tb, out), n, win, cx, H * FREE_CYP - SHIFT_UP - H * up, W, this.yaw, this.rmax || 400, amp);
+      if (r2) { res = r2; tilt = T * f; break; }
+    }
     const fr = this.fr, k = this.k || 1;
     const A = fr ? { ex: fr.ex, ey: fr.ey, ez: fr.ez, yaw: this.yaw, pitch: this.pitch, roll: fr.roll, g: fr.g, dref: fr.dref, zoom: this.zoom, w: fr.w } : orbitEq(this.yaw, this.pitch, this.zoom, this.orbitD(this.zoom), k, W);
-    this.cg = { A, B: res.pose, kind, path: n.path, vt: 0, lr: performance.now(), back: old ? old.back : { pitch: fr ? REST_PITCH : this.pitch }, W, H, d: res.d };
+    this.cg = { A, B: res.pose, kind, path: n.path, vt: 0, lr: performance.now(), back: old ? old.back : { pitch: fr ? REST_PITCH : this.pitch }, W, H, d: res.d, up, out, tilt };
     this.xit = null; this.fly = null; this.aim = null; this.zoomTo = null;
     return true;
   }
@@ -3035,7 +3365,7 @@ class NetworkView extends ItemView {
     if (!n) { this.cgRelease(); return; }
     if ((C.W !== this.W || C.H !== this.H) && this.steady()) { C.W = this.W; C.H = this.H; this.cgStart(this.byPath.get(C.path) || n, 'resize'); return this.cg ? this.cgCam() : undefined; }
     const e = C.vt, w = e < CG_IN_MS ? smooth5(e / CG_IN_MS) : 1;
-    const p = w < 1 ? blendPose(C.A, C.B, w) : C.B;
+    const p = w < 1 ? blendPose(C.A, C.B, w) : driftPose(C.B, e - CG_IN_MS, CG_DRIFT, CG_DRIFT_SP);
     this.setFree(p); this.zoom = p.zoom;
   }
   cgDrop() {
@@ -3094,7 +3424,7 @@ class NetworkView extends ItemView {
     const isFree = TOUR_FREE_KINDS.includes(kind), span = (m) => m[0] + R() * (m[1] - m[0]);
     let dur = span(kind === 'crane' ? TOUR_CRANE_MS : isFree ? TOUR_FREE_MS : TOUR_SHOT_MS);
     const mid = { orbit: 0.42, crane: 0.66, ring: 0.65 }[kind], up = mid === undefined ? R() < 0.6 : R() < 0.2 ? !(this.pitch < mid) : this.pitch < mid;
-    const P = { yaw0: this.yaw + (first && !isFree ? (R() * 2 - 1) * TOUR_START_SWING : 0), zmin: this.zoomMin || ZOOM_MIN, zmax: this.zoomMax || 3.2, dir, up, aimYaw: this.yaw, aimPitch: REST_PITCH };
+    const P = { yaw0: this.yaw + (first && !isFree ? (R() * 2 - 1) * TOUR_START_SWING : 0), zmin: Math.max(this.zoomMin || ZOOM_MIN, (this.zoomLand || 0) * TOUR_LAND), zmax: this.zoomMax || 3.2, dir, up, aimYaw: this.yaw, aimPitch: REST_PITCH };
     if (aims[kind]) { P.aimYaw = aims[kind].yaw; P.aimPitch = Math.max(TOUR_PITCH[0] + 0.04, Math.min(0.8, aims[kind].pitch)); }
     if (isFree) P.fp = free[kind];
     P.zo = isFree || kind === 'crane' || kind === 'ring' || kind === 'flat' || kind === 'milky' ? 0 : kind === 'top' ? (R() < 0.5 ? TOUR_FAR_TOP : 0) : R() < 1 / 7 ? 0 : -(0.12 + 0.08 * R());
@@ -3107,7 +3437,8 @@ class NetworkView extends ItemView {
     }
     const prev = T.shot, p0 = tourBase(kind, 0, 0, P), fany = isFree || !!(prev && TOUR_FREE_KINDS.includes(prev.kind));
     P.y0 = this.yaw; P.p0 = this.pitch; P.f0 = this.zoom;
-    const dY = Math.abs(p0.yaw - this.yaw), dP = Math.abs(p0.pitch - this.pitch), dZ = Math.abs(Math.log(p0.zoom / this.zoom));
+    const own = !prev && !fany; if (own) P.gz = TOUR_ZOOM_IN_MS;
+    const dY = Math.abs(p0.yaw - this.yaw), dP = Math.abs(p0.pitch - this.pitch), dZ = own ? 0 : Math.abs(Math.log(p0.zoom / this.zoom));
     P.go = fany ? 0 : Math.round(Math.min(TOUR_GO[1], TOUR_GO[0] + 6500 * dY + 9000 * dP + 5000 * dZ));
     const old = prev ? { kind: prev.kind, p: prev.p, t0: prev.t0, dur: prev.dur } : { still: true, yaw: this.yaw, pitch: this.pitch, zoom: this.zoom, v: this.spinV || 0, t0: now };
     const blend = fany ? Math.round(TOUR_GLIDE_FREE + Math.min(8000, 2500 * dY)) : Math.round(TOUR_GLIDE_MS + Math.min(TOUR_GLIDE_MORE, 1000 * dY + 900 * dP + 700 * dZ + (T.dir !== undefined && dir !== T.dir ? 2500 : 0)));
@@ -3131,7 +3462,7 @@ class NetworkView extends ItemView {
       let yaw = P.yaw, pitch = P.pitch, zoom = P.zoom;
       if (o) {
         yaw = o.yaw + (P.yaw - o.yaw) * w; pitch = o.pitch + (P.pitch - o.pitch) * w;
-        zoom = Math.exp(Math.log(o.zoom) + (Math.log(zoom) - Math.log(o.zoom)) * w);
+        if (!(S.p.gz && O.still)) zoom = Math.exp(Math.log(o.zoom) + (Math.log(zoom) - Math.log(o.zoom)) * w);
       }
       if (this.fr) this.setFree(null);
       this.yaw = yaw; this.pitch = pitch; this.zoom = zoom;
@@ -3144,6 +3475,7 @@ class NetworkView extends ItemView {
     if (still !== T.still) { T.still = still; this.contentEl.toggleClass('rn-tour-still', still); }
   }
   closeNote() {
+    this.dropPin(true);
     this.flushEdit(); this.edit = null; this.shown = null; this.fitFor = null; this.boxDrag = null; this.box.classList.remove('open', 'rn-loading', 'rn-glide', 'rn-warm', 'rn-measure-w'); this.boxBody.textContent = ''; this.boxBody.rnTall = false; if (this.boxComp) { this.removeChild(this.boxComp); this.boxComp = null; } this.syncTuck();
     this.loadHide(); this.keepIn = null;
     this.cgRelease();
@@ -3235,7 +3567,7 @@ class NetworkView extends ItemView {
     const f = this.scrollFrac, b = this.boxBody; this.scrollFrac = null;
     if (f != null) b.scrollTop = f * Math.max(0, b.scrollHeight - b.clientHeight);
   }
-  boxClick(e, from = this.shown || '') {
+  boxClick(e, from = this.shown || '', fromPin = false) {
     const a = e.target.closest && e.target.closest('a.internal-link');
     if (!a) return;
     e.preventDefault(); e.stopPropagation();
@@ -3243,7 +3575,8 @@ class NetworkView extends ItemView {
     if (!link) return;
     const dest = this.app.metadataCache.getFirstLinkpathDest(link, from || '');
     if (!dest) return;
-    if (dest.extension === 'md') this.showNote(dest.path); else this.app.workspace.getLeaf('tab').openFile(dest);
+    if (dest.extension === 'md') this.showNote(dest.path, true, fromPin ? 'pinlink' : undefined);
+    else this.app.workspace.getLeaf('tab').openFile(dest);
   }
   loadViews() { try { const v = JSON.parse(window.localStorage.getItem(`${KEY}-views:${this.app.vault.getName()}`)); this.views = v && typeof v === 'object' ? v : {}; } catch { this.views = {}; } this.topAt = 0; }
   saveViews() { try { window.localStorage.setItem(`${KEY}-views:${this.app.vault.getName()}`, JSON.stringify(this.views)); } catch {   } }
@@ -3337,8 +3670,49 @@ class NetworkView extends ItemView {
     }
   }
   boxRoom() {
-    const left = this.W < 980 ? 16 : this.hasCards && !this.tuckIs ? 32 + (this.panelW || 220) : 54;
+    const left = this.boxBase() + this.pinSpan();
     return { left, maxW: Math.max(200, this.W - left - 16), maxH: Math.max(120, this.H - 54 - 64) };
+  }
+  boxBase() { return this.W < 980 ? 16 : this.hasCards && !this.tuckIs ? 32 + (this.panelW || 220) : 54; }
+  pinSpan() { return this.pinPath ? (this.pinW || 0) + PIN_GAP : 0; }
+  twoRoom() { return this.W >= 980 && Math.round(BOX_EDGE2 * this.W) - this.boxBase() >= 2 * BOX_MIN_W + PIN_GAP; }
+  twoOn() { return !!settingOf(this.plugin.settings, 'twoNotes') && this.twoRoom(); }
+  edgeAt() { return Math.round((this.pinPath ? BOX_EDGE2 : BOX_EDGE) * this.W); }
+  pinNote() {
+    const B = this.box, b = this.boxBody, path = this.shown;
+    if (!this.twoOn() || !path || path === GRAVE || this.editing || !B.classList.contains('open') || this.boxDrawn !== path) return false;
+    this.dropPin(true);
+    const P = this.pin = document.createElement('div'); P.className = 'rn-box rn-pin';
+    this.uiEl.appendChild(P);
+    const bar = document.createElement('div'); bar.className = 'rn-box-bar'; P.appendChild(bar);
+    const title = bar.appendChild(document.createElement('div')); title.className = 'rn-box-title'; title.textContent = path.split('/').pop().replace(/\.md$/, '');
+    const dir = bar.appendChild(document.createElement('div')); dir.className = 'rn-box-path'; dir.textContent = path.includes('/') ? path.slice(0, path.lastIndexOf('/')) : this.app.vault.getName();
+    const btn = (label, tip, fn) => { const x = bar.appendChild(document.createElement('button')); x.className = 'rn-btn'; x.textContent = label; x.title = tip; x.onclick = fn; return x; };
+    btn('⇄', 'Swap with the note in the main box', () => { const p = this.pinPath; return p ? this.showNote(p, false) : undefined; });
+    btn('✕', 'Let this one go', () => this.dropPin());
+    const body = document.createElement('div'); body.className = 'rn-box-body markdown-rendered'; P.appendChild(body);
+    body.addEventListener('click', (e) => this.boxClick(e, this.pinPath, true));
+    this.pinPath = path; this.pinW0 = B.offsetWidth; this.pinH0 = B.offsetHeight; this.pinBody = body;
+    P.style.left = `${B.offsetLeft}px`;
+    while (b.firstChild) body.appendChild(b.firstChild);
+    body.scrollTop = b.scrollTop; body.rnTall = b.rnTall;
+    this.pinComp = this.boxComp; this.boxComp = null; this.boxSlots = []; this.boxDrawn = null; b.rnTall = false;
+    this.fitPin(); this.fitBox();
+    return true;
+  }
+  fitPin() {
+    const P = this.pin; if (!P || !this.pinPath) return;
+    if (!this.twoRoom()) return this.dropPin();
+    const base = this.boxBase(), span = Math.round(BOX_EDGE2 * this.W) - base, R = Math.max(120, this.H - 54 - 64);
+    this.pinW = Math.round(Math.max(BOX_MIN_W, Math.min(this.pinW0 || 520, (span - PIN_GAP) / 2)));
+    P.style.left = `${base}px`; P.style.width = `${this.pinW}px`; P.style.height = `${Math.round(Math.min(R, Math.max(120, this.pinH0 || 300)))}px`;
+  }
+  dropPin(now) {
+    const P = this.pin; if (!P) return;
+    this.pin = null; this.pinPath = null; this.pinBody = null; this.pinW = 0;
+    if (this.pinComp) { this.removeChild(this.pinComp); this.pinComp = null; }
+    if (now) P.remove(); else { P.classList.add('rn-pin-out'); setTimeout(() => P.remove(), 240); }
+    if (this.box && this.box.classList.contains('open')) this.fitBox();
   }
   fitNote(again) {
     const B = this.box, b = this.boxBody, key = this.shown;
@@ -3352,7 +3726,7 @@ class NetworkView extends ItemView {
     let wide = 0; for (const el of b.querySelectorAll('table, pre')) wide = Math.max(wide, px(el) + 43);
     const nat = px(b) + 3;
     B.classList.remove('rn-measure-w');
-    const R = this.boxRoom(), maxW = this.W >= 980 ? Math.min(R.maxW, Math.max(BOX_MIN_W, Math.round(BOX_EDGE * this.W) - R.left)) : R.maxW;
+    const R = this.boxRoom(), maxW = this.W >= 980 ? Math.min(R.maxW, Math.max(BOX_MIN_W, this.edgeAt() - R.left)) : R.maxW;
     const w = Math.min(maxW, Math.max(BOX_MIN_W, Math.min(nat, 700), wide));
     B.style.width = `${w}px`;
     let h = 1e5;
@@ -3378,9 +3752,10 @@ class NetworkView extends ItemView {
   }
   fitBox() {
     if (!this.box.classList.contains('open')) return;
+    if (this.pinPath) this.fitPin();
     const R = this.boxRoom(), d = this.boxDrag, want = d || this.boxFit || { w: Math.min(760, R.maxW), h: Math.round(this.H * 0.36) };
-    const x = d && d.left != null ? Math.max(16, Math.min(d.left, this.W - 16 - 200)) : null;
-    if (x == null) this.box.style.removeProperty('left'); else this.box.style.left = `${x}px`;
+    const x = d && d.left != null ? Math.max(this.pinPath ? R.left : 16, Math.min(d.left, this.W - 16 - 200)) : null;
+    if (x == null && !this.pinPath) this.box.style.removeProperty('left'); else this.box.style.left = `${x == null ? R.left : x}px`;
     this.box.style.width = `${Math.round(Math.min(x == null ? R.maxW : this.W - x - 16, Math.max(BOX_MIN_W, want.w)))}px`;
     this.box.style.height = `${Math.round(Math.min(R.maxH, Math.max(120, want.h)))}px`;
   }
@@ -3391,7 +3766,7 @@ class NetworkView extends ItemView {
       B.classList.add('resizing');
       const move = (ev) => {
         const mx = ev.clientX - s.x, my = dy ? ev.clientY - s.y : 0;
-        if (dx < 0) { const l = Math.max(16, Math.min(s.left + mx, s.left + s.w - BOX_MIN_W)); this.boxDrag = { w: s.w + s.left - l, h: s.h, left: l }; }
+        if (dx < 0) { const l = Math.max(this.pinPath ? this.boxRoom().left : 16, Math.min(s.left + mx, s.left + s.w - BOX_MIN_W)); this.boxDrag = { w: s.w + s.left - l, h: s.h, left: l }; }
         else this.boxDrag = { w: s.w + (dx ? mx : 0), h: s.h + my, left: s.l0 };
         this.fitBox();
       };
@@ -3436,7 +3811,7 @@ class NetworkView extends ItemView {
         else if (moon) this.copy(moon);
         else if (hit) this.showNote(hit.path, true, 'click');
         else if (this.onGlobe(p) && this.hub) this.showNote(this.hub, false);
-        else if ((ringHit = this.pickRing(p.x, p.y)) !== null) this.toggleFocus(ringHit, true);
+        else if ((ringHit = this.pickRing(p.x, p.y)) !== null) this.ringClick(ringHit);
         else if (this.focus !== null) this.toggleFocus(this.focus);
       }
       down = null;
@@ -3470,6 +3845,11 @@ class NetworkView extends ItemView {
     this.q.addEventListener('focus', () => this.suggSoon());
     this.q.addEventListener('blur', () => this.suggHide());
     el.addEventListener('mousemove', () => { if (this.look && !this.tour) this.stir(); });
+    el.addEventListener('pointerdown', (e) => {
+      if (!this.helpEl) return;
+      for (let n = e.target; n; n = n.parentNode) if (n === this.helpEl || n === this.helpBtn) return;
+      this.closeHelp(false);
+    }, true);
     const awake = (e) => {
       this.idleAt = performance.now();
       if (!this.tour) return;
@@ -3484,6 +3864,11 @@ class NetworkView extends ItemView {
     el.addEventListener('keydown', (e) => {
       const typing = document.activeElement && /^(INPUT|TEXTAREA)$/.test(document.activeElement.tagName);
       const plain = !typing && !e.ctrlKey && !e.metaKey && !e.altKey;
+      if (this.welcomeEl && !typing && !this.look) {
+        const k = e.key === 'Escape' ? () => this.closeWelcome() : e.key === 'Enter' || e.key === 'ArrowRight' ? () => this.welcomeNext() : e.key === 'ArrowLeft' ? () => this.welcomeStep(this.welAt - 1) : null;
+        if (k) { e.preventDefault(); k(); return; }
+      }
+      if (e.key === '?' && plain && !this.look) { e.preventDefault(); this.toggleHelp(); return; }
       if ((e.key === 'o' || e.key === 'O') && plain) { e.preventDefault(); this.setLook(!this.look); }
       if ((e.key === 't' || e.key === 'T') && plain) { e.preventDefault(); this.toggleLapse(); }
       if ((e.key === 'a' || e.key === 'A') && plain) { e.preventDefault(); this.startTour(); }
@@ -3494,7 +3879,8 @@ class NetworkView extends ItemView {
       if (key) { e.preventDefault(); try { key.fn(this); } catch (err) { this.fail(`the ${e.key} key`, err); } }
       if (e.key === '/' && !typing && !this.look) { e.preventDefault(); this.q.focus(); }
       if (e.key === 'Escape' && document.activeElement !== this.q) {
-        if (this.gear) { e.preventDefault(); this.closeGear(); }
+        if (this.helpEl) { e.preventDefault(); this.closeHelp(); }
+        else if (this.gear) { e.preventDefault(); this.closeGear(); }
         else if (this.lapse) { e.preventDefault(); this.lapse = null; }
         else if (this.look) { e.preventDefault(); this.setLook(false); }
         else if (this.shown) { e.preventDefault(); this.closeNote(); el.focus(); }
@@ -3506,8 +3892,9 @@ class NetworkView extends ItemView {
   labelClick(i) {
     const ring = this.rings[i];
     if (this.focus === i && ring && ring.child && (ring.count || 0) >= 2) this.drill(ring.child);
-    else this.toggleFocus(i);
+    else this.ringClick(i);
   }
+  ringClick(i) { this.toggleFocus(i, true); }
 
   pick(mx, my) {
     let best = null, bd = 144;
@@ -3618,7 +4005,7 @@ class NetworkView extends ItemView {
     }
     const e = t - I.t0, ss = (a, b, v) => { const k = Math.max(0, Math.min(1, (v - a) / (b - a))); return k * k * k * (k * (k * 6 - 15) + 10); };
     const Z1 = this.zoomLand || this.zoomMin || INTRO_ZOOM;
-    if (e >= INTRO_MS) { this.intro = null; this.pitch = REST_PITCH; this.zoom = Z1; return 0; }
+    if (e >= INTRO_MS) { this.intro = null; this.pitch = REST_PITCH; this.zoom = Z1; this.welcomeSoon(); return 0; }
     const u = e / INTRO_MS, k = u * u * (6 - 8 * u + 3 * u * u), yd = 0.6 * k;
     I.w = ss(0.7, 0.98, u);
     this.zoom = Math.exp(Math.log(Z0) * (1 - k) + Math.log(Z1) * k);
@@ -3632,7 +4019,13 @@ class NetworkView extends ItemView {
     I.sn = up ? (I.sn || 0) + 1 : 0;
     return I.sn >= 3;
   }
-  endIntro() { if (this.intro) { this.intro = null; this.zoomTo = this.zoomLand || this.zoomMin || INTRO_ZOOM; } }
+  endIntro() {
+    if (!this.intro) return;
+    this.intro = null; this.zoomTo = this.zoomLand || this.zoomMin || INTRO_ZOOM;
+    this.welcomeSoon();
+    const s = (this.k || 0) * this.zoomTo;
+    this.note(`landing ${this.W}x${this.H} k ${(this.k || 0).toFixed(4)} zoom ${this.zoomTo.toFixed(4)} zoomMin ${(this.zoomMin || 0).toFixed(4)} rmax ${Math.round((this.rmax || 0) * s)}px outerMax ${Math.round((this.outerMax || 0) * s)}px globe ${Math.round(GLOBE_R * (this.gk || 1) * s)}px spacing ${settingOf(this.plugin.settings, 'ringSpacing')}% globeSize ${settingOf(this.plugin.settings, 'globeSize')}%`);
+  }
 
   stepNodes(foc, WV, Cy, Sy, Cp, Sp, KZ, DD, RMX, ccx, ccy) {
     const fr = this.fr;
@@ -3675,8 +4068,15 @@ class NetworkView extends ItemView {
     return hover;
   }
   drawSpecks(W, H, query, foc) {
-    const ctx = this.ctx, nodes = this.nodes, hubNode = this.hubNode, DK = this.dK, DO = this.dOrd, DC = this.dCnt;
-    const pal = this.theme().ink ? this.palette.map(inkOf) : this.palette, NB = pal.length * 8, M = nodes.length, kk = this.k;
+    const ctx = this.ctx, nodes = this.nodes, hubNode = this.hubNode, DK = this.dK, DO = this.dOrd, M = nodes.length, kk = this.k, ink = this.theme().ink;
+    let pal = ink ? this.palette.map(inkOf) : this.palette, DC = this.dCnt;
+    let pairs = null;
+    if (this.pcS() >= 0) {
+      pal = pal.slice(); pairs = new Map();
+      for (let k = 0; k < M; k++) { const n = nodes[k]; if (n.colW && n.ciW >= 0) { const pk = n.ciW * 4096 + n.ci; if (!pairs.has(pk)) { pairs.set(pk, pal.length); pal.push(this.pcMix(n.ciW, n.ci, ink)); } } }
+      if (DC.length < pal.length * 8 + 2) DC = this.dCnt = new Int32Array(pal.length * 8 + 2);
+    }
+    const NB = pal.length * 8;
     const ds = Math.sqrt(this.planetScale());
     const cap = Math.min(4, (3 - 1.4 * Math.max(0, Math.min(1, Math.log(this.zoom || 1) / Math.log(16)))) * ds);
     DC.fill(0);
@@ -3685,13 +4085,46 @@ class NetworkView extends ItemView {
       if (n.pl || n.v < 0.02 || n === hubNode || px < -4 || py < -4 || px > W + 4 || py > H + 4) { DK[k] = -1; continue; }
       let a = (0.28 + 0.56 * n.pn) * n.v;
       const r0 = (SPECK * n.ps * ds) / kk;
+      const rq = Math.min(cap, Math.max(1, r0)) / 2;
+      if (px + rq < 0 || py + rq < 0 || px - rq > W || py - rq > H) { DK[k] = -1; continue; }
       if (r0 < 1) a *= 0.45 + 0.55 * r0;
       if (query && !n.m) a *= 0.3;
       if (foc !== -2 && n.ring !== foc) a *= 0.25;
-      const lv = Math.floor(a * 8), key = n.ci * 8 + (lv > 7 ? 7 : lv); DK[k] = key; DC[key + 1]++;
+      const lv = Math.floor(a * 8), key = (pairs && n.colW && n.ciW >= 0 ? pairs.get(n.ciW * 4096 + n.ci) : n.ci) * 8 + (lv > 7 ? 7 : lv); DK[k] = key; DC[key + 1]++;
     }
     for (let k = 1; k <= NB; k++) DC[k] += DC[k - 1];
     for (let k = 0; k < M; k++) if (DK[k] >= 0) DO[DC[DK[k]]++] = k;
+    const D = this.dotsGL();
+    if (D && this.dotsCov(D.G, ctx.canvas.width, ctx.canvas.height)) {
+      D.o = 0; D.ov.length = 0; D.sk.length = 0; D.open = true;
+      const dp = D.dp, TS = 32, tw = Math.ceil(ctx.canvas.width / TS) + 1, th = Math.ceil(ctx.canvas.height / TS) + 1;
+      const TM = this.dqT && this.dqT.length >= tw * th ? this.dqT : (this.dqT = new Uint8Array(tw * th)), TL = this.dqTL || (this.dqTL = []);
+      let F = D.F, o = 0;
+      for (let key = 0, s = 0; key < NB; key++) {
+        const e = DC[key];
+        if (e === s) continue;
+        const v = this.dotRGB(pal[key >> 3], 3), al = (((key & 7) + 0.5) / 8) * v[3];
+        D.o = o; this.dotsRoom(D, e - s); F = D.F;
+        const s0 = o / 9;
+        TL.length = 0;
+        for (let j = s; j < e; j++) {
+          const n = nodes[DO[j]], r = Math.min(cap, Math.max(1, (SPECK * n.ps * ds) / kk)), x = (n.px - r / 2) * dp, y = (n.py - r / 2) * dp, z = r * dp;
+          F[o] = x; F[o + 1] = y; F[o + 2] = z; F[o + 3] = 3; F[o + 4] = 0; F[o + 5] = 1; F[o + 6] = 1; F[o + 7] = 1; F[o + 8] = 1; o += 9;
+          const c0 = Math.max(0, Math.floor((x - 1) / TS)), c1 = Math.min(tw - 1, Math.floor((x + z + 1) / TS)), r0 = Math.max(0, Math.floor((y - 1) / TS)), r1 = Math.min(th - 1, Math.floor((y + z + 1) / TS));
+          for (let rr = r0; rr <= r1; rr++) for (let cc = c0; cc <= c1; cc++) { const t = rr * tw + cc; if (!TM[t]) { TM[t] = 1; TL.push(t); } }
+        }
+        D.o = o; this.dotsRoom(D, TL.length); F = D.F;
+        const m0 = o / 9;
+        for (let i = 0; i < TL.length; i++) {
+          const t = TL[i]; TM[t] = 0;
+          F[o] = (t % tw) * TS; F[o + 1] = ((t / tw) | 0) * TS; F[o + 2] = TS; F[o + 3] = 4; F[o + 4] = 0; F[o + 5] = v[0]; F[o + 6] = v[1]; F[o + 7] = v[2]; F[o + 8] = al; o += 9;
+        }
+        D.sk.push(s0, m0, o / 9);
+        s = e;
+      }
+      D.o = o;
+      return;
+    }
     for (let key = 0, s = 0; key < NB; key++) {
       const e = DC[key];
       if (e === s) continue;
@@ -3719,14 +4152,36 @@ class NetworkView extends ItemView {
     const sz = this.planetScale();
     const sv = this.sparse || 1, zs = (zm < 1 ? Math.pow(zm, -0.85 * (sv - 1)) : 1) * (1 + 0.35 * (sv - 1)) * sz, rmin = Math.max(0.7, 1.1 * (1 + 0.8 * (sv - 1)) * sz);
     let near = null;
-    if (this.mouse.x >= 0 && !this.look && settingOf(this.plugin.settings, 'nearNames')) {
+    const nnk = this.tgl('nearNames', !!settingOf(this.plugin.settings, 'nearNames')), lpk = this.tgl('openLoops', !!settingOf(this.plugin.settings, 'openLoops')), pS = this.pcS();
+    if (lpk <= 0 && this.loopHold) { this.loopHold = false; this.workDue = true; }
+    if (this.mouse.x >= 0 && !this.look && nnk > 0.002) {
       const mx = this.mouse.x, my = this.mouse.y, cand = [];
       for (const n of PL) { const d = (n.px - mx) ** 2 + (n.py - my) ** 2; if (d < 25600 && n.v >= 1) cand.push({ d, n }); }
       cand.sort((a, b) => a.d - b.d); near = new Set(cand.slice(0, 12).map((o) => o.n));
     }
+    const D = this.dqOff > (this.lastT || 0) ? null : this.dotsGL();
+    if (D && !D.open) { D.o = 0; D.ov.length = 0; D.sk.length = 0; }
+    if (!D && this.dq && this.dq.open) this.dotsFlush(this.dq);
+    const dp = D ? D.dp : 1;
+    if (D) this.dotsRoom(D, PL.length * 10 + 64);
+    const put = (x, y, s, k, w, c, al) => {
+      if (!(al > 0) || !(s > 0)) return;
+      const v = this.dotRGB(c, k), F = D.F, o = D.o;
+      F[o] = x * dp; F[o + 1] = y * dp; F[o + 2] = s * dp; F[o + 3] = k; F[o + 4] = w * dp; F[o + 5] = v[0]; F[o + 6] = v[1]; F[o + 7] = v[2]; F[o + 8] = al * v[3]; D.o = o + 9;
+    };
+    const glow = (c, x, y, rad, al) => { if (D) put(x, y, rad, 0, 0, c, al); else { ctx.globalAlpha = al; ctx.drawImage(this.dotGlow(c), x - rad, y - rad, rad * 2, rad * 2); } };
+    const disc = (c, x, y, rad, al) => { if (D) put(x, y, rad, 1, 0, c, al); else { ctx.fillStyle = c; ctx.globalAlpha = al; ctx.beginPath(); ctx.arc(x, y, rad, 0, TAU); ctx.fill(); } };
+    const ringAt = (c, x, y, rad, lw, al) => { if (D) put(x, y, rad, 2, lw / 2, c, al); else { ctx.strokeStyle = c; ctx.globalAlpha = al; ctx.lineWidth = lw; ctx.beginPath(); ctx.arc(x, y, rad, 0, TAU); ctx.stroke(); } };
+    const over = (x0, y0, x1, y1, fn) => { if (D) D.ov.push({ at: D.o / 9, x0: x0 * dp, y0: y0 * dp, x1: x1 * dp, y1: y1 * dp, fn }); else fn(); };
     for (let pi = 0; pi <= PL.length; pi++) {
       const n = PL[pi];
-      while (mi < MO.length && (!n || MO[mi].p.near < n.pn)) moonAt(MO[mi++]);
+      while (mi < MO.length && (!n || MO[mi].p.near < n.pn)) {
+        const o = MO[mi++];
+        if (!D) { moonAt(o); continue; }
+        if (hideMoons) continue;
+        const mr = (o.m === this.hoverMoon ? 3.6 : 2.7) * Math.max(0.8, o.p.s / this.k), mR = mr * 7 + 2, sp = this.labelSprite(o.m.name, o.m.dim ? C.muted : C.sand), ly = o.p.y + 3 - sp.base;
+        over(o.p.x - mR, Math.min(o.p.y - mR, ly), Math.max(o.p.x + mR, o.p.x + mr + 5 + sp.width / sp.dpr), Math.max(o.p.y + mR, ly + sp.height / sp.dpr), () => moonAt(o));
+      }
       if (!n) break;
       const v = n.v, px = n.px, py = n.py, pn = n.pn;
       let r = Math.max(rmin, (1.4 + Math.min(3.2, Math.sqrt(n.sz) * 0.5)) * (n.ps / this.k) * 1.1 * 1.12 * zg * zs);
@@ -3740,69 +4195,79 @@ class NetworkView extends ItemView {
       if (!inFocus(n)) a *= 0.15;
       if (v < 1) {
         a *= v; r *= 0.5 + 0.5 * v;
-        const fr = r * (3 + 10 * (1 - v)) * 1.3;
-        ctx.globalAlpha = cl(1 - v); ctx.drawImage(this.dotGlow('#fffaf0'), px - fr, py - fr, fr * 2, fr * 2); ctx.globalAlpha = 1;
+        glow('#fffaf0', px, py, r * (3 + 10 * (1 - v)) * 1.3, cl(1 - v)); ctx.globalAlpha = 1;
       }
-      const col = n.star === 2 ? '#ffffff' : ink ? inkOf(n.color) : n.color;
+      const col = n.star === 2 ? '#ffffff' : pS >= 0 && n.colW && n.ciW >= 0 ? this.pcMix(n.ciW, n.ci, ink) : ink ? inkOf(n.color) : n.color;
       const fresh = n.file && now - n.file.stat.mtime < 600000;
-      if (fresh) { const h = 0.5 + 0.5 * Math.sin(t / 380 + hash(n.path) * 6); ctx.fillStyle = ink ? inkOf(C.mint) : C.mint; ctx.globalAlpha = cl(0.17 * h * a); ctx.beginPath(); ctx.arc(px, py, r * 3.4, 0, TAU); ctx.fill(); }
-      if (n.loop && !sh) {
+      if (fresh) { const h = 0.5 + 0.5 * Math.sin(t / 380 + hash(n.path) * 6); disc(ink ? inkOf(C.mint) : C.mint, px, py, r * 3.4, cl(0.17 * h * a)); }
+      if (n.loop && !sh && lpk > 0.002) {
         const lf = n.loopFront, ph = n.lph || (n.lph = 1 + hash(`${n.path}\u0003`) * 6), h = 0.5 + 0.5 * Math.sin(t / (lf ? 650 : 1150) + ph), lr = Math.max(lf ? 18 : 11, r * (lf ? 9 : 6));
-        const lg = this.dotGlow(ink ? inkOf(C.sand) : C.sand), la = Math.min(1, a * 1.5) * (ink ? 0.8 : gk);
-        ctx.globalAlpha = cl((lf ? 0.75 + 0.25 * h : 0.4 + 0.35 * h) * la); ctx.drawImage(lg, px - lr, py - lr, lr * 2, lr * 2);
+        const lc = ink ? inkOf(C.sand) : C.sand, la = Math.min(1, a * 1.5) * (ink ? 0.8 : gk) * lpk;
+        glow(lc, px, py, lr, cl((lf ? 0.75 + 0.25 * h : 0.4 + 0.35 * h) * la));
         if (lf) {
-          const r2 = lr * 0.55; ctx.globalAlpha = cl((0.6 + 0.4 * h) * la); ctx.drawImage(lg, px - r2, py - r2, r2 * 2, r2 * 2);
-          const e = ((t + ph * 530) % 3200) / 3200, sr = lr * (0.7 + 1.5 * e); ctx.globalAlpha = cl(0.7 * (1 - e) * (1 - e) * la); ctx.drawImage(lg, px - sr, py - sr, sr * 2, sr * 2);
+          glow(lc, px, py, lr * 0.55, cl((0.6 + 0.4 * h) * la));
+          const e = ((t + ph * 530) % 3200) / 3200; glow(lc, px, py, lr * (0.7 + 1.5 * e), cl(0.7 * (1 - e) * (1 - e) * la));
         }
         ctx.globalAlpha = 1;
       }
-      const gs = this.dotGlow(col), gr = r * (n.star ? 5.6 : 4.4);
-      ctx.globalAlpha = cl((n.star ? 1 : 0.62) * a * gk); ctx.drawImage(gs, px - gr, py - gr, gr * 2, gr * 2);
-      ctx.fillStyle = hv || sh ? '#ffffff' : col; ctx.globalAlpha = sh ? 1 : cl(a * dk);
-      ctx.beginPath(); ctx.arc(px, py, hv ? r + 1.5 : r, 0, TAU); ctx.fill();
-      if (ink && r > 2.6 && !hv && !sh && PAPER.shine) { const hr = r * 0.95; ctx.globalAlpha = cl(PAPER.shine * a); ctx.drawImage(this.dotGlow(TH.bg), px - 0.3 * r - hr, py - 0.32 * r - hr, hr * 2, hr * 2); }
-      if (r > 1.8 && !hv && !sh && !ink) { ctx.fillStyle = '#fffaf0'; ctx.globalAlpha = cl((n.star ? 0.85 : 0.48) * a); ctx.beginPath(); ctx.arc(px, py, r * (n.star ? 0.55 : 0.45), 0, TAU); ctx.fill(); }
+      glow(col, px, py, r * (n.star ? 5.6 : 4.4), cl((n.star ? 1 : 0.62) * a * gk));
+      disc(hv || sh ? '#ffffff' : col, px, py, hv ? r + 1.5 : r, sh ? 1 : cl(a * dk));
+      if (ink && r > 2.6 && !hv && !sh && PAPER.shine) glow(TH.bg, px - 0.3 * r, py - 0.32 * r, r * 0.95, cl(PAPER.shine * a));
+      if (r > 1.8 && !hv && !sh && !ink) disc('#fffaf0', px, py, r * (n.star ? 0.55 : 0.45), cl((n.star ? 0.85 : 0.48) * a));
       ctx.globalAlpha = 1;
-      const p = this.pp || (this.pp = { x: 0, y: 0, near: 0 }); p.x = px; p.y = py; p.near = pn;
-      if (n.loopFront && !this.look && n !== shown && !(q && n.m) && !(foc !== null && n.ring === foc)) {
-        const sp = this.labelSprite(n.name, C.sand); ctx.globalAlpha = cl(0.62 * a * (0.6 + 0.4 * p.near)); ctx.drawImage(sp, p.x + r + 6, p.y + 3 - sp.base, sp.width / sp.dpr, sp.height / sp.dpr); ctx.globalAlpha = 1;
+      if (n.loopFront && lpk > 0.002 && !this.look && n !== shown && !(q && n.m) && !(foc !== null && n.ring === foc)) {
+        const sp = this.labelSprite(n.name, C.sand), la = cl(0.62 * a * (0.6 + 0.4 * pn)) * lpk, lx = px + r + 6, ly = py + 3 - sp.base, lw = sp.width / sp.dpr, lh = sp.height / sp.dpr;
+        over(lx, ly, lx + lw, ly + lh, () => { ctx.globalAlpha = la; ctx.drawImage(sp, lx, ly, lw, lh); ctx.globalAlpha = 1; });
       } else if (!this.look && (top.has(n.path) || (near && near.has(n))) && n !== shown && !(q && n.m) && !(foc !== null && n.ring === foc)) {
-        const k = prox(p.x, p.y, 220, 30);
-        if (k > 0.01) { const sp = this.labelSprite(n.name, C.text2); ctx.globalAlpha = 0.9 * k * (0.5 + 0.5 * p.near) * (inFocus(n) ? 1 : 0.3); ctx.drawImage(sp, p.x + r + 5, p.y + 3 - sp.base, sp.width / sp.dpr, sp.height / sp.dpr); ctx.globalAlpha = 1; }
-      }
-      const hl = halos.get(n.path);
-      if (hl && hl.ping) {
-        const pc = typeof hl.ping === 'string' ? hl.ping : n.color, halo = ctx.createRadialGradient(p.x, p.y, 0, p.x, p.y, r * 4);
-        halo.addColorStop(0, rgba(pc, 0.3 * a)); halo.addColorStop(1, rgba(pc, 0));
-        ctx.fillStyle = halo; ctx.beginPath(); ctx.arc(p.x, p.y, r * 4, 0, TAU); ctx.fill();
-        for (const [lag, k] of [[0, 1], [500, 0.45]]) {
-          const e = ((t - lag) % 2400) / 2400;
-          if (e < 0) continue;
-          ctx.strokeStyle = rgba(pc, 0.7 * k * a * (1 - e) ** 1.5); ctx.lineWidth = 1.2;
-          ctx.beginPath(); ctx.arc(p.x, p.y, r + 2 + 26 * e, 0, TAU); ctx.stroke();
+        const k = prox(px, py, 220, 30);
+        if (k > 0.01) {
+          const sp = this.labelSprite(n.name, C.text2), la = 0.9 * k * (0.5 + 0.5 * pn) * (inFocus(n) ? 1 : 0.3) * (top.has(n.path) ? 1 : nnk), lx = px + r + 5, ly = py + 3 - sp.base, lw = sp.width / sp.dpr, lh = sp.height / sp.dpr;
+          over(lx, ly, lx + lw, ly + lh, () => { ctx.globalAlpha = la; ctx.drawImage(sp, lx, ly, lw, lh); ctx.globalAlpha = 1; });
         }
       }
-      if (hl && hl.glow) {
-        const h = 0.6 + 0.4 * Math.sin(t / 900), halo = ctx.createRadialGradient(p.x, p.y, 0, p.x, p.y, r * 5);
-        halo.addColorStop(0, rgba(hl.glow, 0.4 * h * a)); halo.addColorStop(1, rgba(hl.glow, 0));
-        ctx.fillStyle = halo; ctx.beginPath(); ctx.arc(p.x, p.y, r * 5, 0, TAU); ctx.fill();
+      const hl = halos.get(n.path);
+      if (hl && (hl.ping || hl.glow || hl.fill)) {
+        const hR = Math.max(r * 5, r + 30, hl.fill ? Math.max(Math.max(r + 1, MAIL_MIN) * 5, 3 * MAIL_MIN) : 0) + 2, nc = n.color;
+        over(px - hR, py - hR, px + hR, py + hR, () => {
+          if (hl.ping) {
+            const pc = typeof hl.ping === 'string' ? hl.ping : nc, halo = ctx.createRadialGradient(px, py, 0, px, py, r * 4);
+            halo.addColorStop(0, rgba(pc, 0.3 * a)); halo.addColorStop(1, rgba(pc, 0));
+            ctx.fillStyle = halo; ctx.beginPath(); ctx.arc(px, py, r * 4, 0, TAU); ctx.fill();
+            for (const [lag, k] of [[0, 1], [500, 0.45]]) {
+              const e = ((t - lag) % 2400) / 2400;
+              if (e < 0) continue;
+              ctx.strokeStyle = rgba(pc, 0.7 * k * a * (1 - e) ** 1.5); ctx.lineWidth = 1.2;
+              ctx.beginPath(); ctx.arc(px, py, r + 2 + 26 * e, 0, TAU); ctx.stroke();
+            }
+          }
+          if (hl.glow) {
+            const h = 0.6 + 0.4 * Math.sin(t / 900), halo = ctx.createRadialGradient(px, py, 0, px, py, r * 5);
+            halo.addColorStop(0, rgba(hl.glow, 0.4 * h * a)); halo.addColorStop(1, rgba(hl.glow, 0));
+            ctx.fillStyle = halo; ctx.beginPath(); ctx.arc(px, py, r * 5, 0, TAU); ctx.fill();
+          }
+          if (hl.fill) {
+            const fr = Math.max(r + 1, MAIL_MIN), gR = Math.max(fr * 5, 3 * MAIL_MIN), halo = ctx.createRadialGradient(px, py, 0, px, py, gR);
+            halo.addColorStop(0, rgba(hl.fill, MAIL_GLOW * a)); halo.addColorStop(1, rgba(hl.fill, 0));
+            ctx.fillStyle = halo; ctx.beginPath(); ctx.arc(px, py, gR, 0, TAU); ctx.fill();
+            ctx.fillStyle = hl.fill; ctx.beginPath(); ctx.arc(px, py, fr, 0, TAU); ctx.fill();
+          }
+        });
       }
-      if (hl && hl.fill) {
-        const h = 0.6 + 0.4 * Math.sin(t / 500), halo = ctx.createRadialGradient(p.x, p.y, 0, p.x, p.y, r * 5);
-        halo.addColorStop(0, rgba(hl.fill, 0.45 * h)); halo.addColorStop(1, rgba(hl.fill, 0));
-        ctx.fillStyle = halo; ctx.beginPath(); ctx.arc(p.x, p.y, r * 5, 0, TAU); ctx.fill();
-        ctx.fillStyle = hl.fill; ctx.beginPath(); ctx.arc(p.x, p.y, r + 1, 0, TAU); ctx.fill();
-      }
-      if (n.sz >= 14 && zo > 0.02) { ctx.strokeStyle = col; ctx.globalAlpha = cl(a * 0.55 * zo * (ink ? PAPER.ring : 1)); ctx.lineWidth = 0.8; ctx.beginPath(); ctx.arc(px, py, r + 3.5 * zo, 0, TAU); ctx.stroke(); ctx.globalAlpha = 1; }
+      if (n.sz >= 14 && zo > 0.02) { ringAt(col, px, py, r + 3.5 * zo, 0.8, cl(a * 0.55 * zo * (ink ? PAPER.ring : 1))); ctx.globalAlpha = 1; }
       if (sh) {
-        const pulse = 0.5 + 0.5 * Math.sin(t / 420);
-        ctx.strokeStyle = rgba(C.sand, 0.55 + 0.3 * pulse); ctx.lineWidth = 1; ctx.beginPath(); ctx.arc(px, py, r + 6 + 2 * pulse, 0, TAU); ctx.stroke();
-        ctx.fillStyle = C.sand; ctx.globalAlpha = 0.95; setFont(`10.5px ${this.mono()}`);
-        const lw = ctx.measureText(n.name).width, lx = px + r + 12 + lw > W - 8 ? px - r - 12 - lw : px + r + 12;
-        ctx.fillText(n.name, lx, py + 3.5); shownBox = [lx - 2, py - 6.5, lx + lw + 2, py + 6.5];
+        const pulse = 0.5 + 0.5 * Math.sin(t / 420), nm = n.name, sr = r + 6 + 2 * pulse;
+        setFont(`10.5px ${this.mono()}`);
+        const lw = ctx.measureText(nm).width, lx = px + r + 12 + lw > W - 8 ? px - r - 12 - lw : px + r + 12;
+        shownBox = [lx - 2, py - 6.5, lx + lw + 2, py + 6.5];
+        over(Math.min(px - sr - 2, lx - 2), py - Math.max(sr + 2, 12), Math.max(px + sr + 2, lx + lw + 2), py + Math.max(sr + 2, 9), () => {
+          ctx.strokeStyle = rgba(C.sand, 0.55 + 0.3 * pulse); ctx.lineWidth = 1; ctx.beginPath(); ctx.arc(px, py, sr, 0, TAU); ctx.stroke();
+          ctx.fillStyle = C.sand; ctx.globalAlpha = 0.95; font = ''; setFont(`10.5px ${this.mono()}`);
+          ctx.fillText(nm, lx, py + 3.5); ctx.globalAlpha = 1;
+        });
       } else if ((q && n.m && n.qr < big60) || (foc !== null && n.ring === foc && n.rank < big60)) LQ.push(n, px + r + 5, py + 3, pn);
       ctx.globalAlpha = 1;
     }
+    if (D) this.dotsFlush(D);
     if (LQ.length) {
       const ord = this.lqOrd || (this.lqOrd = []); ord.length = 0;
       for (let j = 0; j < LQ.length; j += 4) ord.push(j);
@@ -3839,11 +4304,15 @@ class NetworkView extends ItemView {
         gl.attachShader(pg, vs); gl.attachShader(pg, fs); gl.linkProgram(pg);
         const pgB = gl.createProgram(), vsB = sh(gl.VERTEX_SHADER, BELT_VS2);
         gl.attachShader(pgB, vsB); gl.attachShader(pgB, fs); gl.linkProgram(pgB);
-        this.bglJob = { c, gl, pg, vs, fs, pgB, vsB, ext: gl.getExtension('KHR_parallel_shader_compile'), n: 0 };
+        const pgD = gl.createProgram(), vsD = sh(gl.VERTEX_SHADER, DOT_VS), fsD = sh(gl.FRAGMENT_SHADER, DOT_FS);
+        gl.attachShader(pgD, vsD); gl.attachShader(pgD, fsD); gl.linkProgram(pgD);
+        const pgH = gl.createProgram(), vsH = sh(gl.VERTEX_SHADER, HAZE_VS), fsH = sh(gl.FRAGMENT_SHADER, HAZE_FS);
+        gl.attachShader(pgH, vsH); gl.attachShader(pgH, fsH); gl.linkProgram(pgH);
+        this.bglJob = { c, gl, pg, vs, fs, pgB, vsB, pgD, vsD, fsD, pgH, vsH, fsH, ext: gl.getExtension('KHR_parallel_shader_compile'), n: 0 };
         return null;
       }
-      const { c, gl, pg, vs, fs, pgB, vsB, ext } = J;
-      if (ext && ++J.n < 240 && !(gl.getProgramParameter(pg, ext.COMPLETION_STATUS_KHR) && gl.getProgramParameter(pgB, ext.COMPLETION_STATUS_KHR))) return null;
+      const { c, gl, pg, vs, fs, pgB, vsB, pgD, vsD, fsD, pgH, vsH, fsH, ext } = J;
+      if (ext && ++J.n < 240 && !(gl.getProgramParameter(pg, ext.COMPLETION_STATUS_KHR) && gl.getProgramParameter(pgB, ext.COMPLETION_STATUS_KHR) && gl.getProgramParameter(pgD, ext.COMPLETION_STATUS_KHR) && gl.getProgramParameter(pgH, ext.COMPLETION_STATUS_KHR))) return null;
       this.bglJob = null;
       if (gl.getProgramParameter(pg, gl.LINK_STATUS) !== true || gl.getShaderParameter(vs, gl.COMPILE_STATUS) !== true || gl.getShaderParameter(fs, gl.COMPILE_STATUS) !== true) throw 0;
       const okB = gl.getProgramParameter(pgB, gl.LINK_STATUS) === true && gl.getShaderParameter(vsB, gl.COMPILE_STATUS) === true;
@@ -3858,7 +4327,39 @@ class NetworkView extends ItemView {
       c.addEventListener('webglcontextlost', (e) => { e.preventDefault(); if (c.given) return; this.glOff = true; this.bgl = null; });
       this.bgl = { c, gl, pg, vaoA, qb, ib, uS: gl.getUniformLocation(pg, 'S'), uP: gl.getUniformLocation(pg, 'P'), F: new Float32Array(5 * 16384), pal: '',
         pgB: okB ? pgB : null, uSB: okB ? gl.getUniformLocation(pgB, 'S') : null, uPB: okB ? gl.getUniformLocation(pgB, 'P') : null, uU: okB ? gl.getUniformLocation(pgB, 'U') : null,
-        L: okB ? ['q', 'ph', 'o1', 'o2', 'o3', 'cl'].map((n) => gl.getAttribLocation(pgB, n)) : null, palB: '', gb: new Map(), built: false };
+        L: okB ? ['q', 'ph', 'o1', 'o2', 'o3', 'cl'].map((n) => gl.getAttribLocation(pgB, n)) : null, palB: '', gb: new Map(), built: false, dot: null };
+      try {
+        if (gl.getProgramParameter(pgD, gl.LINK_STATUS) === true && gl.getShaderParameter(vsD, gl.COMPILE_STATUS) === true && gl.getShaderParameter(fsD, gl.COMPILE_STATUS) === true) {
+          const vao = gl.createVertexArray(), ib = gl.createBuffer(), L = ['q', 'a', 'c', 'w'].map((n) => gl.getAttribLocation(pgD, n));
+          if (L.every((l) => l >= 0)) {
+            gl.bindVertexArray(vao);
+            gl.bindBuffer(gl.ARRAY_BUFFER, qb); gl.enableVertexAttribArray(L[0]); gl.vertexAttribPointer(L[0], 2, gl.FLOAT, false, 0, 0);
+            gl.bindBuffer(gl.ARRAY_BUFFER, ib);
+            for (const l of L.slice(1)) { gl.enableVertexAttribArray(l); gl.vertexAttribDivisor(l, 1); }
+            const tex = gl.createTexture();
+            gl.bindTexture(gl.TEXTURE_2D, tex);
+            gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR); gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+            gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE); gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+            this.bgl.dot = { pg: pgD, vao, ib, L, tex, src: null, uS: gl.getUniformLocation(pgD, 'S'), uT: gl.getUniformLocation(pgD, 'T'), uU: gl.getUniformLocation(pgD, 'U'), cov: null };
+          }
+          gl.bindVertexArray(null);
+        }
+      } catch { if (this.bgl) this.bgl.dot = null; }
+      this.bgl.hz = null;
+      try {
+        if (gl.getProgramParameter(pgH, gl.LINK_STATUS) === true && gl.getShaderParameter(vsH, gl.COMPILE_STATUS) === true && gl.getShaderParameter(fsH, gl.COMPILE_STATUS) === true) {
+          const vao = gl.createVertexArray(), ib = gl.createBuffer(), L = ['q', 'a', 'b'].map((n) => gl.getAttribLocation(pgH, n));
+          if (L.every((l) => l >= 0)) {
+            gl.bindVertexArray(vao);
+            gl.bindBuffer(gl.ARRAY_BUFFER, qb); gl.enableVertexAttribArray(L[0]); gl.vertexAttribPointer(L[0], 2, gl.FLOAT, false, 0, 0);
+            gl.bindBuffer(gl.ARRAY_BUFFER, ib);
+            gl.enableVertexAttribArray(L[1]); gl.vertexAttribPointer(L[1], 4, gl.FLOAT, false, 32, 0); gl.vertexAttribDivisor(L[1], 1);
+            gl.enableVertexAttribArray(L[2]); gl.vertexAttribPointer(L[2], 4, gl.FLOAT, false, 32, 16); gl.vertexAttribDivisor(L[2], 1);
+            this.bgl.hz = { pg: pgH, vao, ib, F: new Float32Array(8 * (BELT_HAZE.n1 + BELT_HAZE.n2)), uS: gl.getUniformLocation(pgH, 'S'), uP: gl.getUniformLocation(pgH, 'P'), col: hex3(BELT_HAZE.col) };
+          }
+          gl.bindVertexArray(null);
+        }
+      } catch { if (this.bgl) this.bgl.hz = null; }
     } catch { this.glOff = true; this.dropJobGL(); return null; }
     return this.bgl;
   }
@@ -3906,7 +4407,8 @@ class NetworkView extends ItemView {
     let G = tr.pick === 'cv' || (!tr.pick && tr.f >= 70 && tr.f < 110) ? null : this.beltGL();
     const T = G && ctx.getTransform ? ctx.getTransform() : null, dp = T ? T.a : 1;
     if (G && (!T || T.b || T.c || T.e || T.f || Math.abs(T.a - T.d) > 1e-9)) G = null;
-    const ink = !!this.theme().ink, pal = G ? [C.text2, C.muted, C.sand, '#c4bdb0', ink ? this.theme().bg : '#000000', BELT_DARK] : null;
+    const ink = !!this.theme().ink, grey = ink ? '#c4bdb0' : BELT_GREY, nb = beltNear(this.zoom, this.zoomLand, this.pitch, ink);
+    const pal = G ? [C.text2, C.muted, C.sand, grey, ink ? this.theme().bg : '#000000', BELT_DARK] : null;
     const pk = pal && pal.join();
     if (G && pk !== G.pal) {
       const v = pal.map(hex3);
@@ -3915,6 +4417,7 @@ class NetworkView extends ItemView {
     if (G) { const need = 5 * (this.dust.length + (ink ? 2 : 1) * ((this.rogue ? this.rogue.length : 0) + (this.belt ? this.belt.rocks.length : 0) + (this.belt2 ? this.belt2.rocks.length : 0))); if (G.F.length < need) G.F = new Float32Array(need); }
     const F = G ? G.F : null;
     let o = 0, x0 = Infinity, y0 = Infinity, x1 = -Infinity, y1 = -Infinity;
+    let ho = 0;
     const R = this.rmax || 400, ct = Math.cos(0.07), st = Math.sin(0.07), cy = Math.cos(this.yaw), sy = Math.sin(this.yaw);
     const cpi = Math.cos(this.pitch), spi = Math.sin(this.pitch), kz = this.k * this.zoom, FP = this.fp || (this.fp = { x: 0, y: 0, near: 0 });
     const PD = this.D || 3400, wv = this.waves && this.waves.length;
@@ -3943,7 +4446,7 @@ class NetworkView extends ItemView {
     for (const d of this.dust) {
       const th = d.a0 + d.w * t, p = fast(Math.cos(th) * d.r * R, d.y * R, Math.sin(th) * d.r * R);
       if (p.x < -4 || p.y < -4 || p.x > W + 4 || p.y > H + 4) continue;
-      const al = Math.min(1, d.al * (0.5 + 0.5 * p.near));
+      const al = Math.min(1, d.al * (0.5 + 0.5 * p.near)) * BELT_A;
       if (F) {
         const ps = fr ? scw(p.sc) : 1;
         if (d.big) { F[o] = p.x * dp; F[o + 1] = p.y * dp; F[o + 2] = 1.25 * ps * dp; F[o + 4] = 3; }
@@ -3965,13 +4468,13 @@ class NetworkView extends ItemView {
         if (dz < 0.3 || p.x < -9 || p.y < -9 || p.x > W + 9 || p.y > H + 9) continue;
         const al = Math.min(1, b.al * (0.55 + 0.45 * p.near)) * Math.min(1, (dz - 0.3) / 0.2), rad = (b.big ? 2.05 : 1.5) * rzr * (ink ? PAPER.rock : 1) * Math.max(0.6, Math.min(1.5, 1 / Math.sqrt(dz))) * (fr ? Math.min(scw(p.sc), 2.5) : 1);
         if (F) {
-          if (ink) { F[o] = p.x * dp; F[o + 1] = p.y * dp; F[o + 2] = (rad + PAPER.halo * rzr) * dp; F[o + 3] = 0.85 * al; F[o + 4] = 9; o += 5; }
+          if (ink && PAPER.halo > 0) { F[o] = p.x * dp; F[o + 1] = p.y * dp; F[o + 2] = (rad + PAPER.halo * rzr) * dp; F[o + 3] = 0.85 * al; F[o + 4] = 9; o += 5; }
           F[o] = p.x * dp; F[o + 1] = p.y * dp; F[o + 2] = rad * dp; F[o + 3] = ink ? PAPER.rockA + (1 - PAPER.rockA) * al : al; F[o + 4] = RK[b.tone]; o += 5;
           if (p.x - rad < x0) x0 = p.x - rad; if (p.x + rad > x1) x1 = p.x + rad; if (p.y - rad < y0) y0 = p.y - rad; if (p.y + rad > y1) y1 = p.y + rad;
           continue;
         }
-        if (ink) { ctx.fillStyle = this.theme().bg; ctx.globalAlpha = 0.85 * al; ctx.beginPath(); ctx.arc(p.x, p.y, rad + PAPER.halo * rzr, 0, TAU); ctx.fill(); }
-        ctx.fillStyle = b.tone === 0 ? C.sand : b.tone === 1 ? '#c4bdb0' : C.muted; ctx.globalAlpha = ink ? PAPER.rockA + (1 - PAPER.rockA) * al : al;
+        if (ink && PAPER.halo > 0) { ctx.fillStyle = this.theme().bg; ctx.globalAlpha = 0.85 * al; ctx.beginPath(); ctx.arc(p.x, p.y, rad + PAPER.halo * rzr, 0, TAU); ctx.fill(); }
+        ctx.fillStyle = b.tone === 0 ? C.sand : b.tone === 1 ? grey : C.muted; ctx.globalAlpha = ink ? PAPER.rockA + (1 - PAPER.rockA) * al : al;
         ctx.beginPath(); ctx.arc(p.x, p.y, rad, 0, TAU); ctx.fill();
       }
     }
@@ -3979,15 +4482,40 @@ class NetworkView extends ItemView {
       if (!belt) continue;
       const bl = belt.rocks, n = bl.length, BX = belt.X, BY = belt.Y, BS = belt.S, BK = belt.K, cnt = belt.cnt, ord = belt.ord, dc = belt.dc || 0;
       cnt.fill(0); nr = (R * belt.c) / 1.45;
-      const rz = Math.max(0.55, Math.min(1, (R * kz) / 330)), kr = ink ? PAPER.rock : 1, sq = 1.7 * rz * kr, rb = 1.8 * rz * kr, zz = (rz - 0.55) / 0.45;
+      const rz = Math.max(0.55, Math.min(1, (R * kz) / 330)), kr = (ink ? PAPER.rock : 1) * (1 + BELT_NEAR.size * nb), sq = 1.7 * rz * kr, rb = 1.8 * rz * kr, zz = (rz - 0.55) / 0.45;
       const sz = (R * kz * belt.c) / 1.45, thin = sz >= 110 ? 1 : Math.pow(sz / 110, 1.5);
-      const frac = (0.75 + 0.25 * zz) * thin, af = 1 + 0.33 * zz;
+      const frac = (0.75 + 0.25 * zz) * thin * (1 + BELT_NEAR.more * nb), af = (1 + 0.33 * zz) * (1 + BELT_NEAR.light * nb), nf = 0.45 + BELT_NEAR.far * nb;
+      const HZ = G && G.hz && nb > 0.02 ? G.hz : null;
+      if (HZ) {
+        const hz = belt.haze || (belt.haze = makeHaze(belt, belt === this.belt ? BELT_HAZE.n1 : BELT_HAZE.n2)), HF = HZ.F, ha = BELT_HAZE.a * nb, d2 = dp * dp;
+        for (let i = 0; i < hz.length && ho + 8 <= HF.length; i++) {
+          const h = hz[i], th = h.a0 + h.w * t, ca = Math.cos(th), sa = Math.sin(th), rr = (h.r + dc) * R, yy = h.y * R;
+          let p = fast(ca * rr, yy, sa * rr);
+          if (p.x < -1e4) continue;
+          const px = p.x, py = p.y, pn = p.near;
+          let sxx = 0.25, sxy = 0, syy = 0.25, gone = false;
+          for (let j = 0; j < 3 && !gone; j++) {
+            const L = (j === 0 ? h.lt : j === 1 ? h.lr : h.lv) * R;
+            p = j === 0 ? fast(ca * rr - sa * L, yy, sa * rr + ca * L) : j === 1 ? fast(ca * (rr + L), yy, sa * (rr + L)) : fast(ca * rr, yy + L, sa * rr);
+            if (p.x < -1e4) gone = true;
+            else { const dx = p.x - px, dy = p.y - py; sxx += dx * dx; sxy += dx * dy; syy += dy * dy; }
+          }
+          if (gone) continue;
+          const ex = 3 * Math.sqrt(sxx), ey = 3 * Math.sqrt(syy), big = Math.max(ex / W, ey / H);
+          if (big > 0.6 || px + ex < 0 || py + ey < 0 || px - ex > W || py - ey > H) continue;
+          const al = ha * h.al * (0.5 + 0.5 * pn) * Math.min(1, (0.6 - big) / 0.35), det = sxx * syy - sxy * sxy;
+          if (al < 0.002 || !(det > 0)) continue;
+          HF[ho] = px * dp; HF[ho + 1] = py * dp; HF[ho + 2] = ex * dp; HF[ho + 3] = ey * dp;
+          HF[ho + 4] = syy / det / d2; HF[ho + 5] = -sxy / det / d2; HF[ho + 6] = sxx / det / d2; HF[ho + 7] = al; ho += 8;
+          if (px - ex < x0) x0 = px - ex; if (px + ex > x1) x1 = px + ex; if (py - ey < y0) y0 = py - ey; if (py + ey > y1) y1 = py + ey;
+        }
+      }
       const rec = GB && G.pgB ? this.beltRec(G, belt, t) : null;
       if (rec) {
         const U = rec.U, rm = (belt.c + dc + 0.42) * 1.04 * R / 0.99144, hm = 0.12 * R;
         U[0] = t - rec.tb; U[4] = ct; U[5] = st; U[6] = PD; U[7] = kz; U[8] = this.cx; U[9] = this.cy; U[10] = R; U[11] = dc;
-        U[12] = cy; U[13] = sy; U[14] = cpi; U[15] = spi; U[16] = nr; U[17] = frac; U[18] = af;
-        U[20] = ink ? 1 : 0; U[21] = ink ? PAPER.rockA : 0; U[22] = sq; U[23] = rb; U[24] = 0; U[25] = ink ? PAPER.halo * rz : 0; U[26] = dp;
+        U[12] = cy; U[13] = sy; U[14] = cpi; U[15] = spi; U[16] = nr; U[17] = frac; U[18] = af; U[19] = nf;
+        U[20] = ink ? 1 : 0; U[21] = ink ? PAPER.rockA : 0; U[22] = sq; U[23] = rb; U[24] = 0; U[25] = ink ? PAPER.halo * rz : 0; U[26] = dp; U[27] = BELT_A;
         if (fr) { U[28] = fr.ex; U[29] = fr.ey; U[30] = fr.ez; U[31] = fr.f; U[32] = fr.cr; U[33] = fr.sr; U[34] = fr.nz; U[35] = fr.dref; U[36] = frw; U[37] = 1; } else U[37] = 0;
         let ok = true, qx0 = Infinity, qy0 = Infinity, qx1 = -Infinity, qy1 = -Infinity;
         for (let j = 0; j < 48 && ok; j++) {
@@ -4005,18 +4533,18 @@ class NetworkView extends ItemView {
         const th = b.a0 + b.w * t, ca = Math.cos(th), sa = Math.sin(th);
         const rr = (b.r + dc) * (1 + b.e * (ca * b.pc - sa * b.ps)) * R, p = fast(ca * rr, (b.y + b.yi * (sa * b.pc - ca * b.ps)) * R, sa * rr);
         if (p.x < -4 || p.y < -4 || p.x > W + 4 || p.y > H + 4) { BK[i] = 255; continue; }
-        const lv = Math.min(9, Math.floor(10 * Math.min(1, b.al * af * (0.7 + 0.4 * D) * Math.min(1, vis) * (0.45 + 0.55 * p.near))));
+        const lv = Math.min(9, Math.floor(10 * Math.min(1, b.al * af * (0.7 + 0.4 * D) * Math.min(1, vis) * (nf + (1 - nf) * p.near))));
         BX[i] = p.x; BY[i] = p.y; BS[i] = (fr ? (b.big ? scw(p.sc) : Math.min(scw(p.sc), 1.5)) : 1) * (b.big === 2 ? rb * 1.35 : b.big ? rb * 0.92 : sq) * b.s * (0.84 + 0.28 * p.near);
         BK[i] = b.tone * 30 + b.big * 10 + lv; cnt[BK[i] + 1]++;
         if (F) { if (p.x < x0) x0 = p.x; if (p.x > x1) x1 = p.x; if (p.y < y0) y0 = p.y; if (p.y > y1) y1 = p.y; }
       }
       for (let k = 1; k <= 90; k++) cnt[k] += cnt[k - 1];
       for (let i = 0; i < n; i++) if (BK[i] !== 255) ord[cnt[BK[i]]++] = i;
-      for (let pass = ink ? 0 : 1; pass < 2; pass++) {
+      for (let pass = ink && PAPER.halo > 0 ? 0 : 1; pass < 2; pass++) {
         for (let k = 0, s = 0; k < 90; k++) {
           const e = cnt[k];
           if (e === s) continue;
-          const tn = (k / 30) | 0, big = k % 30 >= 10, al0 = ((k % 10) + 0.5) / 10, al = ink ? PAPER.rockA + (1 - PAPER.rockA) * al0 : al0;
+          const tn = (k / 30) | 0, big = k % 30 >= 10, al0 = ((k % 10) + 0.5) / 10, al = (ink ? PAPER.rockA + (1 - PAPER.rockA) * al0 : al0) * BELT_A;
           if (pass === 0) {
             const hz = PAPER.halo * rz;
             if (F) for (let j = s; j < e; j++) { const i = ord[j], z = BS[i], off = big ? 0 : z * 0.5; F[o] = (BX[i] + off) * dp; F[o + 1] = (BY[i] + off) * dp; F[o + 2] = ((big ? z : z * 0.564) + hz) * dp; F[o + 3] = 0.85 * al; F[o + 4] = 9; o += 5; }
@@ -4029,7 +4557,7 @@ class NetworkView extends ItemView {
             else for (let j = s; j < e; j++) { const i = ord[j], z = BS[i]; F[o] = (BX[i] + z * 0.5) * dp; F[o + 1] = (BY[i] + z * 0.5) * dp; F[o + 2] = z * 0.564 * dp; F[o + 3] = al; F[o + 4] = kk; o += 5; }
             s = e; continue;
           }
-          ctx.fillStyle = tn === 0 ? C.sand : tn === 1 ? '#c4bdb0' : BELT_DARK; ctx.globalAlpha = al;
+          ctx.fillStyle = tn === 0 ? C.sand : tn === 1 ? grey : BELT_DARK; ctx.globalAlpha = al;
           if (big) for (let j = s; j < e; j++) { const i = ord[j]; ctx.beginPath(); ctx.arc(BX[i], BY[i], BS[i], 0, TAU); ctx.fill(); }
           else for (let j = s; j < e; j++) { const i = ord[j], z = BS[i]; if (z < 1.6) ctx.fillRect(BX[i], BY[i], z, z); else { ctx.beginPath(); ctx.arc(BX[i] + z * 0.5, BY[i] + z * 0.5, z * 0.564, 0, TAU); ctx.fill(); } }
           s = e;
@@ -4037,13 +4565,19 @@ class NetworkView extends ItemView {
       }
       ctx.globalAlpha = 1; nr = R;
     }
-    if (G && (o || BJ.length)) {
+    if (G && (o || BJ.length || ho)) {
       const gl = G.gl, cw = this.canvas.width, ch = this.canvas.height;
       if (G.c.width !== cw || G.c.height !== ch) { G.c.width = cw; G.c.height = ch; }
       const bx = Math.max(0, Math.floor((x0 - 4) * dp)), by = Math.max(0, Math.floor((y0 - 4) * dp));
       const bw = Math.min(cw, Math.ceil((x1 + 6) * dp)) - bx, bh = Math.min(ch, Math.ceil((y1 + 6) * dp)) - by;
       if (bw > 0 && bh > 0) {
         gl.viewport(0, 0, cw, ch); gl.scissor(bx, ch - by - bh, bw, bh); gl.clearColor(0, 0, 0, 0); gl.clear(gl.COLOR_BUFFER_BIT);
+        if (ho) {
+          const Z = G.hz;
+          gl.useProgram(Z.pg); gl.bindVertexArray(Z.vao); gl.uniform2f(Z.uS, cw, ch); gl.uniform3fv(Z.uP, Z.col);
+          gl.bindBuffer(gl.ARRAY_BUFFER, Z.ib); gl.bufferData(gl.ARRAY_BUFFER, Z.F.subarray(0, ho), gl.STREAM_DRAW);
+          gl.drawArraysInstanced(gl.TRIANGLE_STRIP, 0, 4, ho / 8);
+        }
         if (o) {
           gl.useProgram(G.pg); gl.bindVertexArray(G.vaoA); gl.uniform2f(G.uS, cw, ch);
           gl.bindBuffer(gl.ARRAY_BUFFER, G.ib); gl.bufferData(gl.ARRAY_BUFFER, F.subarray(0, o), gl.STREAM_DRAW);
@@ -4054,7 +4588,7 @@ class NetworkView extends ItemView {
           if (G.palB !== G.pal) { gl.uniform3fv(G.uPB, G.pv); G.palB = G.pal; }
           for (const rec of BJ) {
             gl.bindVertexArray(rec.vao);
-            if (ink) { rec.U[24] = 1; gl.uniform4fv(G.uU, rec.U); gl.drawArraysInstanced(gl.TRIANGLE_STRIP, 0, 4, rec.n); rec.U[24] = 0; }
+            if (ink && PAPER.halo > 0) { rec.U[24] = 1; gl.uniform4fv(G.uU, rec.U); gl.drawArraysInstanced(gl.TRIANGLE_STRIP, 0, 4, rec.n); rec.U[24] = 0; }
             gl.uniform4fv(G.uU, rec.U); gl.drawArraysInstanced(gl.TRIANGLE_STRIP, 0, 4, rec.n);
           }
         }
@@ -4082,6 +4616,155 @@ class NetworkView extends ItemView {
     const G = this.bgl; this.bgl = null;
     if (G) { G.c.given = true; try { const x = G.gl.getExtension('WEBGL_lose_context'); if (x) x.loseContext(); } catch {   } }
   }
+  dotsGL() {
+    const G = this.bgl, ctx = this.ctx;
+    if (!G || !G.dot || this.glOff || ctx.globalCompositeOperation !== 'source-over' || !ctx.imageSmoothingEnabled || (ctx.imageSmoothingQuality && ctx.imageSmoothingQuality !== 'low')) return null;
+    const T = ctx.getTransform ? ctx.getTransform() : null;
+    if (!T || T.b || T.c || T.e || T.f || Math.abs(T.a - T.d) > 1e-9) return null;
+    const D = this.dq || (this.dq = { F: new Float32Array(9 * 4096), o: 0, ov: [], sk: [], dp: 1, G: null, open: false });
+    D.dp = T.a; D.G = G;
+    return D;
+  }
+  dotsRoom(D, n) {
+    if (D.F.length >= D.o + 9 * n) return;
+    const F = new Float32Array(Math.max(D.F.length * 2, D.o + 9 * n)); F.set(D.F.subarray(0, D.o)); D.F = F;
+  }
+  dotsCov(G, cw, ch) {
+    const X = G.dot, gl = G.gl;
+    if (!X || X.cov === false) return false;
+    let cv = X.cov;
+    if (cv && cv.w === cw && cv.h === ch) return true;
+    try {
+      if (!cv) cv = X.cov = { tex: gl.createTexture(), fb: gl.createFramebuffer(), w: 0, h: 0 };
+      gl.activeTexture(gl.TEXTURE1); gl.bindTexture(gl.TEXTURE_2D, cv.tex);
+      gl.texImage2D(gl.TEXTURE_2D, 0, gl.R8, cw, ch, 0, gl.RED, gl.UNSIGNED_BYTE, null);
+      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST); gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
+      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE); gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+      gl.bindTexture(gl.TEXTURE_2D, null); gl.activeTexture(gl.TEXTURE0);
+      gl.bindFramebuffer(gl.FRAMEBUFFER, cv.fb); gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, cv.tex, 0);
+      const ok = gl.checkFramebufferStatus(gl.FRAMEBUFFER) === gl.FRAMEBUFFER_COMPLETE;
+      gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+      if (!ok) { X.cov = false; return false; }
+      cv.w = cw; cv.h = ch;
+      return true;
+    } catch { X.cov = false; return false; }
+  }
+  dotRGB(c, k) {
+    const M = k === 0 ? this.dotCG || (this.dotCG = new Map()) : this.dotC || (this.dotC = new Map());
+    let v = M.get(c);
+    if (v) return v;
+    if (M.size > 256) M.clear();
+    if (k === 0) { const n = parseInt(String(c).slice(1), 16); v = [(n >> 16) / 255, ((n >> 8) & 255) / 255, (n & 255) / 255, 1]; }
+    else {
+      const g = this.cssG || (this.cssG = document.createElement('canvas').getContext('2d'));
+      g.fillStyle = '#000000'; g.fillStyle = c;
+      const s = String(g.fillStyle), h = hex3(s), m = h ? null : /^rgba?\(([^)]+)\)$/i.exec(s), p = m ? m[1].split(',').map(Number) : null;
+      v = h ? [h[0], h[1], h[2], 1] : p && p.length >= 3 ? [p[0] / 255, p[1] / 255, p[2] / 255, p.length > 3 ? p[3] : 1] : [0, 0, 0, 1];
+    }
+    M.set(c, v);
+    return v;
+  }
+  pcS() {
+    const X = this.pcx;
+    if (!X) return -1;
+    const s = smooth01(((this.wnow || performance.now()) - X.at) / SET_XF);
+    if (s >= 1) { this.pcx = null; return -1; }
+    return (X.s = s);
+  }
+  mixCol(a, b, s) {
+    const q = Math.round(Math.max(0, Math.min(1, s)) * 32), K = this.mixM || (this.mixM = new Map()), key = `${a}\u0001${b}\u0001${q}`;
+    let c = K.get(key);
+    if (c) return c;
+    if (K.size > 512) K.clear();
+    const A = this.dotRGB(a, 3), B = this.dotRGB(b, 3), m = (j) => Math.max(0, Math.min(255, Math.round((A[j] + (B[j] - A[j]) * (q / 32)) * 255)));
+    c = `#${((1 << 24) | (m(0) << 16) | (m(1) << 8) | m(2)).toString(16).slice(1)}`;
+    K.set(key, c);
+    return c;
+  }
+  pcMix(i0, i1, ink) {
+    const X = this.pcx, a = X.palW[i0], b = this.palette[i1];
+    return this.mixCol(ink ? inkOf(a) : a, ink ? inkOf(b) : b, X.s);
+  }
+  dotsFlush(D) {
+    const ctx = this.ctx, G = D.G, X = G && G.dot, V = D.ov, F = D.F, N = D.o / 9;
+    D.open = false;
+    let i0 = 0, vi = 0;
+    const run = (P) => { while (vi < V.length && V[vi].at <= P) { ctx.globalAlpha = 1; V[vi++].fn(); } };
+    if (N && X && this.bgl === G) {
+      const gl = G.gl, cw = ctx.canvas.width, ch = ctx.canvas.height, L = X.L;
+      if (G.c.width !== cw || G.c.height !== ch) { G.c.width = cw; G.c.height = ch; }
+      gl.useProgram(X.pg); gl.bindVertexArray(X.vao); gl.activeTexture(gl.TEXTURE0); gl.bindTexture(gl.TEXTURE_2D, X.tex);
+      const gs = this.dotGlow('#ffffff');
+      if (X.src !== gs) { gl.pixelStorei(gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL, false); gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, false); gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, gs); X.src = gs; }
+      gl.uniform2f(X.uS, cw, ch); gl.uniform1i(X.uT, 0); gl.uniform1i(X.uU, 1); gl.viewport(0, 0, cw, ch);
+      gl.bindBuffer(gl.ARRAY_BUFFER, X.ib); gl.bufferData(gl.ARRAY_BUFFER, F.subarray(0, D.o), gl.STREAM_DRAW);
+      const B = this.dqB || (this.dqB = new Float32Array(4));
+      const box = (j) => {
+        const o = j * 9, x = F[o], y = F[o + 1], s = F[o + 2], k = F[o + 3];
+        if (k > 3.5) { B[0] = x; B[1] = y; B[2] = x + s; B[3] = y + s; } else if (k > 2.5) { B[0] = x - 1; B[1] = y - 1; B[2] = x + s + 1; B[3] = y + s + 1; } else { const e = k < 0.5 ? s : s + F[o + 4] + 1; B[0] = x - e; B[1] = y - e; B[2] = x + e; B[3] = y + e; }
+      };
+      if (V.length) {
+        const CS = 64, gx = Math.ceil(cw / CS) + 1, gy = Math.ceil(ch / CS) + 1, nc = gx * gy;
+        const hd = this.dqH && this.dqH.length >= nc ? this.dqH : (this.dqH = new Int32Array(nc)), eo = this.dqE || (this.dqE = []), en = this.dqN || (this.dqN = []);
+        hd.fill(-1, 0, nc); eo.length = 0; en.length = 0;
+        let left = 0;
+        for (let i = 0; i < V.length; i++) {
+          const v = V[i]; v.c = false; v.x0 -= 1; v.y0 -= 1; v.x1 += 1; v.y1 += 1;
+          const c0 = Math.max(0, Math.floor(v.x0 / CS)), c1 = Math.min(gx - 1, Math.floor(v.x1 / CS)), r0 = Math.max(0, Math.floor(v.y0 / CS)), r1 = Math.min(gy - 1, Math.floor(v.y1 / CS));
+          if (c0 > c1 || r0 > r1 || v.at >= N) continue;
+          left++;
+          for (let r = r0; r <= r1; r++) for (let c = c0; c <= c1; c++) { const q = r * gx + c; eo.push(i); en.push(hd[q]); hd[q] = eo.length - 1; }
+        }
+        for (let j = V[0].at; j < N && left > 0; j++) {
+          box(j);
+          const ax = B[0], ay = B[1], bx = B[2], by = B[3];
+          const c0 = Math.max(0, Math.floor(ax / CS)), c1 = Math.min(gx - 1, Math.floor(bx / CS)), r0 = Math.max(0, Math.floor(ay / CS)), r1 = Math.min(gy - 1, Math.floor(by / CS));
+          for (let r = r0; r <= r1; r++) for (let c = c0; c <= c1; c++) for (let q = hd[r * gx + c]; q >= 0; q = en[q]) {
+            const v = V[eo[q]];
+            if (!v.c && v.at <= j && ax < v.x1 && bx > v.x0 && ay < v.y1 && by > v.y0) { v.c = true; left--; }
+          }
+        }
+      }
+      const from = (p) => { gl.vertexAttribPointer(L[1], 4, gl.FLOAT, false, 36, p * 36); gl.vertexAttribPointer(L[3], 1, gl.FLOAT, false, 36, p * 36 + 16); gl.vertexAttribPointer(L[2], 4, gl.FLOAT, false, 36, p * 36 + 20); };
+      const SK = D.sk, cv = X.cov;
+      const seg = (i1) => {
+        let ax = Infinity, ay = Infinity, bx = -Infinity, by = -Infinity;
+        for (let j = i0; j < i1; j++) { box(j); if (B[0] < ax) ax = B[0]; if (B[1] < ay) ay = B[1]; if (B[2] > bx) bx = B[2]; if (B[3] > by) by = B[3]; }
+        const x0 = Math.max(0, Math.floor(ax)), y0 = Math.max(0, Math.floor(ay)), x1 = Math.min(cw, Math.ceil(bx)), y1 = Math.min(ch, Math.ceil(by));
+        if (x1 > x0 && y1 > y0) {
+          gl.scissor(x0, ch - y1, x1 - x0, y1 - y0); gl.clearColor(0, 0, 0, 0); gl.clear(gl.COLOR_BUFFER_BIT);
+          let j0 = i0;
+          if (i0 === 0 && SK.length && cv) {
+            gl.activeTexture(gl.TEXTURE1);
+            let zs = -1, ze = -1;
+            for (let r = 0; r < SK.length; r += 3) {
+              const s0 = SK[r], m0 = SK[r + 1], e0 = SK[r + 2];
+              gl.bindFramebuffer(gl.FRAMEBUFFER, cv.fb); gl.bindTexture(gl.TEXTURE_2D, null);
+              if (zs >= 0) { gl.blendFunc(gl.ZERO, gl.ZERO); from(zs); gl.drawArraysInstanced(gl.TRIANGLE_STRIP, 0, 4, ze - zs); gl.blendFunc(gl.ONE, gl.ONE_MINUS_SRC_ALPHA); }
+              from(s0); gl.drawArraysInstanced(gl.TRIANGLE_STRIP, 0, 4, m0 - s0);
+              gl.bindFramebuffer(gl.FRAMEBUFFER, null); gl.bindTexture(gl.TEXTURE_2D, cv.tex);
+              from(m0); gl.drawArraysInstanced(gl.TRIANGLE_STRIP, 0, 4, e0 - m0);
+              zs = s0; ze = m0; j0 = e0;
+            }
+            gl.bindFramebuffer(gl.FRAMEBUFFER, cv.fb); gl.bindTexture(gl.TEXTURE_2D, null);
+            gl.blendFunc(gl.ZERO, gl.ZERO); from(zs); gl.drawArraysInstanced(gl.TRIANGLE_STRIP, 0, 4, ze - zs); gl.blendFunc(gl.ONE, gl.ONE_MINUS_SRC_ALPHA);
+            gl.bindFramebuffer(gl.FRAMEBUFFER, null); gl.activeTexture(gl.TEXTURE0);
+          }
+          if (i1 > j0) { from(j0); gl.drawArraysInstanced(gl.TRIANGLE_STRIP, 0, 4, i1 - j0); }
+          ctx.save(); ctx.setTransform(1, 0, 0, 1, 0, 0); ctx.globalAlpha = 1; ctx.globalCompositeOperation = 'source-over';
+          ctx.drawImage(G.c, x0, y0, x1 - x0, y1 - y0, x0, y0, x1 - x0, y1 - y0); ctx.restore();
+        }
+        i0 = i1;
+      };
+      let ns = 0;
+      for (let i = 0; i < V.length; i++) { const v = V[i]; if (!v.c || i < vi) continue; if (v.at > i0) { seg(v.at); ns++; } run(v.at); }
+      if (N > i0) seg(N);
+      gl.bindVertexArray(null);
+      if (ns > 4 + (N - (SK.length ? SK[SK.length - 1] : 0)) / 96) this.dqOff = (this.lastT || 0) + 1000;
+    }
+    run(Infinity);
+    D.o = 0; V.length = 0; D.sk.length = 0; ctx.globalAlpha = 1;
+  }
   drawSky(t, W, H) {
     const fr = this.fr;
     if (fr && fr.roll) { const c = this.ctx; c.save(); c.translate(this.cx, this.cy); c.rotate(fr.roll); c.translate(-this.cx, -this.cy); try { this.drawSky0(t, W, H); } finally { c.restore(); } return; }
@@ -4091,7 +4774,22 @@ class NetworkView extends ItemView {
     const ctx = this.ctx;
     const F = this.sky, ox = -((((-this.yaw * SKY_PX) % F.width) + F.width) % F.width), oy = (H - F.height) / 2 + this.pitch * 110;
     const ink = this.theme().ink, sk = ink ? PAPER.stars : 1;
-    const Fi = ink ? this.inkSky(F) : F;
+    let Fi = ink ? this.inkSky(F) : F;
+    const X = this.starX;
+    if (X && X.at && X.old.width === Fi.width && X.old.height === Fi.height) {
+      const f = 1 - smooth01((performance.now() - X.at) / SET_XF);
+      if (f > 0.004) {
+        const M = X.mix || (X.mix = document.createElement('canvas'));
+        if (X.mixAt !== this.wnow || M.width !== Fi.width || M.height !== Fi.height) {
+          if (M.width !== Fi.width || M.height !== Fi.height) { M.width = Fi.width; M.height = Fi.height; }
+          const g = M.getContext('2d');
+          g.setTransform(1, 0, 0, 1, 0, 0); g.globalCompositeOperation = 'source-over'; g.globalAlpha = 1; g.clearRect(0, 0, M.width, M.height);
+          g.globalAlpha = f; g.drawImage(X.old, 0, 0); g.globalCompositeOperation = 'lighter'; g.globalAlpha = 1 - f; g.drawImage(Fi, 0, 0);
+          g.globalCompositeOperation = 'source-over'; g.globalAlpha = 1; X.mixAt = this.wnow;
+        }
+        Fi = M;
+      } else this.starX = null;
+    }
     const ck = this.crisp || 0, d = this.dpr, qx = Math.round(ox * d) / d, qy = Math.round(oy * d) / d;
     const lay = this.fr ? (g, x, y) => { for (let dy = -1; dy <= 1; dy++) for (let dx = -1; dx <= 1; dx++) g.drawImage(Fi, x + dx * F.width, y + dy * F.height); }
       : (g, x, y) => { g.drawImage(Fi, x, y); if (F.width + x < W) g.drawImage(Fi, F.width + x, y); };
@@ -4110,12 +4808,18 @@ class NetworkView extends ItemView {
     } else { ctx.globalAlpha = sk; lay(ctx, ox, oy); }
     const TB = this.tbk || (this.tbk = Array.from({ length: 64 }, () => []));
     for (const L of TB) L.length = 0;
-    for (const s of this.twinkle) {
+    const tnow = this.wnow || performance.now(), TO = this.twOut, tout = TO ? 1 - smooth01((tnow - TO.at) / SET_XF) : 0;
+    if (TO && tout <= 0.004) this.twOut = null;
+    const twA = (s, m) => {
       let sx = s.x + ox; if (sx < 0) sx += F.width;
-      if (sx > W && !this.fr) continue;
-      const a = sk * s.a * 0.7;
+      if (sx > W && !this.fr) return;
+      let k = m;
+      if (s.at) { const u = smooth01((tnow - s.at) / SET_XF); if (u >= 1) s.at = 0; else k *= u; }
+      const a = sk * s.a * 0.7 * k;
       if (a > 0.004) TB[stepOf(a)].push(sx, s.y + oy, s.big ? 2 : 1);
-    }
+    };
+    for (const s of this.twinkle) twA(s, 1);
+    if (TO && tout > 0.004) for (const s of TO.L) twA(s, tout);
     fillSteps(ctx, TB, C.text);
     if (this.bandImg && this.bandAt) {
       const Bi = ink ? this.inkBand(this.bandImg) : this.bandImg, L = Bi.width, th = BAND_TILT, ax = Math.cos(th), ay = Math.sin(th), mx = W / 2, my = H / 2;
@@ -4131,14 +4835,16 @@ class NetworkView extends ItemView {
     ctx.globalAlpha = 1;
     if (this.cx !== undefined) {
       const R = (this.outerMax || 1.8 * (this.rmax || 400)) * (this.k || 1) * (this.zoomLand || this.zoom || 1) * PAPER.clearR, q = Math.sin(REST_PITCH);
-      const ck = (ink ? 1 : 0.7) * PAPER.clear * Math.max(0, Math.min(1, (W - R) / (0.5 * W))), fwk = this.glowKeep();
-      if (R > 4 && ck * fwk > 0.01 && !ink) this.clearSky(ctx, R, q, ck, fwk);
-      else if (R > 4 && ck * fwk > 0.01) {
+      const sd = ink ? 1 : 1 + 1.0 * Math.max(0, settingOf(this.plugin.settings, 'stars') / 100 - 1), Rd = ink ? R * CLEAR_GROW : Math.min(R, 0.9 * W) * CLEAR_D.grow;
+      const zL = this.zoomLand || 0, zM = this.zoomMin || 0, zu = zL > 0 && zM > 0 && zL > zM * 1.0001 && this.zoom < zL ? Math.min(1, Math.log(zL / this.zoom) / Math.log(zL / zM) / 0.67) : 0, zf = 1 - zu * zu * (3 - 2 * zu);
+      const ck = Math.min(ink ? 0.8 : 0.92, (ink ? 1 : 0.9) * PAPER.clear * sd * Math.max(0, Math.min(1, (W - (ink ? R : Math.min(R, 0.63 * W))) / (0.5 * W)))), fwk = this.glowKeep() * zf;
+      if (Rd > 4 && ck * fwk > 0.01 && !ink) this.clearSky(ctx, Rd, q, ck, fwk);
+      else if (Rd > 4 && ck * fwk > 0.01) {
         const bg = this.theme().bg, ckf = ck * fwk;
         ctx.save(); ctx.translate(this.cx, this.cy); ctx.scale(1, q);
-        const gr = ctx.createRadialGradient(0, 0, 0, 0, 0, R);
-        gr.addColorStop(0, rgba(bg, ckf)); gr.addColorStop(0.72, rgba(bg, ckf)); gr.addColorStop(0.9, rgba(bg, ckf * 0.35)); gr.addColorStop(1, rgba(bg, 0));
-        ctx.fillStyle = gr; ctx.fillRect(-R, -R, 2 * R, 2 * R); ctx.restore();
+        const gr = ctx.createRadialGradient(0, 0, 0, 0, 0, Rd);
+        clearStops(gr, ckf, (a) => rgba(bg, a));
+        ctx.fillStyle = gr; ctx.fillRect(-Rd, -Rd, 2 * Rd, 2 * Rd); ctx.restore();
       }
     }
     this.skyOx = ox; this.skyOy = oy;
@@ -4162,7 +4868,7 @@ class NetworkView extends ItemView {
       try { this.paintBack(); } finally { this.ctx = main; if (G) G.a = ga; }
       g.globalCompositeOperation = 'destination-in'; g.translate(cx, cy); g.scale(1, q);
       const gr = g.createRadialGradient(0, 0, 0, 0, 0, R);
-      gr.addColorStop(0, `rgba(0,0,0,${ck})`); gr.addColorStop(0.72, `rgba(0,0,0,${ck})`); gr.addColorStop(0.9, `rgba(0,0,0,${ck * 0.35})`); gr.addColorStop(1, 'rgba(0,0,0,0)');
+      clearStops(gr, ck, (a) => `rgba(0,0,0,${Math.max(0, Math.min(1, a))})`, CLEAR_D.f0);
       g.fillStyle = gr; g.fillRect(-R, -R, 2 * R, 2 * R);
       g.setTransform(1, 0, 0, 1, 0, 0); g.globalCompositeOperation = 'source-over';
       Q = this.clearQ = { key, cv, LB: B.LB, lift: this.lift };
@@ -4172,22 +4878,29 @@ class NetworkView extends ItemView {
   frame(t) {
     const ctx = this.ctx, W = this.W, H = this.H;
     this.wnow = performance.now();
+    {
+      const ev = this.evv || (this.evv = {}), dt = Math.min(100, Math.max(0, this.wnow - (this.evT || this.wnow))), k = 1 - Math.exp(-dt / SET_EASE);
+      this.evT = this.wnow;
+      for (const key of SET_EASED) { const v = +settingOf(this.plugin.settings, key), e = ev[key]; ev[key] = e === undefined || !isFinite(e) || Math.abs(v - e) < 0.02 ? v : e + (v - e) * k; }
+    }
     ctx.setTransform(this.dpr, 0, 0, this.dpr, 0, 0);
     const hair = 0.99 / this.dpr, thin = (w) => Math.min(w, hair), thinA = (w) => Math.max(1, Math.min(1.6, (w * this.dpr) / 0.99));
     const S = this.plugin.settings, TH = this.theme();
     this.heldEnd = this.opening() ? this.wnow + HELD_MS : 0;
     ctx.fillStyle = TH.bg; ctx.fillRect(0, 0, W, H);
-    const lcx = this.cx || W * 0.5, dk = settingOf(S, 'darkness'), lkey = `${lcx.toFixed(1)}|${W}|${H}|${S.theme}|${dk}`;
-    const LB = this.liftBake(W, H, TH, dk, settingOf(S, 'theme'));
+    const lcx = this.cx || W * 0.5, dk = settingOf(S, 'darkness'), dkE = this.sv('darkness'), lkey = `${lcx.toFixed(1)}|${W}|${H}|${S.theme}|${dkE.toFixed(2)}`;
+    if (TH.ink) this.lumSet(dkE);
+    const LB0 = this.liftBake(W, H, TH, dk, settingOf(S, 'theme')), LB = Math.abs(dkE - dk) < 0.05 ? LB0 : null;
     if (!LB && this.liftKey !== lkey) {
       const lift = ctx.createRadialGradient(lcx, H * 0.47, 0, lcx, H * 0.47, Math.max(W, H) * LIFT_R);
-      for (let i = 0; i <= 10; i++) { const [r, g, b, a] = liftAt(i / 10, TH, 2 * (1 - dk / 100)); lift.addColorStop(i / 10, `rgba(${Math.round(r)}, ${Math.round(g)}, ${Math.round(b)}, ${a.toFixed(3)})`); }
+      for (let i = 0; i <= 10; i++) { const [r, g, b, a] = liftAt(i / 10, TH, 2 * (1 - dkE / 100)); lift.addColorStop(i / 10, `rgba(${Math.round(r)}, ${Math.round(g)}, ${Math.round(b)}, ${a.toFixed(3)})`); }
       this.lift = lift; this.liftKey = lkey;
     }
     this.back = { LB, lcx, G: this.glowFrame(W, H, TH, dk, S) }; this.paintBack(true);
     const dtMs = Math.min(100, Math.max(0, t - (this.lastT || t))); this.lastT = t;
     let black = this.introCam(t, dtMs);
     if (this.boot && !this.opening()) this.bootOut();
+    if (this.dawnOn && !this.opening()) this.dawnCards();
     if (!this.tour && this.tourIdleDue()) this.startTour();
     const pointing = performance.now() - (this.lastMove || 0) < 2500 && (this.hover || this.hoverMoon || this.overLabel);
     const spinK = settingOf(S, 'spin') / 100, stillTo = this.cg ? 1 : 0;
@@ -4207,7 +4920,7 @@ class NetworkView extends ItemView {
         r.ph = (r.ph || 0) + r.w * dtMs * runK * r.hold;
       }
     }
-    const want = this.canvas.classList.contains('dragging') || this.shown ? 0 : (pointing ? SPIN * 0.2 : SPIN) * spinK;
+    const want = this.canvas.classList.contains('dragging') || this.shown ? 0 : SPIN * spinK;
     this.spinV = this.spinV === undefined ? SPIN * spinK : this.spinV + (want - this.spinV) * Math.min(1, dtMs / 450);
     if (Math.abs(this.spinV - want) < 1e-7) this.spinV = want;
     if (this.tour) this.tourCam();
@@ -4230,7 +4943,7 @@ class NetworkView extends ItemView {
     }
     this.spin += 0.000144 * dtMs * spinK;
     const narrow = W < 980;
-    const sdt = Math.min(0.05, dtMs / 1000), sx = springStep(this.shift, this.shiftV || 0, this.shown && !narrow ? SHIFT : 0, 8, sdt), sy = springStep(this.shiftY || 0, this.shiftYV || 0, this.shown && !narrow ? SHIFT_UP : 0, 8, sdt);
+    const sdt = Math.min(0.05, dtMs / 1000), sx = springStep(this.shift, this.shiftV || 0, this.shown && !narrow ? SHIFT : 0, 8, sdt), sy = springStep(this.shiftY || 0, this.shiftYV || 0, this.shown && !narrow ? SHIFT_UP + (this.cg ? H * (this.cg.up || 0) : 0) : 0, 8, sdt);
     this.shift = sx.x; this.shiftV = sx.v; this.shiftY = sy.x; this.shiftYV = sy.v;
     const cyRest = H * 0.62;
     this.cx = W / 2 + this.shift;
@@ -4239,20 +4952,23 @@ class NetworkView extends ItemView {
     const R0 = this.rmax || 400, om = this.outerMax || 0, E = this.ext || { x: 1.22 * R0, up: 0.6 * R0, down: 0.8 * R0 };
     const BIG = 1.885;
     this.k = BIG * Math.min((W * 0.9) / E.x, (cyRest - 12) / E.up) * (this.grow || 1);
-    this.gk = Math.max(1, Math.min(2.6, 0.5 / this.k, (0.075 * R0) / GLOBE_R));
+    if (this.gsTo !== undefined) { const t = Math.max(0, Math.min(1, (performance.now() - (this.gsAt || 0)) / 650)), e = t * t * (3 - 2 * t); this.gsv = this.gsFrom + (this.gsTo - this.gsFrom) * e; if (t >= 1) this.gsTo = undefined; }
+    else if (this.gsv === undefined) this.gsv = this.globeScale();
+    this.gk = Math.max(1, Math.min(2.6, 0.5 / this.k, (0.075 * (this.globeReach || R0)) / GLOBE_R)) * this.gsv;
     const EA = this.extAll || E, fit = (X) => Math.max(ZOOM_MIN, Math.min(1, (W * 0.085) / (X.x * this.k), (H * 0.175) / ((X.up + X.down) * this.k)));
-    this.zoomMin = fit(EA);
+    const EO = this.extOpen || EA, landRaw = Math.min(1, (W * 0.6) / (EO.x * this.k), (H * 0.94) / ((EO.up + EO.down) * this.k));
+    const fitAll = Math.min(1, (W * 0.45) / (EA.x * this.k), (H * 0.45) / (Math.max(EA.up, EA.down) * this.k)), zg = fit(EA);
+    this.zoomMin = Math.max(ZOOM_MIN, Math.min(fitAll, Math.max(zg, landRaw * ZOOM_OUT_LAND)));
     if (this.keepK) {
       const f = this.keepK / (this.k * this.zoom), lim = (z) => Math.max(this.zoomMin, Math.min(this.zoomMax || 14, z * f));
       this.keepK = 0; this.zoom = lim(this.zoom); if (this.zoomTo !== null) this.zoomTo = lim(this.zoomTo);
     }
     { const M = this.morph; if (M && M.kz) { if (this.zoomTo !== null) M.kz = 0; else this.zoom = Math.max(this.zoomMin, Math.min(this.zoomMax || 14, M.kz / this.k)); } }
-    const EO = this.extOpen || EA;
-    this.zoomLand = Math.max(this.zoomMin, Math.min(1, (W * 0.6) / (EO.x * this.k), (H * 0.94) / ((EO.up + EO.down) * this.k)));
+    this.zoomLand = Math.max(this.zoomMin, landRaw);
     if (this.openOut) { this.openOut = false; this.zoom = this.zoomLand; }
     { const M = this.morph; if (M && M.land && !this.intro) { if (this.zoomTo !== null) M.land = false; else this.zoom = this.zoomLand; } }
     const zm = this.zoomMin, lo = this.zoom < 1 && zm < 1 ? Math.min(1, Math.log(this.zoom) / Math.log(zm)) : 0;
-    { const k = Math.max(0, Math.min(1, (lo - 0.3) / 0.5)); this.crisp = (settingOf(S, 'quality') === 'balanced' && this.dpr >= 2 ? 1 - k * k * (3 - 2 * k) : 0) * (this.fr ? 1 - this.fr.w : 1); }
+    { const k = Math.max(0, Math.min(1, (lo - 0.3) / 0.5)); this.crisp = (settingOf(S, 'quality') === 'balanced' && this.dpr >= 2 ? CRISP_MAX * (1 - k * k * (3 - 2 * k)) : 0) * (this.fr ? 1 - this.fr.w : 1); }
     const cyC = H / 2 + ((EA.up - EA.down) * this.k * zm) / 2;
     this.cy = H / 2 + (cyC - H / 2) * lo * lo * (3 - 2 * lo) - this.shiftY;
     if (this.fr) this.cy += (H * FREE_CYP - this.shiftY - this.cy) * this.fr.w;
@@ -4381,6 +5097,7 @@ class NetworkView extends ItemView {
     const big = this.big;
     let hover = this.stepNodes(foc, WV, Cy, Sy, Cp, Sp, KZ, DD, RMX, ccx, ccy);
     this.ringBuf = this.ringBuf || []; this.ringXY = [];
+    const rnk = this.tgl('ringNames', !!settingOf(S, 'ringNames')), PX = this.pcx && this.pcx.tones ? this.pcx : null, rS = PX ? this.pcS() : -1;
     for (let i = 1; i < NR; i++) {
       const ring = rings[i];
       if (!ring.line) continue;
@@ -4399,8 +5116,10 @@ class NetworkView extends ItemView {
         for (let a = 0; a <= 120; a++) { RB[2 * a] = LX[a]; RB[2 * a + 1] = LY[a]; }
         this.ringXY[i] = RB;
       }
-      const base = (foc === null ? 0.11 : foc === i ? 0.32 : 0.045) * rvk * (TH.ink ? PAPER.orbit : 1) * (ring.tone ? 1.6 : 1);
-      ctx.strokeStyle = foc === i ? C.sand : ring.tone ? (TH.ink ? inkOf(ring.tone) : ring.tone) : C.text; ctx.lineWidth = thin(1);
+      const t0 = rS >= 0 && PX.tones[i] !== ring.tone ? PX.tones[i] || null : undefined, tw = t0 === undefined ? (ring.tone ? 1.6 : 1) : (t0 ? 1.6 : 1) + ((ring.tone ? 1.6 : 1) - (t0 ? 1.6 : 1)) * rS;
+      const base = (foc === null ? 0.11 : foc === i ? 0.32 : 0.045) * rvk * (TH.ink ? PAPER.orbit : 1) * tw;
+      const tc = (c) => (c ? (TH.ink ? inkOf(c) : c) : C.text);
+      ctx.strokeStyle = foc === i ? C.sand : t0 !== undefined ? this.mixCol(tc(t0), tc(ring.tone), rS) : tc(ring.tone); ctx.lineWidth = thin(1);
       for (let b = 0; b < 8; b++) {
         ctx.globalAlpha = base * (0.45 + 0.1 * b) * thinA(1); ctx.beginPath();
         let on = false;
@@ -4414,7 +5133,8 @@ class NetworkView extends ItemView {
       }
       ctx.globalAlpha = 1;
       if (ring.fresh || (ring.count || 0) < 3) continue;
-      if (foc !== i && !settingOf(S, 'ringNames')) continue;
+      const rk = foc === i ? 1 : rnk;
+      if (rk <= 0.002) continue;
       if (this.look || this.fr) continue;
       const rr = ring.m0 ? ring.rr : ring.radius;
       const th = i * 2.39 + 0.6 - ring.w * tm + (ring.ph || 0), lx0 = Math.cos(th) * rr, lz0 = Math.sin(th) * rr, lz1 = lz0 * ring.ci;
@@ -4425,13 +5145,14 @@ class NetworkView extends ItemView {
       const depth = 0.45 + 0.55 * p.near;
       let al = foc === i ? 0.95 : (foc === null ? 0.5 : 0.25) * depth;
       if (foc !== i) al += (0.92 - al) * (over ? 1 : prox(lx + lw / 2, ly - 4, 200, 40));
-      al *= rvk;
+      al *= rvk * rk;
       const sp = foc === i ? this.labelSprite(label, C.sand) : over ? this.labelSprite(label, C.text) : sp0;
       ctx.globalAlpha = al; ctx.drawImage(sp, lx - 1, ly - sp.base, sp.width / sp.dpr, sp.height / sp.dpr); ctx.globalAlpha = 1;
-      this.labelHits.push({ i, x: lx, y: ly - 10, w: lw, h: 13 });
+      if (rk > 0.5) this.labelHits.push({ i, x: lx, y: ly - 10, w: lw, h: 13 });
     }
     const R = this.rmax || 400;
     this.drawBelts(tm, W, H);
+    this.paintRim(RIM_BELTS);
     if (this.rippleQ.length && t - this.lastRipple > this.rippleGap) { const s = this.rippleQ.shift(); this.ripples.push({ t0: t, s, dur: 3000 * (0.8 + 0.25 * s) }); this.lastRipple = t; }
     this.ripples = this.ripples.filter((r) => t - r.t0 < r.dur);
     const GR = GLOBE_R * (this.gk || 1);
@@ -4470,13 +5191,13 @@ class NetworkView extends ItemView {
     if (this.workDue && this.nodes.length && !this.boot) { this.workDue = false; this.syncLoops(); this.syncDues().catch((e) => this.fail('the due dates', e)); }
     if (this.loopFront) for (const fp of this.loopFront) { const n = this.byPath.get(fp); if (n && !n.pl && n !== hubNode && n.v >= 0.02) { n.pl = true; this.plist.push(n); } }
     const bare = !this.shown && !this.intro && !this.boot && !this.tour && !this.lapse && !this.look && this.focus === null;
-    this.loopsShow(!!(bare && this.loopFront && this.loopFront.length));
+    this.loopsShow(!!(bare && this.loopFront && this.loopFront.length && !this.loopHold));
     this.duesShow(!!(bare && this.dueList && this.dueList.length));
     if (this.duesOn && t - (this.duesT || 0) > 30000) { this.duesT = t; this.paintDues(); }
     const EB = this.eb && this.eb.length === 6 ? this.eb : (this.eb = Array.from({ length: 6 }, () => []));
     const FH = this.fh || (this.fh = []), FS = this.fs || (this.fs = []);
     FH.length = 0; FS.length = 0;
-    const LK = settingOf(S, 'links') / 5, LINES = 0.09 * LK * LK, LBU = 0.09 * LK ** 1.24;
+    const LK = this.sv('links') / 5, LINES = 0.09 * LK * LK, LBU = 0.09 * LK ** 1.24;
     for (const L of EB) L.length = 0;
     const off = (a, b) => (a.px < 0 && b.px < 0) || (a.py < 0 && b.py < 0) || (a.px > W && b.px > W) || (a.py > H && b.py > H);
     const fade = (L, a, b) => { if (!off(a, b)) L.push(a.px, a.py, b.px, b.py); };
@@ -4653,9 +5374,23 @@ class NetworkView extends ItemView {
     const vlook = `${S.theme}|${dk}|`, vkey = `${vlook}${W}|${H}`;
     if (!this.vig || (this.vig.key !== vkey && (!this.vig.key.startsWith(vlook) || this.steady()))) this.vigStep(W, H, TH, dk, vkey);
     const VG = this.vig;
-    if (VG && VG.screen) { ctx.globalCompositeOperation = 'screen'; ctx.drawImage(VG.c, 0, 0, W, H); ctx.globalCompositeOperation = 'source-over'; }
-    else if (VG) ctx.drawImage(VG.c, 0, 0, W, H);
+    if (VG) {
+      const vs = VG.from ? smooth01((this.wnow - VG.at) / SET_XF) : 1;
+      if (vs >= 1) VG.from = null;
+      const lay = (V, m) => {
+        const vf = (V.dk === undefined ? 1 : Math.max(0, Math.min(2, (0.5 + dkE / 100) / (0.5 + V.dk / 100)))) * m;
+        if (!(vf > 0.002)) return;
+        if (V.screen) ctx.globalCompositeOperation = 'screen';
+        ctx.globalAlpha = Math.min(1, vf); ctx.drawImage(V.c, 0, 0, W, H);
+        if (vf > 1.002) { ctx.globalAlpha = vf - 1; ctx.drawImage(V.c, 0, 0, W, H); }
+        ctx.globalAlpha = 1; ctx.globalCompositeOperation = 'source-over';
+      };
+      if (VG.from) lay(VG.from, 1 - vs);
+      lay(VG, vs);
+    }
     if (black > 0) { const V = TH.vig; ctx.fillStyle = `rgba(${V[0]}, ${V[1]}, ${V[2]}, ${black.toFixed(3)})`; ctx.fillRect(0, 0, W, H); }
+    this.xfTick();
+    this.lastInk = !!TH.ink;
     if (!this.lastClock || t - this.lastClock > 1000) { this.lastClock = t; this.clock.textContent = `● LIVE  ${new Date().toLocaleTimeString('en-GB')}`; }
   }
   newLiving(now, initial) {
@@ -4755,9 +5490,14 @@ class NetworkView extends ItemView {
     const before = this.novas.length;
     this.novas = this.novas.filter((n) => { if (n.endAt && now - n.endAt >= n.endMs) return false; if (now - n.born < NEBULA_MS) return true; if (!n.demo) this.remnants.push({ u: n.u, v: n.v, end: n.born + NEBULA_MS, seed: n.seed, hues: n.hues, scale: n.scale || 1 }); return false; });
     if (this.novas.length !== before) { this.saveNovas(); this.saveDust(); }
-    const shown = NV === 'off' ? this.novas.filter((n) => n.demo) : this.novas;
-    if (NV !== 'off') this.drawDust(ox, oy, TW, TH, now);
-    for (const n of shown) { const p = at(n.u * TW, n.v * TH), age = now - n.born; this.drawNebula(p, n, age); this.drawFlare(p, age, n.hue, n); }
+    const nvk = this.tgl('novas', NV !== 'off'), shown = nvk > 0.002 ? this.novas : this.novas.filter((n) => n.demo);
+    if (nvk > 0.002) { this.nvA = nvk; this.drawDust(ox, oy, TW, TH, now); }
+    for (const n of shown) {
+      const p = at(n.u * TW, n.v * TH), age = now - n.born, m = n.demo ? 1 : nvk;
+      this.nvA = m; this.drawNebula(p, n, age);
+      ctx.globalAlpha = m; this.drawFlare(p, age, n.hue, n); ctx.globalAlpha = 1;
+    }
+    this.nvA = 1;
     this.waves = [];
     const far = Math.hypot(W, H) + 80;
     for (const n of shown) {
@@ -4766,10 +5506,10 @@ class NetworkView extends ItemView {
       let sx = n.u * TW + ox; sx -= Math.round((sx - W / 2) / TW) * TW;
       const p = { x: sx, y: n.v * TH + oy };
       const ph = ((n.seed || 0) % 997) / 997 * TAU;
-      const ws = this.novaVar(n).wave;
-      this.waves.push({ x: p.x, y: p.y, r, amp: WAVE_AMP * ws, far, ph, tab: this.swellTable(ph) });
+      const ws = this.novaVar(n).wave, wm = n.demo ? 1 : nvk;
+      this.waves.push({ x: p.x, y: p.y, r, amp: WAVE_AMP * ws * wm, far, ph, tab: this.swellTable(ph) });
       if (r > far) continue;
-      const k = (1 - r / far) * (0.55 + 0.45 * ws);
+      const k = (1 - r / far) * (0.55 + 0.45 * ws) * wm;
       ctx.strokeStyle = rgba(n.hue, 0.1 * k); ctx.lineWidth = 3; ctx.beginPath(); ctx.arc(p.x, p.y, r, 0, TAU); ctx.stroke();
       ctx.strokeStyle = rgba('#ffffff', 0.05 * k); ctx.lineWidth = 1; ctx.beginPath(); ctx.arc(p.x, p.y, Math.max(0, r - 3), 0, TAU); ctx.stroke();
     }
@@ -4841,22 +5581,41 @@ class NetworkView extends ItemView {
     const ctx = this.ctx, W = this.W, H = this.H, B = this.back || {}, LB = B.LB, a0 = ctx.globalAlpha;
     ctx.fillStyle = this.theme().bg; ctx.fillRect(0, 0, W, H);
     if (LB) {
-      const fade = LB.from ? Math.max(0, Math.min(1, (this.wnow - LB.at) / 300)) : 1;
+      const u = LB.from ? Math.max(0, Math.min(1, (this.wnow - LB.at) / (LB.ms || 300))) : 1, fade = LB.ms ? smooth01(u) : u;
       if (fade < 1) this.drawBake(LB.from, W, H, B.lcx); else if (first) LB.from = null;
       ctx.globalAlpha = a0 * fade; this.drawBake(LB, W, H, B.lcx); ctx.globalAlpha = a0;
     } else if (this.lift) { ctx.fillStyle = this.lift; ctx.fillRect(0, 0, W, H); }
-    const G = B.G;
-    if (G && G.a > 0.002) { const op = ctx.globalCompositeOperation; ctx.globalCompositeOperation = 'lighter'; ctx.globalAlpha = a0 * G.a; ctx.drawImage(G.c, G.x, G.y, G.w, G.h); ctx.globalAlpha = a0; ctx.globalCompositeOperation = op; }
+    const G = B.G, P = G && G.p;
+    if (G && (G.a > 0.002 || (P && P.a > 0.002))) {
+      const op = ctx.globalCompositeOperation; ctx.globalCompositeOperation = 'lighter';
+      if (P && P.a > 0.002) { ctx.globalAlpha = a0 * P.a; ctx.drawImage(P.c, P.x, P.y, P.w, P.h); }
+      if (G.a > 0.002) { ctx.globalAlpha = a0 * G.a; ctx.drawImage(G.c, G.x, G.y, G.w, G.h); }
+      ctx.globalAlpha = a0; ctx.globalCompositeOperation = op;
+    }
   }
-  paintRim() {
+  paintRim(m = 1) {
     const R = this.glR, ctx = this.ctx;
-    if (!R || R.a < 0.002) return;
-    const a0 = ctx.globalAlpha; ctx.globalAlpha = a0 * R.a; ctx.drawImage(R.c, R.x, R.y, R.w, R.h); ctx.globalAlpha = a0;
+    if (!R) return;
+    const a0 = ctx.globalAlpha, W = this.W, H = this.H;
+    for (const Q of R.p ? [R.p, R] : [R]) {
+      if (Q.a * m < 0.002) continue;
+      ctx.globalAlpha = a0 * Q.a * m; ctx.drawImage(Q.c, Q.x, Q.y, Q.w, Q.h);
+      const x1 = Q.x + Q.w, y1 = Q.y + Q.h;
+      if (Q.edge > 0 && Q.col && (Q.x > 0 || Q.y > 0 || x1 < W || y1 < H)) {
+        ctx.globalAlpha = a0 * Q.a * m * Q.edge; ctx.fillStyle = `rgb(${Q.col[0]},${Q.col[1]},${Q.col[2]})`;
+        const t = Math.max(0, Q.y), b = Math.min(H, y1);
+        if (Q.y > 0) ctx.fillRect(0, 0, W, Q.y);
+        if (y1 < H) ctx.fillRect(0, y1, W, H - y1);
+        if (Q.x > 0 && b > t) ctx.fillRect(0, t, Q.x, b - t);
+        if (x1 < W && b > t) ctx.fillRect(x1, t, W - x1, b - t);
+      }
+    }
+    ctx.globalAlpha = a0;
   }
-  drawHole(sp, p) {
+  drawHole(sp, p, ha = 1) {
     const ctx = this.ctx, W = this.W, H = this.H, R = sp.R;
     if (p.x < -R || p.y < -R || p.x > W + R || p.y > H + R) return;
-    ctx.save(); ctx.beginPath(); ctx.arc(p.x, p.y, R, 0, TAU); ctx.clip(); this.paintBack(); this.paintRim(); ctx.restore();
+    ctx.save(); ctx.globalAlpha = ha; ctx.beginPath(); ctx.arc(p.x, p.y, R, 0, TAU); ctx.clip(); this.paintBack(); this.paintRim(); ctx.restore();
     const Z = Math.max(R, sp.D || 0);
     if (!sp.baked) {
       const cv = (sp.baked = document.createElement('canvas')), g = cv.getContext('2d');
@@ -4866,22 +5625,22 @@ class NetworkView extends ItemView {
       if (sp.front) g.drawImage(sp.front, Z - sp.D, Z - sp.D);
       if (sp.ring) g.drawImage(sp.ring, Z - sp.rz, Z - sp.rz);
     }
-    ctx.drawImage(sp.baked, p.x - Z, p.y - Z);
-    this.drawSpots(p, sp.rs, sp.te);
+    ctx.globalAlpha = ha; ctx.drawImage(sp.baked, p.x - Z, p.y - Z); ctx.globalAlpha = 1;
+    this.drawSpots(p, sp.rs, sp.te, ha);
   }
-  drawSpots(p, rs, te) {
+  drawSpots(p, rs, te, ha = 1) {
     const ctx = this.ctx, t = performance.now(), sq = HOLE_SQ, tilt = HOLE_TILT, ct = Math.cos(tilt), st = Math.sin(tilt);
     if (!this.spots || this.spots.rs !== rs) {
       const rnd = rng(9173 + rs), list = [];
       for (let i = 0; i < 22; i++) { const rr = rs * (1.3 + 3.1 * rnd() ** 1.25); list.push({ rr, th: rnd() * TAU, w: (0.0011 * (1.3 * rs / rr) ** 1.5) * (14 / Math.max(14, rs)) ** 0.5, a: 0.2 + 0.3 * rnd(), s: 0.5 + 0.5 * rnd() }); }
       this.spots = { rs, list, glow: this.dotGlow('#ffe6b8') };
     }
-    const glow = this.spots.glow;
+    const glow = this.dotGlow('#ffe6b8');
     ctx.globalCompositeOperation = 'lighter';
     for (const s of this.spots.list) {
       const th = s.th - s.w * t, lx = Math.cos(th) * s.rr, ly = Math.sin(th) * s.rr * sq;
       const x = p.x + lx * ct - ly * st, y = p.y + lx * st + ly * ct, dop = 0.55 + 0.45 * (-Math.cos(th));
-      const sz = Math.max(2, 0.34 * rs * s.s) * (ly > 0 ? 1 : 0.8), al = s.a * dop * (0.8 + 0.2 * Math.sin(t / 900 + s.th * 7)) * (HOLE_DIM + 0.2);
+      const sz = Math.max(2, 0.34 * rs * s.s) * (ly > 0 ? 1 : 0.8), al = s.a * dop * (0.8 + 0.2 * Math.sin(t / 900 + s.th * 7)) * (HOLE_DIM + 0.2) * ha;
       const tk = te && ly < 0 ? te * smooth01(-Math.sin(th) / 0.6) : 0;
       if (tk < 0.02 * rs) {
         if (!te && ly < 0 && Math.abs(lx) < rs * 1.05) continue;
@@ -4985,7 +5744,8 @@ class NetworkView extends ItemView {
     const W = this.W, H = this.H, pnow = performance.now(), ctx = this.ctx;
     this.holes = [];
     this.holeReady = true;
-    if (!settingOf(this.plugin.settings, 'blackHole')) { this.visitor = null; this.holeJob = null; return; }
+    const hOn = !!settingOf(this.plugin.settings, 'blackHole'), hk = this.tgl('blackHole', hOn);
+    if (hk <= 0.002) { this.visitor = null; this.holeJob = null; return; }
     const c = this.holeAt();
     if (c) {
       const rs = holeSize(this.graveyard.length), p = at(c.x, c.y), pull = holePull(this.graveyard.length), HS = this.holeSprite;
@@ -5004,8 +5764,8 @@ class NetworkView extends ItemView {
           this.holeSprite = { ...r.value, front: ds.front, backF: ds.backF, ring: ds.ring, rz: ds.rz, D: ds.D, rs, te: GRAVE_TE * rs, sky: J.sky };
         } else this.holeReady = false;
       }
-      if (p && this.holeSprite) this.drawHole(this.holeSprite, p);
-      this.holes.push({ x: p ? p.x : -9999, y: p ? p.y : -9999, sx: c.x, sy: c.y, rs, te: LENS_TE * pull, core: true });
+      if (p && this.holeSprite) this.drawHole(this.holeSprite, p, hk);
+      this.holes.push({ x: p ? p.x : -9999, y: p ? p.y : -9999, sx: c.x, sy: c.y, rs, te: LENS_TE * pull * hk, core: hk > 0.5 });
     }
     const wall = Date.now(), visitKey = `${KEY}-visitor:${this.app.vault.getName()}`;
     const nextVisit = () => wall + VISIT_GAP + Math.random() * VISIT_SPREAD;
@@ -5014,7 +5774,7 @@ class NetworkView extends ItemView {
       if (!due) { due = nextVisit(); try { window.localStorage.setItem(visitKey, String(due)); } catch {   } }
       this.nextVisitor = due > wall ? due : wall + 300000 + Math.random() * 3300000;
     }
-    if (!this.visitor && wall > this.nextVisitor) {
+    if (!this.visitor && hOn && wall > this.nextVisitor) {
       this.visitor = this.newVisitor(80000); this.nextVisitor = nextVisit();
       try { window.localStorage.setItem(visitKey, String(this.nextVisitor)); } catch {   }
     }
@@ -5024,7 +5784,7 @@ class NetworkView extends ItemView {
       if (k >= 1) this.visitor = null;
       else {
         const F = this.sky, sx = (((v.x0 + (v.x1 - v.x0) * k) % F.width) + F.width) % F.width, sy = v.y0 + (v.y1 - v.y0) * k;
-        const p = at(sx, sy), alpha = Math.min(1, k / 0.1, (1 - k) / 0.1);
+        const p = at(sx, sy), alpha = Math.min(1, k / 0.1, (1 - k) / 0.1) * hk;
         if (p) { this.visitorAt = { x: p.x, y: p.y, rs: v.rs, te: LENS_TE * v.rs, alpha }; this.holes.push({ x: p.x, y: p.y, sx, sy, rs: v.rs, te: LENS_TE * v.rs * alpha }); }
       }
     }
@@ -5126,7 +5886,7 @@ class NetworkView extends ItemView {
       let x = r.u * TW + ox; x -= Math.round((x - W / 2) / TW) * TW;
       const y = r.v * TH + oy;
       if (x + size < 0 || x - size > W) continue;
-      ctx.globalAlpha = a; ctx.drawImage(this.dustSprite(r), x - size, y - size, size * 2, size * 2);
+      ctx.globalAlpha = a * (this.nvA === undefined ? 1 : this.nvA); ctx.drawImage(this.dustSprite(r), x - size, y - size, size * 2, size * 2);
     }
     ctx.restore();
   }
@@ -5311,7 +6071,7 @@ class NetworkView extends ItemView {
     let P = null;
     if (L.pre || L.d > 0) { P = this.nebulaPieces(n); if (L.d > 0) while (!P.done) P = this.nebulaPieces(n); }
     if (!p || L.a <= 0.003) return;
-    const ctx = this.ctx, size = L.size;
+    const ctx = this.ctx, size = L.size, nm = this.nvA === undefined ? 1 : this.nvA;
     ctx.save(); ctx.globalCompositeOperation = 'lighter'; ctx.translate(p.x, p.y);
     const h = this.holes.find((o) => o.core && Math.hypot(o.x - p.x, o.y - p.y) < 9 * o.te + size);
     if (h) {
@@ -5319,14 +6079,14 @@ class NetworkView extends ItemView {
       ctx.rotate(ang); ctx.scale(1 + 0.7 * f, 1 / (1 + 0.25 * f)); ctx.rotate(-ang);
     }
     ctx.rotate(n.rot || 0);
-    if (L.d <= 0 || !P || !P.done || !P.list) { ctx.globalAlpha = L.a * (1 - smooth01(L.d)); ctx.drawImage(this.nebulaSprite(n), -size, -size, size * 2, size * 2); }
+    if (L.d <= 0 || !P || !P.done || !P.list) { ctx.globalAlpha = L.a * (1 - smooth01(L.d)) * nm; ctx.drawImage(this.nebulaSprite(n), -size, -size, size * 2, size * 2); }
     else {
       const e = L.d ** 1.3, q = size / (P.list[0].width / 2);
       for (let k = 0; k < P.K; k++) {
         const c = P.cs[k], fade = 1 - smooth01((L.d - c.from) / (c.end - c.from));
         if (fade <= 0) continue;
         const s = 1 + c.grow * L.d, r = Math.hypot(c.x, c.y) || 1, ux = c.x / r, uy = c.y / r, out = 1.2 * e * c.sp * size, cx = c.x * q, cy = c.y * q;
-        ctx.globalAlpha = (L.a * fade) / s ** 0.7;
+        ctx.globalAlpha = ((L.a * fade) / s ** 0.7) * nm;
         ctx.save(); ctx.translate(cx + out * (ux - c.side * uy), cy + out * (uy + c.side * ux)); ctx.rotate(c.spin * L.d); ctx.scale(s, s); ctx.translate(-cx, -cy);
         ctx.drawImage(P.list[k], -size, -size, size * 2, size * 2); ctx.restore();
       }
@@ -5389,11 +6149,11 @@ class NetworkView extends ItemView {
     if (f > 0.01) { ctx.fillStyle = `rgba(255,255,255,${Math.min(0.75, 0.25 + 0.5 * f)})`; ctx.beginPath(); ctx.arc(p.x, p.y, (1 + 1.8 * f) * sc, 0, TAU); ctx.fill(); }
   }
   drawRays(p, v, lv, L, th) {
-    const ctx = this.ctx, sp = this.spikeSprite();
+    const ctx = this.ctx, sp = this.spikeSprite(), nm = this.nvA === undefined ? 1 : this.nvA;
     ctx.save(); ctx.globalCompositeOperation = 'lighter';
     for (let i = 0; i < 8; i++) {
       const main = i % 2 === 0, len = L * (main ? 0.8 + (0.28 * (v.slen[i % 6] - 0.5)) / 0.9 : 0.36 + (0.12 * (v.slen[(i + 3) % 6] - 0.5)) / 0.9);
-      ctx.globalAlpha = (main ? 0.75 : 0.4) * lv;
+      ctx.globalAlpha = (main ? 0.75 : 0.4) * lv * nm;
       ctx.translate(p.x, p.y); ctx.rotate(v.srot + (i * Math.PI) / 4);
       ctx.drawImage(sp, sp.width / 2, 0, sp.width / 2, sp.height, 0, -th * (main ? 1 : 0.7), len, 2 * th * (main ? 1 : 0.7));
       ctx.setTransform(this.dpr, 0, 0, this.dpr, 0, 0);
@@ -5534,13 +6294,22 @@ class NetworkView extends ItemView {
   workLevel(now) { const A = this.act; A.work *= Math.exp(-Math.max(0, now - A.workAt) / WORK_TAU); A.workAt = now; return A.work; }
   ambient(now) {
     const A = this.act;
-    if (this.noAmbient || !this.fxOn() || A.flood || now < A.ambAt) return;
-    const w = this.workLevel(now) + (A.typed && now - A.typed.at < TYPED_MS ? 0.6 : 0), wk = Math.min(1, w / WORK_FULL), rate = AMB_IDLE + AMB_BUSY * wk * wk, first = !A.ambAt;
-    A.ambAt = now + Math.min(600000, Math.max(350, (-Math.log(1 - Math.random()) * 1000) / rate));
-    if (first || (A.load >= 14 && Math.random() < (A.load >= 22 ? 0.75 : 0.5))) return;
+    if (this.noAmbient || !this.fxOn() || A.flood) return;
+    const S = this.plugin.settings, more = !!settingOf(S, 'rockets'), xb = more ? ROCKETS_BUSY : 1;
+    const per5 = this.plugin.settings.videoTools ? Math.min(ROCKETS_PER5_MAX, Math.max(0, Math.round(+settingOf(S, 'rocketsPer5') || 0))) : 0;
+    const mode = per5 * 2 + (more ? 1 : 0);
+    if (A.ambMode !== mode) { if (A.ambMode !== undefined && A.ambAt) A.ambAt = Math.min(A.ambAt, now); A.ambMode = mode; }
+    if (now < A.ambAt) return;
+    const first = !A.ambAt;
+    if (per5 > 0) A.ambAt = now + (5000 / per5) * (0.65 + 0.7 * Math.random());
+    else {
+      const w = this.workLevel(now) + (A.typed && now - A.typed.at < TYPED_MS ? 0.6 : 0), wk = Math.min(1, w / WORK_FULL), rate = AMB_IDLE * (more ? ROCKETS_IDLE : 1) + AMB_BUSY * xb * wk * wk;
+      A.ambAt = now + Math.min(600000, Math.max(350 / xb, (-Math.log(1 - Math.random()) * 1000) / rate));
+    }
+    if (first || (!per5 && A.load >= 14 && Math.random() < (A.load >= 22 ? 0.75 : 0.5))) return;
     let amb = 0;
     for (const r of this.rockets) if (r.amb) amb++;
-    if (amb >= AMB_MAX) return;
+    if (amb >= Math.max(AMB_MAX * xb, 2 * per5)) return;
     const W = this.W, H = this.H, pool = this.ambPool || (this.ambPool = []);
     pool.length = 0;
     for (const a of this.nodes) if (a.v !== 0 && a.px >= 0 && a.py >= 0 && a.px <= W && a.py <= H) pool.push(a);
@@ -5864,7 +6633,26 @@ class NetworkView extends ItemView {
   inkSky(F) {
     if (this.inkS && this.inkS.src === F) return this.inkS.c;
     const c = document.createElement('canvas'); c.width = F.width; c.height = F.height;
-    const g = c.getContext('2d'); g.drawImage(F, 0, 0);
+    const g = c.getContext('2d'), S = this.starSrc;
+    if (S && S.painted && S.TW === F.width && this.sky === F && g) {
+      this.paintStars(c, S, S.painted, null, true);
+      const W = c.width, H = c.height, R = rng(9311), dens = this.starDens, hole = this.hole, by = new Map();
+      for (let k = 0, n = Math.round((W * H) / PAPER.extra); k < n; k++) {
+        const x = Math.floor(R() * W), y = Math.floor(R() * H), br = R();
+        if (R() > (dens ? dens(x, y) : 1) * (hole ? hole(x, y) : 1)) continue;
+        const a = Math.round(60 + 195 * br * br);
+        let L = by.get(a);
+        if (!L) by.set(a, (L = []));
+        L.push(x, y, br > 0.93 ? 2 : 1);
+      }
+      for (const [a, L] of by) {
+        g.fillStyle = `rgba(232, 232, 232, ${(a / 255).toFixed(4)})`;
+        for (let j = 0; j < L.length; j += 3) g.fillRect(L[j], L[j + 1], L[j + 2], L[j + 2]);
+      }
+      this.inkS = { src: F, c };
+      return c;
+    }
+    g.drawImage(F, 0, 0);
     const D = c.width && c.height && g.getImageData ? g.getImageData(0, 0, c.width, c.height) : null;
     if (D && D.data) {
       const d = D.data, W = c.width, H = c.height, R = rng(9311), dens = this.starDens, hole = this.hole;
@@ -5918,11 +6706,13 @@ class NetworkView extends ItemView {
     return c;
   }
   dotGlow(col) {
-    const cache = this.glows || (this.glows = new Map());
+    const gq = Math.round(this.sv('glow') / 4) * 4;
+    if (!this.glows || this.glowsQ !== gq) { this.glows = new Map(); this.glowsQ = gq; }
+    const cache = this.glows;
     let c = cache.get(col);
     if (c) return c;
     c = document.createElement('canvas'); c.width = c.height = 48;
-    const g = c.getContext('2d'), gr = g.createRadialGradient(24, 24, 0, 24, 24, 24), gk = settingOf(this.plugin.settings, 'glow') / 100;
+    const g = c.getContext('2d'), gr = g.createRadialGradient(24, 24, 0, 24, 24, 24), gk = gq / 100;
     gr.addColorStop(0, rgba(col, 0.55 * gk)); gr.addColorStop(0.25, rgba(col, 0.22 * gk)); gr.addColorStop(0.6, rgba(col, 0.05 * gk)); gr.addColorStop(1, rgba(col, 0));
     g.fillStyle = gr; g.fillRect(0, 0, 48, 48);
     cache.set(col, c);
@@ -5931,7 +6721,7 @@ class NetworkView extends ItemView {
   drawMoon(m, p, t, now, near = 0) {
     const ctx = this.ctx, a = 0.45 + 0.55 * p.near, isNew = (m.newUntil || 0) > now, col = m.dim ? C.muted : C.sand;
     const r = (m === this.hoverMoon ? 3.6 : 2.7) * Math.max(0.8, p.s / this.k);
-    const glow = ctx.createRadialGradient(p.x, p.y, 0, p.x, p.y, r * (isNew ? 7 : 4.5)), gk = settingOf(this.plugin.settings, 'glow') / 100;
+    const glow = ctx.createRadialGradient(p.x, p.y, 0, p.x, p.y, r * (isNew ? 7 : 4.5)), gk = this.sv('glow') / 100;
     glow.addColorStop(0, rgba(col, (isNew ? 0.4 + 0.2 * Math.sin(t / 200) : 0.2) * a * gk)); glow.addColorStop(1, rgba(col, 0));
     ctx.fillStyle = glow; ctx.beginPath(); ctx.arc(p.x, p.y, r * (isNew ? 7 : 4.5), 0, TAU); ctx.fill();
     ctx.fillStyle = rgba(m === this.hoverMoon ? '#ffffff' : col, m.dim ? a * 0.7 : a); ctx.beginPath(); ctx.arc(p.x, p.y, r, 0, TAU); ctx.fill();
@@ -5991,7 +6781,7 @@ class NetworkView extends ItemView {
       if (br > 0.9 && R() < 0.3) { S.k.push(2); S.ph.push(R() * 6.3); } else { S.k.push(br > 0.97 && R() < 0.4 ? 1 : 0); S.ph.push(0); }
     }
   }
-  paintStars(img, S, n, cut = null) {
+  paintStars(img, S, n, cut = null, ink = false) {
     const g = img.getContext('2d'), TW = cut ? cut.TW : img.width, twinkle = [];
     n = Math.min(n, S.x.length);
     if (!cut) { g.clearRect(0, 0, TW, img.height); S.painted = n; }
@@ -6011,7 +6801,7 @@ class NetworkView extends ItemView {
     for (let i = 0; i < n; i++) if (key[i] >= 0) ord[at[key[i]]++] = i;
     for (let j = 0; j < 512; j++) {
       if (!cnt[j]) continue;
-      g.fillStyle = rgba(j >= 256 ? C.sky : C.text, (j & 255) / 255);
+      g.fillStyle = rgba(j >= 256 ? C.sky : C.text, ink ? Math.min(255, PAPER.inkA + (j & 255) * PAPER.inkK) / 255 : (j & 255) / 255);
       for (let m = off[j]; m < off[j + 1]; m++) {
         const i = ord[m], sz = S.b[i] > 0.988 ? 2 : 1;
         let x = S.x[i], y = S.y[i];
@@ -6024,27 +6814,44 @@ class NetworkView extends ItemView {
   *restarGen() {
     const S = this.starSrc, want = Math.round(((S.TW * S.TH) / 250) * starScale(settingOf(this.plugin.settings, 'stars')));
     yield* this.starsTo(S, want);
+    this.starHold();
     const tw = this.paintStars(this.sky, S, want), K = this.plugin.skyKeep;
+    const tw0 = this.twinkle || [], tnow = performance.now();
+    for (let i = 0; i < tw.length; i++) tw[i].at = i < tw0.length ? tw0[i].at : tnow;
+    this.twOut = tw.length < tw0.length ? { L: tw0.slice(tw.length), at: tnow } : null;
     this.twinkle = tw; if (K && K.sky === this.sky) K.twinkle = tw;
     this.inkS = null;
     this.holeStale();
-    this.living = Array.from({ length: this.livingN() }, () => this.newLiving(Date.now(), true));
+    const ln = this.livingN(), L0 = this.living || [];
+    this.living = L0.length >= ln ? L0.slice(0, ln) : L0.concat(Array.from({ length: ln - L0.length }, () => this.newLiving(Date.now(), false)));
     this.skyRedo = false;
   }
+  starHold() {
+    const F = this.sky;
+    if (!F) return;
+    const Fi = this.theme().ink ? this.inkSky(F) : F, X = this.starX, now = performance.now();
+    if (X && X.at && X.mix && X.mixAt && X.mix.width === Fi.width && X.mix.height === Fi.height) { const o = X.old; X.old = X.mix; X.mix = o; X.mixAt = 0; X.at = now; return; }
+    const c = (X && X.old) || document.createElement('canvas');
+    if (c.width !== Fi.width || c.height !== Fi.height) { c.width = Fi.width; c.height = Fi.height; }
+    const g = c.getContext('2d');
+    g.setTransform(1, 0, 0, 1, 0, 0); g.globalCompositeOperation = 'source-over'; g.globalAlpha = 1; g.clearRect(0, 0, c.width, c.height); g.drawImage(Fi, 0, 0);
+    this.starX = { old: c, mix: X ? X.mix : null, at: now, mixAt: 0 };
+  }
   liftBake(W, H, TH, dk, theme) {
-    const dpr = this.dpr || 1, look = `${theme}|${dk}`, key = `${W}|${H}|${dpr}|${look}`;
+    const dpr = this.dpr || 1, look = `${theme}|${dk}`, key = `${W}|${H}|${dpr}|${look}`, ink = !!TH.ink;
     let B = this.bake;
+    this.bakeWant = key;
     if (!B || B.key !== key) {
-      const keep = B && B.done && B.look === look ? B : this.bakeKeep && this.bakeKeep.look === look ? this.bakeKeep : null;
+      const same = (Q) => Q && Q.dk === dk && Q.ink === ink, keep = B && B.done && same(B) ? B : same(this.bakeKeep) ? this.bakeKeep : null;
       this.bakeKeep = keep;
       if (keep && !this.steady()) { this.bake = keep; return keep; }
       const c = document.createElement('canvas'), cw = Math.max(1, Math.round((W + 2 * SHIFT) * dpr)), ch = Math.max(1, Math.round(H * dpr));
       c.width = cw; c.height = ch;
       const g = c.getContext('2d'), D = g && g.createImageData && g.putImageData ? g.createImageData(cw, ch) : null;
-      if (!D || !D.data || !/^#[0-9a-f]{6}$/i.test(TH.bg)) { this.bake = { key, look, c: null }; this.bakeKeep = null; return null; }
+      if (!D || !D.data || !/^#[0-9a-f]{6}$/i.test(TH.bg)) { this.bake = { key, look, dk, ink, c: null }; this.bakeKeep = null; return null; }
       const bg = [1, 3, 5].map((i) => parseInt(TH.bg.slice(i, i + 2), 16)), N = 1024, lut = new Float32Array(3 * (N + 1)), k = 2 * (1 - dk / 100);
       for (let i = 0; i <= N; i++) { const L = liftAt(i / N, TH, k); for (let j = 0; j < 3; j++) lut[3 * i + j] = bg[j] + (L[j] - bg[j]) * L[3]; }
-      B = this.bake = { key, look, W, H, dpr, c, g, D, lut, N, row: 0, s: 0x2545f491, cx: (W / 2 + SHIFT) * dpr, cy: H * 0.47 * dpr, R: Math.max(W, H) * LIFT_R * dpr, done: false };
+      B = this.bake = { key, look, dk, ink, W, H, dpr, c, g, D, lut, N, row: 0, s: 0x2545f491, cx: (W / 2 + SHIFT) * dpr, cy: H * 0.47 * dpr, R: Math.max(W, H) * LIFT_R * dpr, done: false };
     }
     if (!B.c) return null;
     if (!B.done) {
@@ -6065,7 +6872,7 @@ class NetworkView extends ItemView {
       B.s = s;
       if (B.row >= ch) {
         B.g.putImageData(D, 0, 0); B.D = null; B.done = true;
-        if (this.bakeKeep && this.bakeKeep !== B) { B.from = this.bakeKeep; B.at = performance.now(); }
+        if (this.bakeKeep && this.bakeKeep !== B) { B.from = this.bakeKeep; B.at = performance.now(); B.ms = this.bakeKeep.look !== look ? SET_XF : 0; }
         this.bakeKeep = null;
       }
     }
@@ -6091,9 +6898,9 @@ class NetworkView extends ItemView {
           for (let i = 0; i <= 8; i++) gr.addColorStop(i / 8, E ? `rgba(${EC[0]}, ${EC[1]}, ${EC[2]}, ${alpha(i / 8).toFixed(3)})` : `rgba(${V[0]}, ${V[1]}, ${V[2]}, ${alpha(i / 8).toFixed(3)})`);
           g.fillStyle = gr; g.fillRect(0, 0, cw, ch);
         }
-        this.vig = { c, key, screen: !!E }; this.vigJob = null; return;
+        this.vig = this.vigFrom({ c, key, dk, screen: !!E }); this.vigJob = null; return;
       }
-      J = this.vigJob = { key, c, g, D, alpha, col: E ? EC : V, r0, span: r1 - r0, row: 0, s: 0x9e3779b9, screen: !!E };
+      J = this.vigJob = { key, dk, c, g, D, alpha, col: E ? EC : V, r0, span: r1 - r0, row: 0, s: 0x9e3779b9, screen: !!E };
     }
     const { D, alpha, col, r0, span } = J, d = D.data, cw = J.c.width, ch = J.c.height, mx = cw / 2, my = ch / 2, t0 = performance.now();
     let s = J.s;
@@ -6110,34 +6917,60 @@ class NetworkView extends ItemView {
       }
     }
     J.s = s;
-    if (J.row >= ch) { J.g.putImageData(D, 0, 0); this.vig = { c: J.c, key, screen: J.screen }; this.vigJob = null; }
+    if (J.row >= ch) { J.g.putImageData(D, 0, 0); this.vig = this.vigFrom({ c: J.c, key, dk: J.dk, screen: J.screen }); this.vigJob = null; }
+  }
+  vigFrom(V) {
+    const O = this.vig, look = (k) => k.slice(0, k.lastIndexOf('|', k.lastIndexOf('|') - 1));
+    if (O && O.c && O.key !== V.key && O.screen === V.screen && look(O.key) !== look(V.key)) { V.from = O; V.at = performance.now(); O.from = null; }
+    return V;
   }
   glowFrame(W, H, TH, dk, S) {
     this.glR = null;
-    const A = TH.amb, amb = settingOf(S, 'ambient') / 100, rim = settingOf(S, 'rim') / 100;
-    if (!A || this.cx === undefined || this.cy === undefined || (amb <= 0 && rim <= 0)) return null;
-    const Rg = (this.outerMax || 1.8 * (this.rmax || 400)) * (this.k || 1) * (this.zoomLand || this.zoom || 1);
+    const ink = !!TH.ink, A = TH.amb || (ink ? INK_AMB : null), amb = ink ? 0 : settingOf(S, 'ambient') / 100, rim = settingOf(S, 'rim') / 100, now = performance.now();
+    if (!A || this.cx === undefined || this.cy === undefined) return null;
+    const Rg = Math.min((this.outerMax || 1.8 * (this.rmax || 400)) * (this.k || 1) * (this.zoomLand || this.zoom || 1), GLOW_VIEW * W);
     if (!(Rg > 4)) return null;
     const gs = Math.min(GLOW_CAP, amb * GLOW_BASE), rs = Math.min(2, rim * (0.5 + dk / 100));
+    let E = this.glE;
+    if (!E) E = this.glE = { g: gs, r: rs, t: now };
+    else { const k = 1 - Math.exp(-Math.max(0, now - E.t) / GLOW_EASE); E.g += (gs - E.g) * k; E.r += (rs - E.r) * k; E.t = now; if (Math.abs(E.g - gs) < 0.003) E.g = gs; if (Math.abs(E.r - rs) < 0.003) E.r = rs; }
+    if (gs <= 0 && rs <= 0 && E.g <= 0 && E.r <= 0) return null;
     const key = `${W}|${H}|${Math.round(Rg / 8)}|${settingOf(S, 'theme')}|${gs.toFixed(2)}|${rs.toFixed(2)}`;
     let L = this.gl;
-    if (!L || L.key !== key) { if (!L || this.steady()) this.glowBake(W, H, TH, key, Rg, gs, rs); L = this.gl; }
+    if (!L || L.key !== key) {
+      if ((gs > 0 || rs > 0) && (!L || this.steady())) {
+        let rc = TH.vig;
+        if (ink) { const u = parseInt(unmirror(INK_RIM).slice(1), 16); rc = [u >> 16, (u >> 8) & 255, u & 255]; }
+        this.glowBake(W, H, TH, key, Rg, gs, rs, Math.min(Rg, RIM_VIEW * W), A, rc);
+      }
+      L = this.gl;
+    }
     if (!L || !L.c) return null;
-    const fw = this.glowKeep(), fade = L.at > 0 ? smooth01((performance.now() - L.at) / 700) : 1;
-    const x = this.cx - (W / 2 + SHIFT), y = this.cy - (H / 2 + GLOW_PAD), w = L.c.width * 2, h = L.c.height * 2;
-    if (rs > 0 && L.rs > 0) this.glR = { c: L.rc, x, y, w, h, a: Math.min(1, rs / L.rs) * fw * fade };
-    const aR = gs > 0 && L.gs > 0 ? Math.min(1, gs / L.gs) * fade : 0, a = aR * fw;
-    return { c: L.c, x, y, w, h, a, aR, sig: `${L.id}|${x.toFixed(1)}|${y.toFixed(1)}|${aR.toFixed(3)}` };
+    const fw = this.glowKeep(), fade = L.at > 0 ? smooth01((now - L.at) / GLOW_XF) : 1, P = fade < 1 && L.prev && L.prev.c ? L.prev : null;
+    if (L.prev && fade >= 1) L.prev = null;
+    const place = (B) => [Math.round(this.cx - B.cxS), Math.round(this.cy - B.cyS), B.c.width * 2, B.c.height * 2];
+    const gA = (B) => (B.gs > 0 ? Math.min(1, E.g / B.gs) : 0), rA = (B) => (B.rs > 0 ? Math.min(1, E.r / B.rs) : 0);
+    const [x, y, w, h] = place(L), pp = P ? place(P) : null;
+    const rimOf = (B, at, wt) => ({ c: B.rc, x: at[0], y: at[1], w: at[2], h: at[3], a: rA(B) * fw * wt, edge: B.edge || 0, col: B.rimCol });
+    const r1 = rimOf(L, [x, y, w, h], fade), r0 = P ? rimOf(P, pp, 1 - fade) : null;
+    if (r1.a > 0.002 || (r0 && r0.a > 0.002)) this.glR = Object.assign(r1, { p: r0 && r0.a > 0.002 ? r0 : null });
+    const aR = gA(L) * fade, a = aR * fw, pA = P ? gA(P) * (1 - fade) : 0;
+    const p = pA > 0.002 ? { c: P.c, x: pp[0], y: pp[1], w: pp[2], h: pp[3], a: pA * fw, aR: pA } : null;
+    if (aR <= 0.002 && !p) return null;
+    return { c: L.c, x, y, w, h, a, aR, p, sig: `${L.id}|${x}|${y}|${aR.toFixed(3)}|${pA.toFixed(3)}` };
   }
   glowKeep() { return 1; }
-  glowBake(W, H, TH, key, Rg, gs, rs) {
+  glowBake(W, H, TH, key, Rg, gs, rs, Rr = Rg, A = TH.amb, rimCol = TH.vig) {
     let J = this.glJob;
     if (!J || J.key !== key) {
-      const cw = Math.max(2, Math.round((W + 2 * SHIFT) / 2)), ch = Math.max(2, Math.round((H + 2 * GLOW_PAD) / 2)), A = TH.amb;
+      const ex = Math.max(2, Math.round(GLOW_FADE[0] * W)), ey = Math.max(2, Math.round(GLOW_FADE[1] * H)), px = SHIFT + Math.round(GLOW_EDGE[0] * W), py = Math.round(GLOW_EDGE[1] * H);
+      const cw = Math.max(2, Math.round((W + 2 * px) / 2)), ch = Math.max(2, Math.round((H + 2 * py) / 2));
       const mk = () => { const c = document.createElement('canvas'); c.width = cw; c.height = ch; const g = c.getContext('2d'); return { c, g, D: g && g.createImageData && g.putImageData ? g.createImageData(cw, ch) : null }; };
       const a = mk(), b = mk();
       if (!a.D || !a.D.data || !b.D || !b.D.data) { this.glJob = null; this.gl = { key, c: null, rc: null, gs, rs, id: (this.gl ? this.gl.id : 0) + 1, at: 0 }; return; }
-      const st = 8, gw = Math.ceil(cw / st) + 2, gh = Math.ceil(ch / st) + 2, nA = new Float32Array(gw * gh), nB = new Float32Array(gw * gh), cxS = W / 2 + SHIFT, cyS = H / 2 + GLOW_PAD;
+      const st = 8, gw = Math.ceil(cw / st) + 2, gh = Math.ceil(ch / st) + 2, nA = new Float32Array(gw * gh), nB = new Float32Array(gw * gh), cxS = W / 2 + px, cyS = H / 2 + py;
+      const WX = new Float32Array(cw);
+      for (let x = 0; x < cw; x++) WX[x] = smooth01(Math.min(x + 0.5, cw - x - 0.5) * 2 / ex);
       for (let j = 0; j < gh; j++) {
         for (let i = 0; i < gw; i++) {
           const u = (i * st * 2 - cxS) / Rg, v = (j * st * 2 - cyS) / Rg;
@@ -6145,25 +6978,26 @@ class NetworkView extends ItemView {
           nB[j * gw + i] = noise2(u * 1.1 + 5.9, v * 2.2 + 13.7, 7103) * 0.7 + noise2(u * 3.0 + 8.2, v * 6.0 + 1.3, 7104) * 0.3;
         }
       }
-      J = this.glJob = { key, a, b, cw, ch, st, gw, nA, nB, cxS, cyS, Rg, gs, rs, A, rimCol: TH.vig, row: 0, s: 0x6a09e667 };
+      J = this.glJob = { key, a, b, cw, ch, st, gw, nA, nB, cxS, cyS, WX, ey, Rg, Rr, gs, rs, A, rimCol, row: 0, s: 0x6a09e667 };
     }
-    const { a, b, cw, ch, st, gw, nA, nB, cxS, cyS, A } = J, RG = J.Rg, da = a.D.data, db = b.D.data, t0 = performance.now(), rimA = A.rim * J.rs * 255, RC = J.rimCol;
+    const { a, b, cw, ch, st, gw, nA, nB, cxS, cyS, WX } = J, RG = J.Rg, rk = (J.Rg / (J.Rr || J.Rg)) ** 2, da = a.D.data, db = b.D.data, t0 = performance.now(), rimA = A.rim * J.rs * 255, RC = J.rimCol;
     const [c0, c1, c2] = [A.core, A.disc, A.halo], held = this.opening(), rows = held ? 256 : 64, ms = held ? this.heldLeft(t0) : 4;
     const ic = 1 / (GLOW_CORE[0] * GLOW_CORE[0]), id = 1 / (GLOW_DISC[0] * GLOW_DISC[0]), ih = 1 / (GLOW_HALO[0] * GLOW_HALO[0]), irx = 1 / (RIM_REACH[0] * RIM_REACH[0]);
     let s = J.s;
     for (let y0 = J.row; J.row < ch && J.row - y0 < rows && performance.now() - t0 < ms;) {
       for (let m = 0; m < 8 && J.row < ch; m++, J.row++) {
         const v = ((J.row + 0.5) * 2 - cyS) / RG, vc = (v / GLOW_CORE[1]) ** 2, vd = (v / GLOW_DISC[1]) ** 2, vh = (v / GLOW_HALO[1]) ** 2, vr = (v / RIM_REACH[1]) ** 2;
-        const fy = J.row / st, iy = fy | 0, ty = fy - iy, r0 = iy * gw, r1 = r0 + gw;
+        const fy = J.row / st, iy = fy | 0, ty = fy - iy, r0 = iy * gw, r1 = r0 + gw, wy = smooth01(Math.min(J.row + 0.5, ch - J.row - 0.5) * 2 / J.ey);
         for (let x = 0, i = J.row * cw * 4; x < cw; x++, i += 4) {
           const u = ((x + 0.5) * 2 - cxS) / RG, u2 = u * u, fx = x / st, ix = fx | 0, tx = fx - ix;
           const n1 = (nA[r0 + ix] * (1 - tx) + nA[r0 + ix + 1] * tx) * (1 - ty) + (nA[r1 + ix] * (1 - tx) + nA[r1 + ix + 1] * tx) * ty;
           const n2 = (nB[r0 + ix] * (1 - tx) + nB[r0 + ix + 1] * tx) * (1 - ty) + (nB[r1 + ix] * (1 - tx) + nB[r1 + ix + 1] * tx) * ty;
-          const k0 = Math.exp(-(u2 + vc) * ic), k1 = Math.exp(-(((u2 + vd) * id) ** GLOW_DISC_P)) * (0.6 + 0.8 * n1), k2 = Math.exp(-(u2 + vh) * ih) * GLOW_HALO_K * (0.6 + 0.8 * n2);
+          const k0 = Math.exp(-(u2 + vc) * ic) * GLOW_CORE_K, k1 = Math.exp(-(((u2 + vd) * id) ** GLOW_DISC_P)) * (0.6 + 0.8 * n1), k2 = Math.exp(-(u2 + vh) * ih) * GLOW_HALO_K * (0.6 + 0.8 * n2);
           s ^= s << 13; s ^= s >>> 17; s ^= s << 5;
           const g = (s & 0xffff) / 65536 + ((s >>> 16) & 0xffff) / 65536 - 1;
-          da[i] = J.gs * (c0[0] * k0 + c1[0] * k1 + c2[0] * k2) + g; da[i + 1] = J.gs * (c0[1] * k0 + c1[1] * k1 + c2[1] * k2) + g; da[i + 2] = J.gs * (c0[2] * k0 + c1[2] * k1 + c2[2] * k2) + g; da[i + 3] = 255;
-          const t = (Math.sqrt(u2 * irx + vr) - RIM_FROM) / RIM_SPAN, al = t <= 0 ? 0 : rimA * smooth01(t);
+          const gw2 = J.gs * WX[x] * wy;
+          da[i] = gw2 * (c0[0] * k0 + c1[0] * k1 + c2[0] * k2) + g; da[i + 1] = gw2 * (c0[1] * k0 + c1[1] * k1 + c2[1] * k2) + g; da[i + 2] = gw2 * (c0[2] * k0 + c1[2] * k1 + c2[2] * k2) + g; da[i + 3] = 255;
+          const t = (Math.sqrt((u2 * irx + vr) * rk) - RIM_FROM) / RIM_SPAN, al = t <= 0 ? 0 : rimA * smooth01(t);
           db[i] = RC[0]; db[i + 1] = RC[1]; db[i + 2] = RC[2]; db[i + 3] = al > 0 ? al + g : 0;
         }
       }
@@ -6171,7 +7005,8 @@ class NetworkView extends ItemView {
     J.s = s;
     if (J.row >= ch) {
       a.g.putImageData(a.D, 0, 0); b.g.putImageData(b.D, 0, 0);
-      this.gl = { key, c: a.c, rc: b.c, gs: J.gs, rs: J.rs, id: (this.gl ? this.gl.id : 0) + 1, at: this.gl && this.gl.c ? 0 : performance.now() };
+      const old = this.gl, prev = old && old.c && old.cxS !== undefined ? { c: old.c, rc: old.rc, gs: old.gs, rs: old.rs, cxS: old.cxS, cyS: old.cyS, edge: old.edge, rimCol: old.rimCol } : null;
+      this.gl = { key, c: a.c, rc: b.c, gs: J.gs, rs: J.rs, rr: J.Rr, cxS, cyS, edge: Math.min(1, A.rim * J.rs), rimCol: J.rimCol, prev, id: (old ? old.id : 0) + 1, at: performance.now() };
       this.glJob = null;
     }
   }
@@ -6373,7 +7208,7 @@ class Hub {
       bury(entries) { hub.buryAs(id, entries); },
       addKey(k, label, fn) {
         k = String(k || '').toLowerCase();
-        if (k.length !== 1 || 'otgae/'.includes(k) || typeof fn !== 'function') throw new Error(`Rho Network: can't use the key "${k}"`);
+        if (k.length !== 1 || 'otgae/?'.includes(k) || typeof fn !== 'function') throw new Error(`Rho Network: can't use the key "${k}"`);
         hub.keys.set(k, { label: String(label || k).toUpperCase(), fn, src: id }); S.keys.push(k); all((v) => v.hint());
       },
       setLayout(lo) { S.layout = lo || null; hub.dirty(); all((v) => v.soon()); },
@@ -6395,17 +7230,34 @@ class Hub {
 }
 
 class RhoSettings extends PluginSettingTab {
-  constructor(app, plugin) { super(app, plugin); this.plugin = plugin; this.tabName = 'General'; }
+  constructor(app, plugin) { super(app, plugin); this.plugin = plugin; }
   display() {
     const el = this.containerEl, P = this.plugin;
     el.empty();
+    const about = el.appendChild(document.createElement('div')); about.className = 'rn-sabout';
+    const ah = about.appendChild(document.createElement('div')); ah.className = 'rn-sabout-h'; ah.textContent = 'What it can do';
+    const ul = about.appendChild(document.createElement('ul'));
+    for (const line of [
+      'Shows your vault as a star system: your home note is the globe in the middle, each folder (or tag, or group of linked notes) an orbit, each note a planet on it, links as the lines between them.',
+      'Click a planet to read the note on the map, and write in it there; / searches for a note by name.',
+      'Follows your work as it happens: a rocket flies to each note you make or edit, unticked tasks glow, notes with a due date show it, and deleted ones fall into a black hole.',
+      'Keeps small cards on the left (recent notes, tasks, due dates and more; + adds one).',
+      'O is a viewing spot without the panels, A a slow tour of the system, T the vault growing from its first note. ? on the map lists every key.',
+    ]) ul.appendChild(document.createElement('li')).textContent = line;
+    const again = about.appendChild(document.createElement('button')); again.className = 'rn-sabout-btn'; again.textContent = 'Show the welcome again';
+    again.onclick = () => { try { this.app.setting && this.app.setting.close(); } catch {   } P.howTo(); };
     const bar = el.appendChild(document.createElement('div')); bar.className = 'rn-stabs';
+    const starts = new Map();
     for (const name of SETTINGS_TABS) {
-      const t = bar.appendChild(document.createElement('div')); t.className = 'rn-stab' + (name === this.tabName ? ' on' : ''); t.textContent = name;
-      t.onclick = () => { if (this.tabName !== name) { this.tabName = name; this.display(); } };
+      const t = bar.appendChild(document.createElement('div')); t.className = 'rn-stab'; t.textContent = name;
+      t.onclick = () => { const at = starts.get(name) || bar; at.scrollIntoView({ behavior: 'smooth', block: 'start' }); };
     }
-    for (const o of settingsOn(this.tabName)) {
-      if (o.hidden) continue;
+    const all = [];
+    for (const name of SETTINGS_TABS) for (const o of settingsOn(name)) all.push([name, o]);
+    let lastTab = null;
+    for (const [tabName, o] of all) {
+      if (o.hidden || (o.only && !P.settings[o.only])) continue;
+      if (tabName !== lastTab) { if (lastTab !== null) starts.set(tabName, new Setting(el).setName(tabName).setHeading().settingEl); lastTab = tabName; }
       if (o.sec) { new Setting(el).setName(o.sec).setHeading(); continue; }
       const s = new Setting(el).setName(o.name).setDesc(o.desc), v = settingOf(P.settings, o.key);
       if (o.range) {
@@ -6458,6 +7310,7 @@ class RhoNetwork extends Plugin {
     this.addRibbonIcon('globe', 'Open Rho Network', () => this.activate());
     this.addSettingTab(new RhoSettings(this.app, this));
     this.addCommand({ id: 'open', name: 'Open', callback: () => this.activate() });
+    this.addCommand({ id: 'how-to-use', name: 'How to use', callback: () => this.howTo() });
     this.app.workspace.trigger(`${this.manifest.id}:ready`, this.api);
   }
   async activate() {
@@ -6469,6 +7322,12 @@ class RhoNetwork extends Plugin {
       await this.app.workspace.revealLeaf(leaf);
       this.diag('tab opened');
     } catch (e) { this.diag(`could not open the tab: ${e && e.stack ? e.stack.split('\n').slice(0, 3).join(' | ') : e}`); console.error('Rho Network: could not open the tab', e); }
+  }
+  howTo() {
+    const v = [...this.views][0];
+    if (!v) { this.wantWelcome = true; this.activate(); return; }
+    try { const r = this.app.workspace.revealLeaf(v.leaf); if (r && r.catch) r.catch(() => {}); } catch {   }
+    if (v.intro) v.wantWel = true; else v.openWelcome(0);
   }
   saveSettings() { clearTimeout(this.saveT); this.saveT = 0; try { const r = this.saveData(this.settings); if (r && r.catch) r.catch(() => {}); } catch {   } this.writeSpare(); }
   sparePath() { return `${this.app.vault.configDir}/${this.manifest.id}.json`; }
@@ -6500,4 +7359,4 @@ class RhoNetwork extends Plugin {
 }
 
 module.exports = RhoNetwork;
-module.exports.__test = { springStep, starScale, makeRogues, ROGUE_N, rng, ROCKET_CAP, spaceOut, PLANET_GAP, CLASSIC, CLASSIC_TINT, DUSK, TWIN_P, AMB_IDLE, AMB_BUSY, TIDY_MS, NOVA_SHRINK, GRAVE_TE, GRAVE_R, holeSize, holePull, HOLE_RO, HOLE_SQ, HOLE_TILT, ROCKET_VOLLEY, GLOBE_R, NetworkView, Hub, layout, tint, hash, findHub, yawToRight, shortTurn, firstLineOf, ago, makeBelt, groupNotes, inScope, scopeHub, planetScore, byName, baseName, PLANET_ALL, PLANET_SUM, PLANET_MIN, PLANET_FOCUS, REACH, CORE, RING_CAP, agoShort, topBy, sparkBuckets, foldersOf, WIDGETS, WIDGET_DEFAULT, SPANS, SETTINGS, settingsOn, DEFAULTS, THEMES, settingOf, SETTINGS_V, migrateSettings, excludeList, liftAt, paperLum, RhoSettings, WAVE_MS, FLOOD_QUIET, PAPER, INK, inkOf, PALETTE, SAND, MONO, HALLOWEEN, PRESETS, agePlan, AGE_STEPS, tourPose, skyAim, tourPick, tourBase, orbitEq, blendPose, freeAim, rotX, rotY, smooth5, TOUR_FREE_KINDS, TOUR_RATE, TOUR_FAR, TOUR_FAR_TOP, TOUR_CRANE_MS, TOUR_FREE_MS, TOUR_GLIDE_FREE, TOUR_EXIT_MS, TOUR_ZONE, TOUR_PITCH, TOUR_TOP, FREE_CYP, FREE_KZ, TOUR_KINDS, TOUR_SHOT_MS, TOUR_STILL_MS, TOUR_GLIDE_MS, TOUR_GLIDE_MORE, TOUR_SWING, REST_PITCH, SKY_PX, snapNice, editRuns, BOX_MIN_W, dueOf, dayOf, DUE_KEYS, noteSeams, seamAfter, NOTE_CHUNK_MIN, NOTE_TALL, noteCharts, hasChart, BELT2_PAD, chartSvg, chartEl, xyTicks, suggTerms, contextHit, contextSnippet, splitHits, suggTone, clickOdds, clickKind, turnPose, poseProject, clickPose, driftPose, graphQuery, parseGraphGroups, graphColorFn };
+module.exports.__test = { setPluginCharts: (on) => { PLUGIN_CHARTS = !!on; }, springStep, starScale, makeRogues, ROGUE_N, rng, ROCKET_CAP, spaceOut, PLANET_GAP, CLASSIC, CLASSIC_TINT, DUSK, TWIN_P, AMB_IDLE, AMB_BUSY, TIDY_MS, NOVA_SHRINK, GRAVE_TE, GRAVE_R, holeSize, holePull, HOLE_RO, HOLE_SQ, HOLE_TILT, ROCKET_VOLLEY, GLOBE_R, NetworkView, Hub, layout, tint, hash, findHub, yawToRight, shortTurn, firstLineOf, ago, makeBelt, beltNear, makeHaze, BELT_HAZE, BELT_NEAR, BELT_GREY, BELT_A, groupNotes,inScope, scopeHub, planetScore, byName, baseName, PLANET_ALL, PLANET_SUM, PLANET_MIN, PLANET_FOCUS, REACH, CORE, RING_CAP, agoShort, topBy, sparkBuckets, foldersOf, WIDGETS, WIDGET_DEFAULT, SPANS, SETTINGS, settingsOn, DEFAULTS, THEMES, settingOf, SETTINGS_V, migrateSettings, excludeList, liftAt, paperLum, RhoSettings, WAVE_MS, FLOOD_QUIET, PAPER, INK, inkOf, PALETTE, SAND, MONO, HALLOWEEN, PRESETS, agePlan, AGE_STEPS, tourPose, skyAim, tourPick, tourBase, orbitEq, blendPose, freeAim, rotX, rotY, smooth5, TOUR_FREE_KINDS, TOUR_RATE, TOUR_FAR, TOUR_FAR_TOP, TOUR_CRANE_MS, TOUR_FREE_MS, TOUR_GLIDE_FREE, TOUR_EXIT_MS, TOUR_ZONE, TOUR_PITCH, TOUR_TOP, FREE_CYP, FREE_KZ, TOUR_KINDS, TOUR_SHOT_MS, TOUR_STILL_MS, TOUR_GLIDE_MS, TOUR_GLIDE_MORE, TOUR_SWING, REST_PITCH, SKY_PX, snapNice, editRuns, BOX_MIN_W, dueOf, dayOf, DUE_KEYS, noteSeams, seamAfter, NOTE_CHUNK_MIN, NOTE_TALL, noteCharts, hasChart, BELT2_PAD, chartSvg, chartEl, xyTicks, suggTerms, contextHit, contextSnippet, splitHits, suggTone, clickOdds, clickKind, turnPose, poseProject, clickPose, CG_UP, RING_GAIN, LAND_GAIN, RIM_VIEW, RIM_BELTS, GLOW_VIEW, GLOW_CORE_K, GLOW_EASE, GLOW_XF, GLOW_EDGE, GLOW_FADE, CLEAR_F0, CLEAR_GROW, SET_XF, SET_FADES, XF_HOLD, XF_FADE, XF_DROP, INK_AMB, INK_RIM, clearStops, driftAt, CG_DRIFT, CG_HZ_Y, CRISP_MAX, BELT1_BAND, BELT1_SKIRT, BOX_EDGE, BOX_EDGE2, PIN_GAP, driftPose, graphQuery, parseGraphGroups, graphColorFn, ROCKETS_IDLE, ROCKETS_BUSY, ROCKETS_PER5_MAX, AMB_MAX, MAIL_MIN, MAIL_GLOW, TOUR_LAND, SET_EASE, SET_EASED, CG_OUTS, CG_TILT, CLEAR_D, CG_HZ_EYE, CG_BELT_EYE, CG_BELT_OUT, WELCOME_STEPS, WELCOME_MS, helpSheet, ZOOM_OUT_LAND, ZOOM_MIN };
