@@ -11,53 +11,59 @@ let VIEW = 'rho-network', KEY = 'rho-network';
 const PUBLIC = true;
 const DEFAULTS = {
   log: false, groupBy: 'auto',
-  theme: 'deep', darkness: 50, ringSpacing: 100, stars: 100, glow: 100, spin: 100, intro: true, quality: 'balanced', novas: 'normal', blackHole: true, exclude: [],
-  ringNames: true, nearNames: false, rockets: false, rocketsPer5: 0, belt2: true,
-  planetSize: 100, globeSize: 100,
-  links: 5, ringTilt: 100,
-  planetColors: 'sand',
+  theme: 'deep', darkness: 50, ringSpacing: 50, stars: 100, glow: 200, spin: 100, intro: true, quality: 'balanced', novas: 'normal', blackHole: true, exclude: [],
+  ringNames: false, nearNames: false, rockets: true, rocketsPer5: 6, belt2: true,
+  planetSize: 150, globeSize: 150,
+  links: 15, ringTilt: 100,
+  planetColors: 'mono',
   tourIdle: 'off',
-  panelWidth: 220, openLoops: true, comets: true,
-  flyToNotes: true, ambient: 100, rim: 100,
+  panelWidth: 260, openLoops: false, comets: false,
+  flyToNotes: false, ambient: 0, rim: 0, orbitBright: 60, hints: true,
   twoNotes: false,
   welcomed: false,
+  guideSeen: 0,
 };
 const SETTINGS = [
-  { sec: 'Look' },
+  { sec: 'Colours' },
   { key: 'theme', name: 'Theme', desc: 'The colour of the space round the system. Paper is the light one.', choice: [['deep', 'Deep space'], ['dusk', 'Dusk'], ['ember', 'Ember'], ['paper', 'Paper']] },
   { key: 'planetColors', name: 'Planet colours', desc: 'Sand: shades of sand, lighter in the middle. Black & white: white to grey. Dusk: deep jewel colours, the dark one. Halloween: pumpkin, purple, blood, slime and bone, the orbit lines too. Age: by when a note was last edited, from pale yellow this week through orange and rose to blue for the ones left alone longest. Classic: the colours your graph view\'s colour groups give your notes, then other plugins\', then nine colours by folder.', choice: [['sand', 'Sand'], ['mono', 'Black & white'], ['dusk', 'Dusk'], ['halloween', 'Halloween'], ['age', 'Age'], ['rainbow', 'Classic']] },
   { key: 'darkness', name: 'Darkness', desc: 'How dark the space is: the soft light round the system and the shadow at the edges.', range: [0, 100, 5] },
   { key: 'ambient', name: 'Ambient glow', desc: 'A soft light that fills the space round the whole system, so it stands out from the dark behind it. (Not on Paper.)', range: [0, 100, 1], unit: '%' },
-  { key: 'rim', name: 'Dark rim', desc: 'A faint shadow round the outside of the network, where the glow ends. (Not on Paper.)', range: [0, 200, 10], unit: '%', adv: 'Look' },
-  { key: 'ringSpacing', name: 'Ring spacing', desc: 'How far apart the orbits sit.', range: [70, 400, 1], unit: '%' },
-  { key: 'ringTilt', name: 'Ring tilt', desc: 'How steeply the orbits tilt, every other one the other way. 100% is how they\'ve always been, 0 lays them flat.', range: [0, 400, 1], unit: '%', adv: 'Look' },
-  { key: 'stars', name: 'Star density', desc: 'How many stars the sky has.', range: [25, 200, 5], unit: '%', adv: 'Look' },
-  { key: 'glow', name: 'Glow', desc: 'How much the planets shine.', range: [0, 200, 10], unit: '%', adv: 'Look' },
-  { key: 'links', name: 'Link lines', desc: 'How bright the lines between linked notes are. 0 hides them; the note under the mouse and the open one still show theirs.', range: [0, 100, 1], unit: '%', adv: 'Look' },
+  { sec: 'Size and spacing' },
   { key: 'planetSize', name: 'Planet size', desc: 'How big the planets are. In a big vault the notes drawn as specks of dust on their orbit grow a little with them.', range: [30, 150, 5], unit: '%' },
   { key: 'globeSize', name: 'Globe size', desc: 'How big the globe at the middle is. Past 100% the orbits move out to make room for it, so it never sits on your notes.', range: [50, 500, 10], unit: '%' },
-  { key: 'ringNames', name: 'Ring names', desc: 'Each orbit\'s name along its ring. Off, only a ring in focus shows its name.', toggle: true, hidden: true },
-  { key: 'nearNames', name: 'Names near the mouse', desc: 'Every planet near the mouse shows its name, not just your most-read ones.', toggle: true, hidden: true },
-  { sec: 'Motion' },
+  { key: 'ringSpacing', name: 'Ring spacing', desc: 'How far apart the orbits sit: 0 is tight, 10 the usual, 100 as wide as it goes.', range: [0, 100, 1] },
+  { key: 'panelWidth', name: 'Cards width', desc: 'How wide the cards down the left are. Drag the column\'s right edge in the map; a double-click there puts it back.', range: [180, 480, 1], unit: 'px', hidden: true },
+  { sec: 'Motion and rockets' },
   { key: 'spin', name: 'Spin', desc: 'How fast the system turns. 0 holds it still, 400 is four times the usual.', range: [0, 400, 10], unit: '%' },
+  { key: 'flyToNotes', name: 'Fly to notes', desc: 'Open a note, from a planet, search or a link, and the camera glides out to a wide look at the system, the way the tour does, with that planet clear of the note. Off, it just turns the map as before.', toggle: true, exp: true, hidden: PUBLIC },
   { key: 'rockets', name: 'Rocket boost', desc: 'A rocket flies to a note when it is made, moved or edited. On, there are a lot more of them: about one every 3 s while the vault is calm (one in 5 minutes when off), and three times as many while you work.', toggle: true },
   { key: 'rocketsPer5', name: 'Rockets per 5 s', desc: 'For videos: this many rockets leave every 5 seconds, whatever is going on. 0 is the usual rate.', range: [0, 20, 1], only: 'videoTools' },
-  { key: 'flyToNotes', name: 'Fly to notes', desc: 'Open a note, from a planet, search or a link, and the camera glides out to a wide look at the system, the way the tour does, with that planet clear of the note. Off, it just turns the map as before.', toggle: true, hidden: PUBLIC },
-  { key: 'tourIdle', name: 'Tour when idle', desc: 'After this long with no mouse or keys while another window is in front of Obsidian, the map starts its tour by itself, like a screensaver. A starts it any time; any key or click ends it (moving the mouse does not).', choice: [['off', 'Off'], ['1', '1 minute'], ['2', '2 minutes'], ['5', '5 minutes'], ['10', '10 minutes']], adv: 'Motion' },
   { key: 'intro', name: 'Opening', desc: 'The fly-in from the globe each time the map opens.', toggle: true, hidden: true },
-  { sec: 'Sky events' },
-  { key: 'novas', name: 'Supernovas', desc: 'Now and then a star goes off somewhere in view.', choice: [['normal', 'Normal'], ['rare', 'Rare'], ['off', 'Off']], adv: 'Sky events' },
-  { key: 'blackHole', name: 'Black hole', desc: 'A black hole by the system that deleted notes fall into (click it to see what it took), and about once a day a second one drifting across the sky. Off: neither.', toggle: true, adv: 'Sky events' },
-  { sec: 'Work' },
-  { key: 'openLoops', name: 'Open notes', desc: 'Notes with unchecked tasks (- [ ]) glow softly. The three you left mid-task most recently glow brighter and sit in the Open notes strip under the top bar: click one to jump back in at its first open task, hold its ✕ to drop one you won\'t get to. Tick the boxes off and the glow goes.', toggle: true, adv: 'Work' },
-  { key: 'comets', name: 'Due date notes', desc: 'Notes with a due date are listed bottom right, the soonest first, coloured by how close: rose late, orange today, amber this week, pale gold later. Give the note due: 2026-11-03 in its properties, or a task line 📅 2026-11-03 or [due:: 2026-11-03]. Ticked tasks, and notes with done: true or status: done, drop out. Click a row to open its note.', toggle: true, adv: 'Work' },
-  { key: 'twoNotes', name: 'Two notes at once', desc: 'Open a second note and the first stays up beside it on the left (as it was when you opened the next one), the new one in the main box on its right. ⇄ on the left one swaps them, ✕ lets it go; a third note takes the left one\'s place, and a link inside the left note opens in the main box. Needs a wide window (about 1,200 px with the cards tucked, 1,450 with them out); on a narrower one it is one note at a time as ever. Off: one note at a time.', toggle: true, adv: 'Work', hidden: PUBLIC },
-  { sec: 'Layout' },
+  { sec: 'Map and folders' },
   { key: 'groupBy', name: 'Group by', desc: 'What each orbit holds: a folder, a tag, or a group of notes that link to each other (Links). Auto picks what suits your vault. G on the map goes to the next.', choice: [['auto', 'Auto'], ['folders', 'Folders'], ['tags', 'Tags'], ['clusters', 'Links']] },
-  { key: 'belt2', name: 'Second belt', desc: 'A wider, fainter asteroid belt far out, past the outer orbits.', toggle: true, adv: 'Layout' },
   { key: 'exclude', name: 'Excluded folders', desc: 'Their notes stay off the map and out of the widgets. + folder picks one, its ✕ lets it back.', list: true },
-  { key: 'panelWidth', name: 'Cards width', desc: 'How wide the cards down the left are. Drag the column\'s right edge in the map; a double-click there puts it back.', range: [180, 480, 1], unit: 'px', hidden: true },
-  { key: 'quality', name: 'Quality', desc: 'How sharp the map is drawn. Balanced: sharp, easing off by itself if frames run slow. High: always sharp, the most work for the graphics card. Low: at your screen\'s own resolution, the lightest.', choice: [['balanced', 'Balanced'], ['high', 'High'], ['low', 'Low']], adv: 'Performance' },
+  { key: 'hints', name: 'Key hints', desc: 'The line of keys and the motto along the bottom of the map. Off, the bottom is left clear; ? still lists every key.', toggle: true },
+  { sec: 'Top bar' },
+  { key: 'ringNames', name: 'Ring names', desc: 'Each orbit\'s name along its ring. Off, only a ring in focus shows its name. (RINGS in the top bar.)', toggle: true },
+  { key: 'nearNames', name: 'Names near the mouse', desc: 'Every planet near the mouse shows its name, not just your most-read ones. (NAMES in the top bar.)', toggle: true },
+  { act: 'look', name: 'Viewing spot', btn: 'View', desc: 'Everything but the system hidden, for a clean look. O does it too; O or Esc comes back. (VIEW in the top bar.)' },
+  { act: 'tour', name: 'Tour', btn: 'Start', desc: 'The camera drifts round the system on its own. A does it too; any key or click ends it. (TOUR in the top bar.)' },
+  { act: 'help', name: 'Keys and what you see', btn: 'Show', desc: 'Every key, and what the things on the map are. ? does it too. (? in the top bar.)' },
+  { key: 'glow', name: 'Glow', desc: 'How much the planets shine.', range: [0, 200, 10], unit: '%', adv: 'Brightness' },
+  { key: 'links', name: 'Link lines', desc: 'How bright the lines between linked notes are. 0 hides them; the note under the mouse and the open one still show theirs.', range: [0, 100, 1], unit: '%', adv: 'Brightness' },
+  { key: 'orbitBright', name: 'Orbit brightness', desc: 'How bright the orbit lines are. 100% is how they\'ve always been, 0 hides them; a focused orbit still shows in full.', range: [0, 100, 1], unit: '%', adv: 'Brightness' },
+  { key: 'rim', name: 'Dark rim', desc: 'A faint shadow round the outside of the network, where the glow ends. (Not on Paper.)', range: [0, 200, 10], unit: '%', adv: 'Brightness' },
+  { key: 'ringTilt', name: 'Ring tilt', desc: 'How steeply the orbits tilt, every other one the other way. 100% is how they\'ve always been, 0 lays them flat.', range: [0, 400, 1], unit: '%', adv: 'Orbit shape' },
+  { key: 'belt2', name: 'Second belt', desc: 'A wider, fainter asteroid belt far out, past the outer orbits.', toggle: true, adv: 'Orbit shape' },
+  { key: 'stars', name: 'Star density', desc: 'How many stars the sky has.', range: [25, 200, 5], unit: '%', adv: 'Sky and black hole' },
+  { key: 'novas', name: 'Supernovas', desc: 'Now and then a star goes off somewhere in view.', choice: [['normal', 'Normal'], ['rare', 'Rare'], ['off', 'Off']], adv: 'Sky and black hole' },
+  { key: 'blackHole', name: 'Black hole', desc: 'A black hole by the system that deleted notes fall into (click it to see what it took), and about once a day a second one drifting across the sky. Off: neither.', toggle: true, adv: 'Sky and black hole' },
+  { key: 'tourIdle', name: 'Tour when idle', desc: 'After this long with no mouse or keys while another window is in front of Obsidian, the map starts its tour by itself, like a screensaver. A starts it any time; any key or click ends it (moving the mouse does not).', choice: [['off', 'Off'], ['1', '1 minute'], ['2', '2 minutes'], ['5', '5 minutes'], ['10', '10 minutes']], adv: 'Idle tour' },
+  { key: 'openLoops', name: 'Open notes', desc: 'Notes with unchecked tasks (- [ ]) glow softly. The three you left mid-task most recently glow brighter and sit in the Open notes strip under the top bar: click one to jump back in at its first open task, hold its ✕ to drop one you won\'t get to. Tick the boxes off and the glow goes.', toggle: true, adv: 'Work notes' },
+  { key: 'comets', name: 'Due date notes', desc: 'Notes with a due date are listed bottom right, the soonest first, coloured by how close: rose late, orange today, amber this week, pale gold later. Give the note due: 2026-11-03 in its properties, or a task line 📅 2026-11-03 or [due:: 2026-11-03]. Ticked tasks, and notes with done: true or status: done, drop out. Click a row to open its note.', toggle: true, adv: 'Work notes' },
+  { key: 'twoNotes', name: 'Two notes at once', desc: 'Open a second note and the first stays up beside it on the left (as it was when you opened the next one), the new one in the main box on its right. ⇄ on the left one swaps them, ✕ lets it go; a third note takes the left one\'s place, and a link inside the left note opens in the main box. Needs a wide window (about 1,200 px with the cards tucked, 1,450 with them out); on a narrower one it is one note at a time as ever. Off: one note at a time.', toggle: true, adv: 'Work notes', hidden: PUBLIC },
+  { key: 'quality', name: 'Quality', desc: 'How sharp the map is drawn. Balanced: sharp, easing off by itself if frames run slow. High: always sharp, the most work for the graphics card. Low: the lightest, a little softer and at 30 frames a second. Every quality slows to 30 while Obsidian isn\'t the window in front.', choice: [['balanced', 'Balanced'], ['high', 'High'], ['low', 'Low']], adv: 'Performance' },
 ];
 const SETTINGS_TABS = ['General', 'Advanced'];
 const settingsOn = (tab) => {
@@ -74,6 +80,36 @@ const snapNice = (o, x) => {
   if (st !== 1 || hi - lo < 150) return x;
   const n = Math.round(x / 25) * 25;
   return Math.abs(x - n) <= 3 && n >= lo && n <= hi ? n : x;
+};
+const settingsFilter = (F, q) => {
+  const words = String(q || '').toLowerCase().split(/\s+/).filter(Boolean);
+  let n = 0;
+  for (const f of F) {
+    if (f.kind !== 'row') continue;
+    if (!f.hay) f.hay = [f.o.name, f.o.desc, f.o.key, f.sec, f.tab, f.o.exp ? 'experimental' : '', ...(f.o.choice || []).map((c) => c[1])].join(' ').toLowerCase();
+    f.on = words.every((w) => f.hay.includes(w));
+    if (f.el) f.el.classList.toggle('rn-hidden', !f.on);
+    if (f.on) n++;
+  }
+  for (let i = 0; i < F.length; i++) {
+    const f = F[i];
+    if (f.kind === 'row') continue;
+    let any = false;
+    for (let j = i + 1; j < F.length; j++) { const k = F[j].kind; if (k === 'div' || (f.kind === 'sec' && k === 'sec')) break; if (k === 'row' && F[j].on) { any = true; break; } }
+    if (f.el) f.el.classList.toggle('rn-hidden', !any);
+  }
+  return n;
+};
+const settingsFindBox = (inp, F, none) => {
+  inp.type = 'search'; inp.placeholder = 'Search settings'; inp.spellcheck = false;
+  const go = () => { const n = settingsFilter(F, inp.value); if (none) none.classList.toggle('rn-hidden', n > 0); };
+  inp.addEventListener('input', go);
+  inp.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && !inp.value) return;
+    e.stopPropagation();
+    if (e.key === 'Escape') { e.preventDefault(); inp.value = ''; go(); }
+  });
+  return go;
 };
 const EDIT_INLINE = /(`[^`\n]+`)|(\[\[[^\]\n]+\]\])|(!?\[[^\]\n]*\]\([^)\n]*\))|(\*\*[^*\n]+\*\*|__[^_\n]+__)|(==[^=\n]+==)|((?<![^\s(])#[^\s#.,;:!?()[\]{}'"`]+)/g;
 const editRuns = (text) => {
@@ -133,10 +169,19 @@ const settingOf = (S, key) => {
   if (o.list) return Array.isArray(v) ? v.filter((x) => typeof x === 'string') : typeof v === 'string' ? v.split('\n') : d;
   return v;
 };
-const SETTINGS_V = 6, MIGRATIONS = [[2, (S) => { delete S.ringTilt; }], [3, (S) => { if (S.planetColors === 'orbits') S.planetColors = 'halloween'; }],
+const pctOf = (s) => (s <= 10 ? 70 + 3 * s : s <= 50 ? 100 + 7.5 * (s - 10) : 400 + 12 * (s - 50));
+const spcSize = (p) => (p <= 100 ? (p - 70) / 3 : p <= 400 ? 10 + (p - 100) / 7.5 : 50 + (p - 400) / 12);
+const OLD_DEFAULTS = { log: false, groupBy: 'auto', theme: 'deep', darkness: 50, ringSpacing: 10, stars: 100, glow: 100, spin: 100, intro: true, quality: 'balanced', novas: 'normal', blackHole: true, exclude: [],
+  ringNames: true, nearNames: false, rockets: false, rocketsPer5: 0, belt2: true, planetSize: 100, globeSize: 250, links: 5, ringTilt: 100, planetColors: 'sand', tourIdle: 'off',
+  panelWidth: 220, openLoops: true, comets: true, flyToNotes: true, ambient: 100, rim: 100, orbitBright: 100, hints: true, twoNotes: false };
+const SETTINGS_V = 10, MIGRATIONS = [[2, (S) => { delete S.ringTilt; }], [3, (S) => { if (S.planetColors === 'orbits') S.planetColors = 'halloween'; }],
   [4, (S) => { if (S.colorBy === 'age') S.planetColors = 'age'; delete S.colorBy; delete S.colorProp; delete S.sizeBy; }],
   [5, (S) => { if (S.quality === 'auto') S.quality = 'balanced'; }],
-  [6, (S, from) => { if (from < 5) { if (!('ambient' in S)) S.ambient = 0; if (!('rim' in S)) S.rim = 0; } }]];
+  [6, (S, from) => { if (from < 5) { if (!('ambient' in S)) S.ambient = 0; if (!('rim' in S)) S.rim = 0; } }],
+  [7, (S) => { const p = S.ringSpacing; if (p !== null && p !== '' && Number.isFinite(+p)) S.ringSpacing = Math.max(0, Math.min(100, Math.round(spcSize(+p) * 100) / 100)); }],
+  [8, (S) => { if (+S.globeSize === 100) S.globeSize = 160; }],
+  [9, (S) => { if (+S.globeSize === 160) S.globeSize = 250; }],
+  [10, (S) => { for (const k in OLD_DEFAULTS) if (!(k in S)) S[k] = Array.isArray(OLD_DEFAULTS[k]) ? [] : OLD_DEFAULTS[k]; if (!('welcomed' in S)) S.welcomed = true; }]];
 function migrateSettings(S) {
   const from = Number.isFinite(+S.settingsV) ? +S.settingsV : 0;
   if (from >= SETTINGS_V) return false;
@@ -146,6 +191,14 @@ function migrateSettings(S) {
 }
 const excludeList = (S) => settingOf(S, 'exclude').map((s) => s.trim().replace(/\\/g, '/').replace(/^\/+|\/+$/g, '')).filter(Boolean).map((s) => `${s}/`);
 const LAPSE_MS = 24000;
+const GUIDE_V = 1;
+const NEWS_STEPS = [
+  ['The map is easier to handle', 'Planets are **easier to click**, and hovering one slows only its own ring. They sit a little off the ring line, and **ring spacing** in the settings now runs 0–100. The **globe** is bigger by default, and **Orbit brightness** is a new setting.'],
+  ['A calmer opening, less power', 'The opening is a smooth **5.5 s** fade-in, with no rubberband after a hitch. **Low** and **Balanced** use less power: they ease off when nothing moves or when Obsidian isn\'t in front. **High** is as it was. The rocket trail no longer lags.'],
+  ['Search, the ? sheet, the settings', '**/** search is reworked, with a peek panel. **?** has four tabs now, and the settings are grouped **General** and **Advanced**, with a search box. The top bar buttons (**RINGS**, **NAMES**, **VIEW**, **TOUR**, **?**) are separate settings, and the key hints have a quiet **HIDE**.'],
+  ['Cards and notes', 'A new **Chart** card: the **+** menu, "A chart from a note…". **Double-click** a card row, or an active note\'s card, to open that note. In edit mode **›** / **‹** brings the side cards back beside the editor, and edit conflicts merge. **Supernovas** show up more often.'],
+  ['Your settings stay', 'Updating keeps **all your settings** as they were. **How to use** in the command palette shows the full guide whenever you want it.'],
+];
 const WELCOME_MS = 1200, WELCOME_RETRY_MS = 3000;
 const WELCOME_STEPS = [
   ['Your vault as a star system', 'Every **planet** is a note and every **orbit** a folder (or a tag, or a group of notes that link to each other). The lines are links, and the **globe** in the middle is your home note.'],
@@ -219,6 +272,13 @@ const mixHex = (a, b, k) => {
   return '#' + ((ch(16) << 16) | (ch(8) << 8) | ch(0)).toString(16).padStart(6, '0');
 };
 const TAU = Math.PI * 2;
+const DISC_COV = `
+float discCov(vec2 f, vec2 c, float s) {
+  if (s >= 3.0) return clamp(s + 0.5 - length(f - c), 0.0, 1.0);
+  float v = 0.0;
+  for (int i = 0; i < 4; i++) for (int j = 0; j < 4; j++) v += clamp((s - length(f + (vec2(float(i), float(j)) - 1.5) * 0.25 - c)) * 4.0 + 0.5, 0.0, 1.0);
+  return v * 0.0625;
+}`;
 const BELT_VS = `#version 300 es
 in vec2 q; in vec4 a; in float k;
 uniform vec2 S; uniform vec3 P[6];
@@ -234,11 +294,11 @@ const BELT_FS = `#version 300 es
 precision highp float;
 in vec4 vb; in vec4 vc; flat in float vr;
 uniform vec2 S;
-out vec4 o;
+out vec4 o;${DISC_COV}
 void main() {
   vec2 f = vec2(gl_FragCoord.x, S.y - gl_FragCoord.y);
   float cov;
-  if (vr > 0.5) cov = clamp((vb.z - vb.x) * 0.5 - length(f - (vb.xy + vb.zw) * 0.5) + 0.5, 0.0, 1.0);
+  if (vr > 0.5) cov = discCov(f, (vb.xy + vb.zw) * 0.5, (vb.z - vb.x) * 0.5);
   else { vec2 e = max(min(f + 0.5, vb.zw) - max(f - 0.5, vb.xy), 0.0); cov = e.x * e.y; }
   if (cov <= 0.0) discard;
   o = vc * cov;
@@ -305,13 +365,13 @@ const DOT_FS = `#version 300 es
 precision highp float;
 flat in vec4 va; flat in vec4 vc; flat in float vw;
 uniform vec2 S; uniform sampler2D T; uniform sampler2D U;
-out vec4 o;
+out vec4 o;${DISC_COV}
 void main() {
   vec2 f = vec2(gl_FragCoord.x, S.y - gl_FragCoord.y);
   float s = va.z, k = va.w, cov;
   if (k > 3.5) cov = texelFetch(U, ivec2(gl_FragCoord.xy), 0).r;
   else if (k < 0.5) cov = texture(T, (f - va.xy + s) / (2.0 * s)).a;
-  else if (k < 1.5) cov = clamp(s + 0.5 - length(f - va.xy), 0.0, 1.0);
+  else if (k < 1.5) cov = discCov(f, va.xy, s);
   else if (k < 2.5) { float d = length(f - va.xy); cov = clamp(s + vw + 0.5 - d, 0.0, 1.0) * clamp(d - s + vw + 0.5, 0.0, 1.0); }
   else { vec2 e = max(min(f + 0.5, va.xy + s) - max(f - 0.5, va.xy), 0.0); cov = e.x * e.y; }
   if (cov <= 0.0) discard;
@@ -375,7 +435,7 @@ const DUST_MS = 24 * 3600000, DUST_MAX = 3, DUST_A = 0.05;
 const WAVE_DELAY = 9000, WAVE_SPEED = 0.35;
 const GRAVE = 'rn:graveyard';
 const BAND_TILT = -0.49;
-const BAND_W = 0.115;
+const BAND_W = 0.14;
 const holeSize = (dead) => Math.min(23, Math.round(10 + 0.22 * dead));
 const holePull = (dead) => Math.min(22, Math.round(5 + 0.3 * dead));
 const HOLE_RO = 4.6, HOLE_SQ = 0.22, HOLE_TILT = -0.28, HOLE_DIM = 0.5;
@@ -404,7 +464,12 @@ const bandAt = (b) => {
 const OUTER_SLOTS = 7, BELT2_W = 0.82;
 const BELT2_PAD = 0.2;
 const INNER_MAX = 6, MID_MAX = 5;
-const INTRO_MS = 8000, REST_PITCH = 0.3, ZOOM_MIN = 0.005;
+const INTRO_MS = 5500, PICK_D2 = 484, REST_PITCH = 0.3, ZOOM_MIN = 0.005, AWAY_MS = 1500;
+const REST_AFTER_MS = 3000;
+function paceOf(q, gap, focused, busy) {
+  const fps = busy ? (q === 'low' || !focused ? 31 : 62) : (q === 'low' || !focused ? 20 : 31);
+  return Math.max(1, Math.round(1000 / fps / (gap > 0 ? gap : 16.7)));
+}
 const ZOOM_OUT_LAND = 0.1;
 const HELD_MS = 11, FADE_MS = 2400;
 const DRAG_EASE = 55;
@@ -415,15 +480,19 @@ const CG_UP = 0.17, CG_DRIFT = 1.0, CG_DRIFT_SP = 1.8, CG_HZ_EYE = 0.825, CG_BEL
 const CG_TILT = { fhorizon: 0.157, fbelt: 0.157 };
 const TOUR_GO = [7000, 34000], TOUR_DT_MAX = 400, TOUR_HIDDEN_MS = 1500;
 const TOUR_ZOOM_IN_MS = 5000;
-const TOUR_RATE = { orbit: 0.000055, crane: 0.000028, skim: 0.0000975, dive: 0.0000275, horizon: 0.00004, milky: 0.0000625, ring: 0.00005, top: 0.0000413, flat: 0.00005 };
+const TOUR_RATE = { orbit: 0.000055, crane: 0.000028, crane3: 0.000028, skim: 0.0000975, dive: 0.0000275, horizon: 0.00004, milky: 0.0000625, ring: 0.00005, top: 0.0000413, flat: 0.00005, egg: 0.00004 };
+const TOUR_SHEET = [-0.19, 0.838];
+const TOUR_ZT = { skim: [3.75, 10], dive: [3.75, 35], crane: [3, 89], crane3: [3.6, 89], orbit: [2.55, 20], flat: [3, 10], egg: [2.36, 20] };
+const TOUR_ZFAR = 0.9;
+const TOUR_DOWN = 89 * Math.PI / 180, TOUR_CRANE_LO = 0.2;
 const TOUR_ZONE = 0.25, TOUR_FAR = 0.04, TOUR_FAR_TOP = -0.2, TOUR_PITCH = [0.18, 1.22], TOUR_TOP = 1.42, TOUR_START_SWING = 1.6;
 const TOUR_LAND = 0.45;
 const smooth5 = (k) => { k = Math.max(0, Math.min(1, k)); return k * k * k * (k * (k * 6 - 15) + 10); };
 const springStep = (x, v, to, w, dt) => { const d = x - to, c = v + w * d, e = Math.exp(-w * dt); return { x: to + (d + c * dt) * e, v: (v - w * c * dt) * e }; };
-const TOUR_KINDS = ['orbit', 'crane', 'skim', 'dive', 'horizon', 'milky', 'ring', 'top', 'flat'];
+const TOUR_KINDS = ['skim', 'dive', 'crane', 'crane3', 'orbit', 'flat', 'egg'];
 const TOUR_FREE_KINDS = [];
-const TOUR_NAMES = { orbit: 'ORBIT', crane: 'CRANE', skim: 'SKIM', dive: 'DIVE', horizon: 'EVENT HORIZON', milky: 'MILKY WAY', ring: 'RING', top: 'OVERHEAD', flat: 'FLAT', fglobe: 'FROM THE GLOBE', fhorizon: 'HORIZON', fbelt: 'BELT' };
-const TOUR_WEIGHT = { orbit: 1.3, crane: 1.3, skim: 1.3, dive: 0.6, ring: 0.3, flat: 0.8 };
+const TOUR_NAMES = { orbit: 'ORBIT', crane: 'WIDE CRANE', crane3: 'CRANE', skim: 'SKIM', dive: 'DIVE', horizon: 'EVENT HORIZON', milky: 'MILKY WAY', ring: 'RING', top: 'OVERHEAD', flat: 'FLAT', egg: 'DEEP FIELD', fglobe: 'FROM THE GLOBE', fhorizon: 'HORIZON', fbelt: 'BELT' };
+const TOUR_WEIGHT = { orbit: 1, crane: 1.2, crane3: 1.1, skim: 1, dive: 1, ring: 0.3, flat: 0.7 };
 const FREE_CYP = 0.4943, FREE_KZ = 0.1431;
 function orbitEye(yaw, pitch, D) { return rotY(rotX({ x: 0, y: 0, z: -D }, -pitch), -yaw); }
 function orbitEq(yaw, pitch, zoom, D, k, W) {
@@ -512,6 +581,23 @@ function driftAt(p, fl, a, b, c, d) {
 function tourBase(kind, u, e, P) {
   const q = smooth5(u), d = P.dir, rj = P.rj || 1, zo = P.zo || 0;
   if (P.fp && TOUR_FREE_KINDS.includes(kind)) { const fp = driftPose(P.fp, e, 1); return { yaw: fp.yaw, pitch: fp.pitch, zoom: fp.zoom, fp }; }
+  const zt = TOUR_ZT[kind];
+  if (zt) {
+    const wl = P.wmin || P.zmin, lw = Math.log(P.zmax / wl), zZ = (Z) => wl * Math.exp(lw * (TOUR_SHEET[0] + (TOUR_SHEET[1] * (Z - 1)) / 6)), zk = 1 / TOUR_SHEET[1];
+    const Zt = zt[0], tt = (zt[1] * Math.PI) / 180;
+    let yaw = P.yaw0 + d * (TOUR_RATE[kind] || TOUR_RATE.orbit) * rj * e, pitch = tt, Z = Zt;
+    if (kind === 'crane' || kind === 'crane3') { const sp = TOUR_DOWN - TOUR_CRANE_LO; pitch = P.up ? TOUR_CRANE_LO + sp * q : TOUR_DOWN - sp * q; Z = Zt + zk * (P.up ? 0.25 - 0.5 * q : -0.25 + 0.5 * q); }
+    else if (kind === 'skim') { pitch = tt + 0.05 * (Math.sin(Math.PI * u) ** 2 - 0.5); Z = Zt + zk * (-0.15 + 0.3 * q); }
+    else if (kind === 'dive') { pitch = tt + 0.07 * (0.5 - q); Z = Zt + zk * (-0.2 + 0.4 * q); }
+    else if (kind === 'orbit') { pitch = tt + (P.up ? -0.04 + 0.08 * q : 0.04 - 0.08 * q); Z = Zt + zk * (P.up ? 0.15 - 0.3 * q : -0.15 + 0.3 * q); }
+    else if (kind === 'flat') { pitch = tt + 0.03 * (0.5 - q); Z = Zt + zk * (-0.1 + 0.2 * q); }
+    else if (kind === 'egg') { pitch = tt + 0.04 * (0.5 - q); Z = Zt + zk * 0.2 * (1 - q); }
+    pitch += P.pj || 0;
+    const fl = smooth01(e / 2000), a = Math.sin(e / 4300), b = Math.sin(e / 2700 + 1.3), c = Math.sin(e / 6600 + 0.4);
+    yaw += fl * (0.011 * a + 0.005 * b); pitch += fl * (0.015 * c + 0.006 * b);
+    const zoom = Math.max(zZ(TOUR_ZFAR), Math.min(P.zmax, zZ(Z) * (1 + fl * 0.007 * a * c)));
+    return { yaw, pitch: Math.max(0, Math.min(TOUR_DOWN, pitch)), zoom };
+  }
   const ls = Math.log(P.zmax / P.zmin), zw = (w) => P.zmin * Math.exp(ls * Math.max(TOUR_FAR, Math.min(1 - TOUR_ZONE, w))), zlo = zw(TOUR_ZONE), zhi = zw(1 - TOUR_ZONE);
   const zf = (f) => zw(TOUR_ZONE + (1 - 2 * TOUR_ZONE) * Math.max(0, Math.min(1, f)) + zo);
   let yaw = P.yaw0, pitch = REST_PITCH, zoom = zf(0.5);
@@ -555,6 +641,7 @@ const LIFT_R = 0.75;
 const GLOW_BASE = 1.8, GLOW_CAP = 4, GLOW_PAD = 60, GLOW_CORE = [0.34, 0.62], GLOW_CORE_K = 0.55, GLOW_DISC = [1.0, 0.42], GLOW_DISC_P = 1.4, GLOW_HALO = [1.2, 0.7], GLOW_HALO_K = 0.85, RIM_REACH = [1.2, 0.65], RIM_FROM = 0.2, RIM_SPAN = 0.6, RIM_VIEW = 0.59, RIM_BELTS = 0.6, GLOW_VIEW = 0.75, CRISP_MAX = 0.7;
 const GLOW_EASE = 260, GLOW_XF = 650, GLOW_EDGE = [0.12, 0.34], GLOW_FADE = [0.12, 0.12], CLEAR_F0 = 0.4, CLEAR_GROW = 1.2, SET_XF = 450;
 const CLEAR_D = { f0: 0, grow: 1.6 };
+const CLEAR_FULL = 1.25;
 const INK_AMB = { core: [0, 0, 0], disc: [0, 0, 0], halo: [0, 0, 0], rim: 0.5 }, INK_RIM = '#3b342c';
 const SET_FADES = new Set(['ringNames', 'nearNames', 'blackHole', 'novas', 'openLoops']);
 const SET_EASE = 110, SET_EASED = ['links', 'planetSize', 'glow', 'darkness'];
@@ -589,9 +676,9 @@ const inkOf = (hex) => {
 function hash(s) { let h = 2166136261; for (let i = 0; i < s.length; i++) { h ^= s.charCodeAt(i); h = Math.imul(h, 16777619); } return (h >>> 0) / 4294967296; }
 function rotX(p, a) { const c = Math.cos(a), s = Math.sin(a); return { x: p.x, y: p.y * c - p.z * s, z: p.y * s + p.z * c }; }
 function rotY(p, a) { const c = Math.cos(a), s = Math.sin(a); return { x: p.x * c + p.z * s, y: p.y, z: -p.x * s + p.z * c }; }
-function viewExtent(rings, rmax, om, dm = 1) {
+function viewExtent(rings, rmax, om, dm = 1, rf = 0.65) {
   const D = Math.max(3400, 1.7 * Math.max(1.8 * rmax, om || 0)) * dm, cp = Math.cos(REST_PITCH), sp = Math.sin(REST_PITCH);
-  const loops = rings.filter((r) => !r.fresh).map((r) => [r.radius + 0.9 * RING_W * (r.spread || 40), (r.inclFit !== undefined ? r.inclFit : r.incl) || 0, r.asc || 0, 0.6 * Math.min(r.spread || 40, 96 + 0.02 * r.radius)]);
+  const loops = rings.filter((r) => !r.fresh).map((r) => [r.radius + (r.rout ? rf * r.rout : 0.9 * RING_W * (r.spread || 40)),(r.inclFit !== undefined ? r.inclFit : r.incl) || 0, r.asc || 0, 0.6 * Math.min(r.spread || 40, 96 + 0.02 * r.radius)]);
   if (om) loops.push([om, 0.05, 1.3, 0]);
   const e = { x: 1, up: 1, down: 1 };
   for (const [R, incl, asc, h] of loops) {
@@ -713,6 +800,8 @@ function findHub(paths, links, vaultName) {
   return roots.length && (inbound.get(roots[0]) || 0) > 0 ? roots[0] : null;
 }
 const bell = (s) => (hash(s + 'a') + hash(s + 'b') + hash(s + 'c') - 1.5) / 1.5;
+const mix32 = (s) => { let h = (hash(s) * 4294967296) >>> 0; h ^= h >>> 16; h = Math.imul(h, 0x85ebca6b); h ^= h >>> 13; h = Math.imul(h, 0xc2b2ae35); h ^= h >>> 16; return (h >>> 0) / 4294967296; };
+const bellTrue = (s) => mix32(s + 'a') + mix32(s + 'b') - 1;
 function rng(seed) {
   let a = seed >>> 0;
   return () => { a = (a + 0x6D2B79F5) | 0; let t = Math.imul(a ^ (a >>> 15), 1 | a); t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t; return ((t ^ (t >>> 14)) >>> 0) / 4294967296; };
@@ -778,19 +867,78 @@ const splitHits = (s, terms) => {
   for (let i = 0; i < parts.length; i++) if (parts[i]) out.push([parts[i], i % 2 === 1]);
   return out;
 };
+const peekLines = (text, at, max = 12) => {
+  text = String(text || '');
+  let s0 = 0; const fm = /^---\r?\n[\s\S]*?\r?\n---\r?\n/.exec(text); if (fm) s0 = fm[0].length;
+  const lines = text.slice(s0).split(/\r?\n/); let hit = 0;
+  if (at > s0) { let off = s0; for (let i = 0; i < lines.length; i++) { off += lines[i].length + 1; if (off > at) { hit = i; break; } } }
+  let a = hit;
+  for (let k = 0; k < 3 && a > 0; k++) { a--; if (/^\s*#{1,6}\s/.test(lines[a])) break; }
+  const out = []; let blank = false, chars = 0;
+  for (let i = a; i < lines.length && out.length < max && chars < 900; i++) {
+    const raw = lines[i], t = cleanLine(raw);
+    if (!t) { blank = out.length > 0; continue; }
+    if (/^\s*(?:```|---\s*$|\|?\s*:?-{3,})/.test(raw)) continue;
+    out.push({ t: t.length > 220 ? t.slice(0, 217).trimEnd() + '…' : t, h: /^\s*#{1,6}\s/.test(raw), gap: blank }); blank = false; chars += t.length;
+  }
+  return out;
+};
 const WIDGET_MS = 1200;
 const WIDGETS = {
-  recent: { name: 'Recent edits', icon: 'history' },
-  spark: { name: 'Activity', icon: 'activity' },
-  tasks: { name: 'Open tasks', icon: 'list-checks' },
-  inbox: { name: 'Inbox', icon: 'inbox' },
-  today: { name: 'On this day', icon: 'calendar' },
-  opened: { name: 'Most opened', icon: 'eye' },
-  stats: { name: 'Vault stats', icon: 'info' },
-  loose: { name: 'Orphans and broken links', icon: 'unlink' },
-  note: { name: 'A note…', icon: 'file-text', many: true },
-  folder: { name: 'A folder or tag…', icon: 'folder', many: true },
+  recent: { name: 'Recent edits', icon: 'history', tip: 'The notes you edited last, newest first, and how many today. A row opens its note.' },
+  spark: { name: 'Activity', icon: 'activity', tip: 'How many notes were last edited in each hour or day. A note counts once, at its last edit.' },
+  tasks: { name: 'Open tasks', icon: 'list-checks', tip: 'Unticked tasks across the vault, and the notes holding the most. A row opens its note.' },
+  inbox: { name: 'Inbox', icon: 'inbox', tip: 'Notes waiting in your inbox folder (a top folder named Inbox, or one you pick), the longest waiting first.' },
+  today: { name: 'On this day', icon: 'calendar', tip: 'Notes from this date in earlier years, by when they were made or a date in their name.' },
+  opened: { name: 'Most opened', icon: 'eye', tip: 'The notes you open most often. Opening a note often helps make it a planet.' },
+  stats: { name: 'Vault stats', icon: 'info', tip: 'The vault in numbers: notes, links, folders, tags, edited this week, new this month.' },
+  loose: { name: 'Orphans and broken links', icon: 'unlink', tip: "Notes with no links at all (click to visit them one by one) and links to notes that don't exist yet." },
+  note: { name: 'A note…', icon: 'file-text', many: true, tip: 'The start of a note you picked, kept at hand. Its name opens it.' },
+  folder: { name: 'A folder or tag…', icon: 'folder', many: true, tip: 'A folder or #tag you picked: how many notes are in it, and the newest.' },
+  chart: { name: 'A chart from a note…', icon: 'line-chart', many: true, tip: "A live line of a note's numbers (a table column, key: number lines, or a chart). Redraws when the note changes." },
 };
+const CHART_MAX = 120;
+const CHART_NUM = /^[-+−]?\$?\s*\d[\d,]*(?:\.\d+)?\s*[kKmMbB%]?$/;
+function chartNumOf(s) {
+  const t = String(s == null ? '' : s).replace(/\*\*|__|`/g, '').trim();
+  if (!CHART_NUM.test(t)) return null;
+  const m = /[kKmMbB]$/.exec(t), v = parseFloat(t.replace(/[−]/, '-').replace(/[$,\s%kKmMbB]/g, ''));
+  return isFinite(v) ? v * (m ? { k: 1e3, m: 1e6, b: 1e9 }[m[0].toLowerCase()] : 1) : null;
+}
+function chartNums(text) {
+  const src = String(text || '').replace(/^---\r?\n[\s\S]*?\r?\n---\r?\n?/, ''), lines = src.split(/\r?\n/), done = (vals, label, from) =>
+    vals.length >= 2 ? { vals: vals.slice(-CHART_MAX), label: (label || '').trim().slice(0, 40), from } : null;
+  const mer = /```mermaid[^\n]*\n([\s\S]*?)```/g;
+  for (let b; (b = mer.exec(src));) {
+    if (!/xychart/.test(b[1])) continue;
+    const ln = /^\s*line\s*(?:"[^"]*"\s*)?\[([^\]]*)\]/m.exec(b[1]), ti = /^\s*title\s+"?([^"\n]*)"?/m.exec(b[1]);
+    const r = ln && done(ln[1].split(',').map(chartNumOf).filter((v) => v !== null), ti && ti[1], 'chart');
+    if (r) return r;
+  }
+  const tables = [];
+  let cur = null;
+  for (const l of lines) {
+    if (/^\s*\|/.test(l)) { if (!cur) tables.push(cur = []); cur.push(l.trim().replace(/^\||\|$/g, '').split('|').map((c) => c.trim())); } else cur = null;
+  }
+  for (let i = tables.length - 1; i >= 0; i--) {
+    const T = tables[i];
+    if (T.length < 4 || !T[1].every((c) => /^:?-{2,}:?$/.test(c) || c === '')) continue;
+    const body = T.slice(2);
+    for (let c = T[0].length - 1; c >= 0; c--) {
+      const vals = body.map((r) => chartNumOf(r[c])).filter((v) => v !== null);
+      if (vals.length >= 2 && vals.length >= body.length * 0.6) return done(vals, T[0][c], 'table');
+    }
+  }
+  const kv = [], bare = [];
+  for (const l of lines) {
+    const m = /^\s*(?:[-*+]\s+)?([^:|#\n]{1,40}?)\s*[:=]\s*(\S.*?)\s*$/.exec(l), v = m && chartNumOf(m[2]);
+    if (v != null) { kv.push(v); continue; }
+    const n = /^\s*(?:[-*+]\s+)?(\S.*?)\s*$/.exec(l), w = n && chartNumOf(n[1]);
+    if (w != null) bare.push(w);
+  }
+  return done(kv, '', 'lines') || done(bare, '', 'lines');
+}
+const chartFmt = (v) => { const a = Math.abs(v), s = v < 0 ? '−' : ''; return a >= 1e9 ? `${s}${+(a / 1e9).toFixed(1)}B` : a >= 1e6 ? `${s}${+(a / 1e6).toFixed(1)}M` : a >= 1e4 ? `${s}${+(a / 1e3).toFixed(1)}k` : `${s}${+a.toFixed(a >= 100 ? 0 : 2)}`; };
 const WIDGET_DEFAULT = [{ id: 'w:recent', type: 'recent', n: 5 }, { id: 'w:spark', type: 'spark', span: '14d' }, { id: 'w:stats', type: 'stats' }];
 const SPANS = {
   '24h': { label: '24 hours', n: 24, ms: 36e5, foot: '24 hours · by last edit' },
@@ -1020,7 +1168,7 @@ function layout(paths, hub = null, opts = {}) {
   const G = opts.groupOf, M = opts.memo, C2 = opts.cache;
   if (M && M.size > 4 * paths.length + 5000) M.clear();
   if (C2 && C2.size > 96) C2.clear();
-  const B3 = (p) => { let b = M && M.get(p); if (!b) { b = [bell(p + 't'), bell(p + 'r'), bell(p + 'y'), (hash(p) * 4294967296) >>> 0]; if (M) M.set(p, b); } return b; };
+  const B3 = (p) => { let b = M && M.get(p); if (!b) { b = [bell(p + 't'), bellTrue(p + 'r'), bell(p + 'y'), (hash(p) * 4294967296) >>> 0]; if (M) M.set(p, b); } return b; };
   const groups = new Map();
   for (const p of paths) {
     if (freshSet.has(p)) continue;
@@ -1073,7 +1221,7 @@ function layout(paths, hub = null, opts = {}) {
     if (C2) {
       let sx = 0, ss = 0;
       for (const p of raw) if (p !== hub) { const h = B3(p)[3]; sx ^= h; ss = (ss + h) >>> 0; }
-      key = `${ring.name}\u0001${ring.radius}\u0001${ring.incl}\u0001${ring.asc}\u0001${n}\u0001${sx}\u0001${ss}`;
+      key = `${ring.name}\u0001${ring.radius}\u0001${ring.incl}\u0001${ring.asc}\u0001${n}\u0001${sx}\u0001${ss}\u0001${Math.round(ring.rin)}\u0001${Math.round(ring.rout)}`;
       tpl = C2.get(key);
     }
     if (!tpl) {
@@ -1081,10 +1229,10 @@ function layout(paths, hub = null, opts = {}) {
       const ci = Math.cos(ring.incl), si = Math.sin(ring.incl), ca = Math.cos(ring.asc), sa = Math.sin(ring.asc);
       const hy = Math.min(spread, 96 + 0.02 * ring.radius) * 1.15;
       const ls = others.map((p, j) => {
-        const b = B3(p), th = (j / Math.max(1, n)) * Math.PI * 2 + b[0] * 0.3, r = ring.radius + bandAt(b[1]) * spread * REACH;
+        const b = B3(p), bv = b[1], th = (j / Math.max(1, n)) * Math.PI * 2 + b[0] * 0.3, r = ring.radius + (bv < 0 ? bv * ring.rin : bv * ring.rout);
         return { x: Math.cos(th) * r, y: b[2] * hy, z: Math.sin(th) * r };
       });
-      const even = roomFor(TAU * ring.radius, 2 * CORE * spread, 1.2 * hy, n);
+      const even = roomFor(TAU * ring.radius, Math.max(1, (0.22 * (ring.rin + ring.rout)) / 0.48), 1.2 * hy, n);
       spaceOut(ls, Math.min(0.6 * even, Math.max(PLANET_GAP, 0.45 * even)));
       tpl = others.map((p, j) => {
         const l = ls[j], th = Math.atan2(l.z, l.x);
@@ -1095,30 +1243,50 @@ function layout(paths, hub = null, opts = {}) {
     }
     for (const o of tpl) nodes.push({ path: o.path, ring: ri, th: o.th, l: o.l, x: o.x, y: o.y, z: o.z, fresh: false });
   };
-  rings.forEach(place);
   const last = rings[rings.length - 1], tail = 50 + 10 * Math.sqrt(last.count || 1), rmax = last.radius + RING_W * tail;
   const rmax1 = R1u[R1u.length - 1] + RING_W * tail, spr = rmax / rmax1;
   const grow = Math.max(1, rmax1 / (R0[R0.length - 1] + tail)) * spr;
   const line = 2 * REACH * (34 + 8 * Math.sqrt(10)) + 0.12 * rmax, start = (BELT_OUT + OUTER_GAP) * rmax;
   const outs = [...outerSet].filter((k) => groups.has(k)).concat([...giants]).sort(bySize), capped = NG > NG0 || outs.length > MID_MAX;
+  const MID = outs.length > MID_MAX + 3 ? 3 : MID_MAX;
   const lw = opts.oldLanes ? rmax * sp : rmax1 * sp;
   const lane = (name) => (giants.has(name) && !capped ? 0.3 : 0.12) * lw;
   let need = start + 0.12 * lw;
-  outs.slice(0, MID_MAX).forEach((name, j, a) => { need += 2 * REACH * band(groups.get(name).length) + (j < a.length - 1 ? lane(name) : 0); });
+  outs.slice(0, MID).forEach((name, j, a) => { need += 2 * REACH * band(groups.get(name).length) + (j < a.length - 1 ? lane(name) : 0); });
   const b2in = outs.length && !opts.oldLanes ? need : Math.max(start + OUTER_SLOTS * line, need);
   const b2 = opts.belt2 ? { in: b2in, out: b2in + BELT2_W * rmax, c: b2in / rmax + BELT2_W / 2 } : null;
-  let edge = start, outerMax = 0, outerNear = 0;
+  let edge = start;
   outs.forEach((name, j) => {
     const count = groups.get(name).length, spread = 34 + 8 * Math.sqrt(count);
-    if (b2 && j >= MID_MAX) edge = Math.max(edge, b2.out + BELT2_PAD * rmax);
+    if (b2 && j >= MID) edge = Math.max(edge, b2.out + BELT2_PAD * rmax);
     if (b2 && edge + spread * 2 * REACH > b2.in) edge = Math.max(edge, b2.out + BELT2_PAD * rmax);
     const radius = edge + spread * REACH;
-    const ring = { name, count, radius, ...ti((j % 2 ? -1 : 1) * Math.min(0.08 + 0.03 * j, 0.03 + 400 / radius)), asc: 2.1 + j * 1.9, outer: true, giant: giants.has(name), far: j >= MID_MAX };
+    const ring = { name, count, radius, ...ti((j % 2 ? -1 : 1) * Math.min(0.08 + 0.03 * j, 0.03 + 400 / radius)), asc: 2.1 + j * 1.9, outer: true, giant: giants.has(name), far: j >= MID };
     ring.w = 0.35 * RING_SPIN[(rings.length + 3) % RING_SPIN.length] * SPIN;
-    rings.push(ring); place(ring, rings.length - 1);
-    edge = ring.radius + spread * REACH + lane(name); outerMax = ring.radius + spread * REACH;
-    if (!ring.far) outerNear = outerMax;
+    rings.push(ring);
+    edge = ring.radius + spread * REACH + lane(name);
   });
+  const real = rings.filter((r) => { const raw = groups.get(r.name) || []; return raw.length - (hub && raw.includes(hub) ? 1 : 0) > 0; });
+  const Ge0 = GS * (opts.globeR || GLOBE_R * Math.max(1, Math.min(2.6, (0.075 * R1[R1.length - 1]) / GLOBE_R)));
+  const lows = [1.6 * Ge0, BELT_OUT * rmax], highs = [1.28 * rmax];
+  if (b2) { lows.push(b2.out); highs.push(b2.in); }
+  if (fresh.length) highs.push(edge + 40);
+  real.forEach((ring, k) => {
+    const r = ring.radius, prev = real[k - 1], next = real[k + 1];
+    let wIn = Infinity, wOut = Infinity;
+    for (const w of lows) if (w < r) wIn = Math.min(wIn, r - w);
+    for (const w of highs) if (w > r) wOut = Math.min(wOut, w - r);
+    const nIn = prev ? r - prev.radius : Infinity, nOut = next ? next.radius - r : Infinity;
+    let gi = Math.min(nIn, wIn), go = Math.min(nOut, wOut);
+    if (!isFinite(gi)) gi = go;
+    if (!isFinite(go)) go = gi;
+    if (!isFinite(gi)) gi = go = band(ring.count) * REACH;
+    const gIn = wIn < nIn && nOut <= wOut ? Math.min(gi, go) : gi, gOut = wOut < nOut && nIn <= wIn ? Math.min(go, gi) : go;
+    ring.rin = 0.48 * Math.max(0, gIn); ring.rout = 0.48 * Math.max(0, gOut);
+  });
+  for (let i = 0; i < rings.length; i++) place(rings[i], i);
+  let outerMax = 0, outerNear = 0;
+  rings.forEach((g) => { if (!g.outer) return; const e = g.radius + Math.max(band(g.count) * REACH, g.rout || 0); outerMax = Math.max(outerMax, e); if (!g.far) outerNear = Math.max(outerNear, e); });
   if (fresh.length) {
     const ring = { name: '', count: fresh.length, radius: edge + 40, ...ti(0.05), asc: 1.3, fresh: true, w: 0.25 * SPIN, spread: 40 };
     rings.push(ring);
@@ -1142,7 +1310,7 @@ function layout(paths, hub = null, opts = {}) {
       outerMax = Math.max(outerMax, Math.hypot(l.x, l.z) + 20);
     });
   }
-  const outerIn = outs.length > MID_MAX ? outerNear : outerMax;
+  const outerIn = outs.length > MID ? outerNear : outerMax;
   if (b2) outerMax = Math.max(outerMax, b2.out);
   return { nodes, rings, rmax, outerMax, outerIn, belt2: b2, grow, spr, capped };
 }
@@ -1191,15 +1359,28 @@ function spaceOut(L, dmin) {
   }
 }
 function wheelScroll(el) {
-  let to = null;
-  el.addEventListener('scrollend', () => { to = null; });
+  let to = null, raf = 0, last = null, t0 = 0;
+  try { el.classList.add('rn-wglide'); } catch {   }
+  const stop = () => { to = null; last = null; if (raf) cancelAnimationFrame(raf); raf = 0; };
+  const step = (now) => {
+    raf = 0;
+    if (to === null) return;
+    if (last !== null && Math.abs(el.scrollTop - last) > 2) { stop(); return; }
+    const dt = Math.min(50, Math.max(1, now - (t0 || now - 16))); t0 = now;
+    const d = to - el.scrollTop, a = Math.abs(d);
+    if (a < 0.75) { el.scrollTop = to; stop(); return; }
+    el.scrollTop += Math.sign(d) * Math.max(Math.min(a, 1), a * (1 - Math.exp(-dt / 65)));
+    last = el.scrollTop;
+    if (Math.abs(to - last) >= a - 0.01) { stop(); return; }
+    raf = requestAnimationFrame(step);
+  };
   el.addEventListener('wheel', (e) => {
     const max = el.scrollHeight - el.clientHeight;
     if (max <= 0 || e.ctrlKey) return;
     const dy = e.deltaY * (e.deltaMode === 1 ? 16 : e.deltaMode === 2 ? el.clientHeight : 1);
-    const from = to !== null && Math.abs(to - el.scrollTop) < 2 * Math.abs(dy) + 240 ? to : el.scrollTop;
-    to = Math.max(0, Math.min(max, from + dy));
-    el.scrollTo({ top: to, behavior: 'smooth' });
+    to = Math.max(0, Math.min(max, (to === null ? el.scrollTop : to) + dy));
+    if (last === null) last = el.scrollTop;
+    if (!raf) { t0 = 0; raf = requestAnimationFrame(step); }
     e.preventDefault(); e.stopPropagation();
   }, { passive: false });
 }
@@ -1460,10 +1641,11 @@ class NetworkView extends ItemView {
     this.rockets = []; this.flashes = []; this.rocks = []; this.gEnd = { px: -1e4, py: -1e4, r: 0, capY: 53, path: '', color: C.sand };
     this.act = { last: null, win: [], wh: 0, flood: null, cap: null, pend: new Map(), queue: [], held: [], heldAt: 0, delT: 0, fade: new Map(), mod: new Map(), typed: null, load: 0, seq: 0, heat: 0, heatAt: 0, scope: null, work: 0, workAt: 0, ambAt: 0 };
     const R = rng(7), B = () => (R() + R() + R() - 1.5) / 1.5;
+    const K = rng(71);
     this.dust = Array.from({ length: 650 }, () => {
       const r = 0.22 + 1.2 * Math.sqrt(R()), big = R() > 0.92;
       return { r, a0: R() * TAU, y: B() * 0.16, w: (0.6 + 0.8 * R()) * 1.1e-5 / (0.5 + r), al: (big ? 0.22 : 0.1) + Math.pow(R(), 1.6) * 0.36, big };
-    });
+    }).filter((d) => { const k = K(); return d.r >= 0.6 && (d.r >= 1.2 || k < 1 / 3); });
     this.belt = makeBelt(R, 1.53, BELT1_BAND, BELT1_SKIRT, 0.25);
     this.deep = Array.from({ length: 320 }, () => {
       const u = R() * 2 - 1, ph = R() * TAU, s = Math.sqrt(1 - u * u), r = 1.25 + 1.6 * R();
@@ -1477,6 +1659,16 @@ class NetworkView extends ItemView {
   getViewType() { return VIEW; }
   getDisplayText() { return 'Rho Network'; }
   getIcon() { return 'globe'; }
+  getState() { const s = (super.getState && super.getState()) || {}; if (this.shown && this.shown !== this.hub) s.note = this.shown; return s; }
+  async setState(state, result) { if (state && typeof state.note === 'string' && state.note) { this.wantNote = state.note; this.wantNoteN = 0; this.restoreNote(); } return super.setState(state, result); }
+  restoreNote() {
+    clearTimeout(this.wantNoteT); this.wantNoteT = 0;
+    const p = this.wantNote; if (!p || this.closed) return;
+    if (this.intro || !this.byPath || !this.byPath.size) { if (++this.wantNoteN < 75) this.wantNoteT = setTimeout(() => this.restoreNote(), 400); else this.wantNote = null; return; }
+    this.wantNote = null;
+    if (!this.shown && this.byPath.has(p)) { try { const r = this.showNote(p, false); if (r && r.catch) r.catch(() => {}); } catch {   } }
+  }
+  keepLayout() { try { this.app.workspace.requestSaveLayout(); } catch {   } }
 
   note(line) { this.plugin.diag(line); }
   fail(where, e) {
@@ -1487,21 +1679,26 @@ class NetworkView extends ItemView {
   }
 
   async onOpen() {
+    this.closed = false;
     try {
       const el = this.contentEl; el.empty(); el.addClass('rho-network-view');
       const TH = THEMES[settingOf(this.plugin.settings, 'theme')] || THEMES.deep;
       this.boot = bootMark(el, TH.vig, this.app.vault.getName());
       await new Promise((r) => { requestAnimationFrame(() => setTimeout(r, 0)); setTimeout(r, 80); });
     } catch { this.boot = null; }
+    if (this.closed) return;
     await this.graphLoad();
+    if (this.closed) return;
     try { this.open0(); } catch (e) { this.fail('opening', e); }
   }
   dawnCards() {
     this.dawnOn = false;
-    const kids = this.colEls();
-    kids.forEach((k, i) => k.style.setProperty('--rn-d', `${(0.9 + i * 0.28).toFixed(2)}s`));
+    const kids = this.colEls(), d0 = this.intro ? 0.9 : 0.25, all = [...kids];
+    kids.forEach((k, i) => k.style.setProperty('--rn-d', `${(d0 + i * 0.28).toFixed(2)}s`));
+    for (const e of [this.topEl, this.baseEl]) if (e) { e.style.setProperty('--rn-d', `${d0.toFixed(2)}s`); all.push(e); }
+    if (this.cfoot) { this.cfoot.style.setProperty('--rn-d', `${(d0 + kids.length * 0.28).toFixed(2)}s`); all.push(this.cfoot); }
     this.contentEl.removeClass('rn-dawn');
-    setTimeout(() => { for (const k of kids) k.style.removeProperty('--rn-d'); }, 1200 + 900 + kids.length * 280 + 300);
+    setTimeout(() => { for (const k of all) k.style.removeProperty('--rn-d'); }, 1200 + d0 * 1000 + (kids.length + 1) * 280 + 300);
   }
   cardIn(el) {
     if (this.dawnOn || !el.classList.contains('rn-hidden')) { el.classList.remove('rn-hidden'); return; }
@@ -1532,7 +1729,7 @@ class NetworkView extends ItemView {
     this.intro = settingOf(this.plugin.settings, 'intro') ? { t0: 0 } : null;
     if (this.plugin.wantWelcome) { this.plugin.wantWelcome = false; this.wantWel = true; }
     if (!this.intro) { this.zoom = INTRO_ZOOM; this.openOut = true; this.welcomeSoon(); }
-    else { this.dawnOn = true; el.addClass('rn-dawn'); }
+    this.dawnOn = true; el.addClass('rn-dawn');
     this.paintTheme();
     this.plugin.views.add(this);
     this.setMoons(this.plugin.hub.allMoons());
@@ -1569,18 +1766,34 @@ class NetworkView extends ItemView {
     let firstDrawn = false, failed = false;
     const rep = { n: 0, gs: 0, gmax: 0, slow: 0, js: 0, lt: 0, done: false };
     const loop = (t) => {
+      if (this.closed) return;
       this.raf = requestAnimationFrame(loop);
       if (document.hidden || !el.isConnected || el.clientWidth < 2 || el.clientHeight < 2) { if (this.tour && !document.hidden) this.endTour(); return; }
       if (Math.abs(el.clientWidth - this.W) > 1 || Math.abs(el.clientHeight - this.H) > 1) this.resize();
+      const rg = t - (this.rafT || t); this.rafT = t;
+      if (rg > 3 && rg < 60) this.rafGap = this.rafGap ? this.rafGap * 0.97 + rg * 0.03 : rg;
+      const Qp = settingOf(this.plugin.settings, 'quality');
+      this.paceK = Qp === 'high' ? 1 : paceOf(Qp, this.rafGap || 16.7, document.hasFocus(), this.busy(t));
+      this.paceN = (this.paceN || 0) + 1;
+      if (this.paceN < this.paceK) return;
+      this.paceN = 0;
       try {
         const a = performance.now();
         this.frame(t);
         this.lastCost = performance.now() - a;
         this.quality(this.lastCost, t);
+        const zr = this.zRep || (this.zRep = { n: 0, gs: 0, gmax: 0, slow: 0, js: 0, lt: 0, told: 0 });
+        if (this.zoomTo !== null && !this.intro) {
+          if (zr.lt && t - zr.lt < 250) { const g = t - zr.lt; zr.n++; zr.gs += g; if (g > zr.gmax) zr.gmax = g; if (g > Math.max(25, (this.paceK || 1) * (this.rafGap || 16.7) * 1.5)) zr.slow++; }
+          if (this.lastCost > zr.js) zr.js = this.lastCost; zr.lt = t;
+        } else if (zr.lt && t - zr.lt > 1000) {
+          if (zr.n >= 10 && zr.told < 8) { zr.told++; this.note(`zoom: ${zr.n} frames, ${(zr.gs / zr.n).toFixed(1)} ms apart on average, worst ${zr.gmax.toFixed(0)} ms, ${zr.slow} past 25 ms; the plugin's own worst ${zr.js.toFixed(0)} ms; zoom now ${this.zoom.toFixed(2)}`); }
+          Object.assign(zr, { n: 0, gs: 0, gmax: 0, slow: 0, js: 0, lt: 0 });
+        }
         if (performance.now() >= this.tidyAt) this.tidy(performance.now());
         if (!firstDrawn) { firstDrawn = true; this.note(`first frame drawn at ${Math.round(this.W)}×${Math.round(this.H)}, drawn at ${this.dpr.toFixed(2)}×`); }
         if (!rep.done) {
-          if (this.intro && this.intro.t0) { if (rep.lt) { const g = t - rep.lt; rep.n++; rep.gs += g; if (g > rep.gmax) rep.gmax = g; if (g > 25) rep.slow++; } if (this.lastCost > rep.js) rep.js = this.lastCost; rep.lt = t; }
+          if (this.intro && this.intro.t0) { if (rep.lt) { const g = t - rep.lt; rep.n++; rep.gs += g; if (g > rep.gmax) rep.gmax = g; if (g > Math.max(25, (this.paceK || 1) * (this.rafGap || 16.7) * 1.5)) rep.slow++; } if (this.lastCost > rep.js) rep.js = this.lastCost; rep.lt = t; }
           else if (rep.n) { rep.done = true; this.note(`opening: ${rep.n} frames, ${(rep.gs / rep.n).toFixed(1)} ms apart on average, worst ${rep.gmax.toFixed(0)} ms, ${rep.slow} past 25 ms; the plugin's own worst ${rep.js.toFixed(0)} ms`); }
         }
       } catch (e) { if (!failed) { failed = true; this.fail('drawing', e); } }
@@ -1604,18 +1817,20 @@ class NetworkView extends ItemView {
     this.ftimes.length = 0;
     if (this.skyMix && performance.now() - (this.skyMixAt || 0) > 20000) { this.skyMix = null; did.push('sky mix'); }
     if (this.bgl && !this.glOff && this.tidyN % 3 === 0) { this.dropGL(); did.push('graphics layer'); }
-    if (settingOf(this.plugin.settings, 'quality') === 'balanced' && this.scale && A.load < 9) {
+    const qd = this.qDrop, qWait = qd ? Math.min(3600000, 300000 * Math.pow(2, qd.n - 1)) : 0;
+    if (settingOf(this.plugin.settings, 'quality') === 'balanced' && this.scale && A.load < 9 && (!qd || performance.now() - qd.at > qWait)) {
       const top = Math.max(2, window.devicePixelRatio || 1);
       if (this.dpr < top - 0.01) { this.scale = top; if (this.resize()) this.redraw(); did.push(`sharpness ${this.dpr.toFixed(2)}×`); }
     }
     this.note(`tidy ${this.tidyN}: ${did.length ? did.join(', ') : 'nothing had piled up'}`);
   }
-  async onClose() { this.welGone = true; clearTimeout(this.welT); this.settleDeletes(); this.plugin.views.delete(this); cancelAnimationFrame(this.raf); this.dropGL(); this.suggHide(); clearTimeout(this.wT); clearTimeout(this.setT); clearTimeout(this.legendT); if (this.ro) this.ro.disconnect(); if (this.cro) this.cro.disconnect(); if (this.demoT) this.demoT.forEach(clearTimeout); }
+  async onClose() { this.closed = true; try { this.flushEdit(); } catch {   } if (this.viewsT) { clearTimeout(this.viewsT); this.viewsT = null; this.saveViews(); } for (const k of ['reboxT', 'rebuildT', 'toastT', 'stirT', 'glideT', 'fitT']) clearTimeout(this[k]);
+    this.welGone = true; clearTimeout(this.welT); this.settleDeletes(); this.plugin.views.delete(this); cancelAnimationFrame(this.raf); this.dropGL(); this.suggHide(); clearTimeout(this.wT); clearTimeout(this.setT); clearTimeout(this.legendT); if (this.ro) this.ro.disconnect(); if (this.cro) this.cro.disconnect(); if (this.demoT) this.demoT.forEach(clearTimeout); }
 
   ui(el) {
     const div = (cls, parent = el) => { const d = parent.appendChild(document.createElement('div')); d.className = cls; return d; };
     this.uiEl = el;
-    const top = div('rn-top');
+    const top = this.topEl = div('rn-top');
     const topL = div('rn-top-l', top), topM = div('rn-top-m', top), topR = div('rn-top-r', top);
     const title = div('rn-title', topL);
     title.textContent = '◎ RHO NETWORK';
@@ -1623,25 +1838,29 @@ class NetworkView extends ItemView {
     pv.onmouseenter = () => { const t = this.plugin.hub.tags(); pv.title = t.length ? t.join(' · ') : ''; };
     this.crumbEl = div('rn-crumbs', topL); this.crumbEl.classList.add('rn-hidden');
     this.q = topM.appendChild(document.createElement('input'));
-    this.q.className = 'rn-query'; this.q.placeholder = 'Query network  /'; this.q.spellcheck = false;
+    this.q.className = 'rn-query'; this.q.placeholder = 'Search notes  /'; this.q.spellcheck = false;
     this.qx = div('rn-qx', topM); this.qx.textContent = '✕'; this.qx.title = 'Clear (Esc)'; this.qx.classList.add('rn-hidden');
     this.qx.addEventListener('mousedown', (e) => e.preventDefault());
     this.qx.onclick = () => { this.q.value = ''; this.query = ''; this.qx.classList.add('rn-hidden'); this.suggHide(); this.q.focus(); };
     this.suggEl = div('rn-sugg', topM); this.suggEl.classList.add('rn-hidden');
     this.suggEl.addEventListener('mousedown', (e) => e.preventDefault());
+    this.suggPv = div('rn-sugg-pv', topM); this.suggPv.classList.add('rn-hidden');
+    this.suggPv.addEventListener('mousedown', (e) => e.preventDefault());
     this.clock = div('rn-live', topR);
     this.clock.title = 'The map follows your vault live: what changes shows as it happens';
     this.togEls = new Map();
+    this.qtogEls = new Map();
+    const qt = this.qtogs = div('rn-qtogs', topR);
     for (const [key, label, tip] of [['ringNames', 'RINGS', 'Ring names on/off'], ['nearNames', 'NAMES', 'Names of the planets near the mouse on/off']]) {
-      const b = div('rn-tog', topR); b.textContent = label; b.title = tip;
+      const b = div('rn-tog', qt); b.textContent = label; b.title = tip;
       b.onclick = () => this.plugin.setSetting(key, !settingOf(this.plugin.settings, key));
-      this.togEls.set(key, b);
+      this.qtogEls.set(key, b);
+    }
+    for (const [label, tip, go] of [['VIEW', 'Viewing spot: everything else hidden (O; O or Esc to come back)', () => this.setLook(true)],
+      ['TOUR', 'Cinematic tour: the camera drifts on its own (A; any key or click ends it)', () => this.startTour()]]) {
+      const b = div('rn-tog', qt); b.textContent = label; b.title = tip; b.onclick = go;
     }
     this.syncToggles();
-    const view = div('rn-tog', topR); view.textContent = 'VIEW'; view.title = 'Viewing spot: everything else hidden (O; O or Esc to come back)';
-    view.onclick = () => this.setLook(true);
-    const tour = div('rn-tog', topR); tour.textContent = 'TOUR'; tour.title = 'Cinematic tour: the camera drifts on its own (A; any key or click ends it)';
-    tour.onclick = () => this.startTour();
     this.helpBtn = div('rn-tog rn-helpbtn', topR); this.helpBtn.textContent = '?'; this.helpBtn.title = 'How to use: the keys, and what you see (?)';
     this.helpBtn.onclick = () => this.toggleHelp();
     this.gearBtn = div('rn-gearbtn', topR);
@@ -1654,8 +1873,12 @@ class NetworkView extends ItemView {
     this.addBtn.onclick = (e) => this.addMenu(e);
     this.addBtn.addEventListener('contextmenu', (e) => { e.preventDefault(); this.addMenu(e); });
     this.tuckBtn = div('rn-add rn-tuckbtn', this.cfoot);
-    this.tuckBtn.onclick = () => { this.tuckHand = !this.tuckIs; this.saveFlag('tuck', this.tuckHand); this.syncTuck(); };
-    this.tuckHand = this.loadFlag('tuck'); this.tuckIs = null;
+    this.tuckBtn.onclick = () => {
+      if (this.editTuck()) { this.editCards = !!this.tuckIs; this.saveFlag('editcards', this.editCards); }
+      else { this.tuckHand = !this.tuckIs; this.saveFlag('tuck', this.tuckHand); }
+      this.syncTuck();
+    };
+    this.tuckHand = this.loadFlag('tuck'); this.editCards = this.loadFlag('editcards'); this.tuckIs = null;
     this.hasCards = false;
     el.toggleClass('no-panel', true);
     this.cgrip = div('rn-cgrip'); this.cgrip.title = 'Drag to resize the cards · double-click to reset';
@@ -1691,7 +1914,7 @@ class NetworkView extends ItemView {
     this.boxLoad = div('rn-boxload'); this.boxLoadName = div('rn-boxload-name', this.boxLoad);
     this.stage = div('rn-stage markdown-rendered');
 
-    const foot = div('rn-base');
+    const foot = this.baseEl = div('rn-base');
     div('rn-motto', foot).textContent = 'Every note a node. Every link a line.';
     this.hintEl = div('rn-hint', foot);
     this.hint();
@@ -1748,10 +1971,21 @@ class NetworkView extends ItemView {
     const extra = [...this.plugin.hub.keys.entries()].map(([k, o]) => [k.toUpperCase(), o.label]);
     const keys = [['DRAG', 'ORBIT'], ['WHEEL', 'ZOOM'], ['CLICK', 'READ'], ...extra, ['/', 'QUERY'], ['G', 'GROUPING'], ['O', 'VIEW'], ['A', 'TOUR'], ['T', 'TIME-LAPSE'], ['ESC', 'BACK']];
     this.hintEl.textContent = '';
+    const on = settingOf(this.plugin.settings, 'hints');
+    this.hintEl.classList.toggle('rn-hint-off', !on);
+    const flip = (label, tip) => {
+      const b = this.hintEl.appendChild(document.createElement('span'));
+      b.className = 'rn-hint-tog'; b.textContent = label; b.title = tip; b.setAttribute('role', 'button');
+      b.addEventListener('click', (e) => { e.stopPropagation(); this.plugin.setSetting('hints', !on); });
+    };
+    if (this.baseEl) this.baseEl.classList.toggle('rn-base-off', !on);
+    if (this.uiEl) this.uiEl.classList.toggle('rn-chrome-off', !on);
+    if (!on) return;
     for (const [k, what] of keys) {
       const one = this.hintEl.appendChild(document.createElement('span')), key = one.appendChild(document.createElement('span')), lbl = one.appendChild(document.createElement('span'));
       key.className = 'rn-k'; key.textContent = k; lbl.textContent = ` · ${what}`;
     }
+    flip('HIDE', 'Hide the key hints, the clock, ? and the version (Settings > Key hints brings them back)');
   }
   columns() {
     const st = this.plugin.settings, cards = this.plugin.hub.allCards(), byKey = new Map(cards.map((c) => [c.key, c]));
@@ -1788,8 +2022,9 @@ class NetworkView extends ItemView {
     this.contentEl.style.setProperty('--rn-cards-w', `${this.panelW}px`);
   }
   gripH() { if (this.cgrip && this.cards) this.cgrip.style.height = `${this.cards.offsetHeight}px`; }
+  editTuck() { return !!(this.editing && this.shown && this.shown !== GRAVE && this.box && this.box.classList.contains('open')); }
   syncTuck() {
-    const on = !!(this.hasCards && (this.tuckHand || (this.editing && this.shown && this.shown !== GRAVE && this.box.classList.contains('open'))));
+    const on = !!(this.hasCards && (this.editTuck() ? !this.editCards : this.tuckHand));
     if (on !== this.tuckIs) {
       this.tuckIs = on; this.contentEl.toggleClass('rn-tucked', on);
       this.tuckBtn.textContent = on ? '›' : '‹'; this.tuckBtn.title = on ? 'Bring the cards back' : 'Tuck the cards away';
@@ -1825,7 +2060,7 @@ class NetworkView extends ItemView {
     const all = this.app.vault.getMarkdownFiles(), ex = excludeList(this.plugin.settings);
     return ex.length ? all.filter((f) => !ex.some((e) => f.path.startsWith(e))) : all;
   }
-  wRow(path, v, title) { return { k: baseName(path), v, title: title || path, click: () => this.goToNote(path) }; }
+  wRow(path, v, title) { return { k: baseName(path), v, title: (title || path) + ' · double-click to open it', path, click: () => this.goToNote(path) }; }
   w_recent(el, w, memo) {
     const files = this.wFiles(memo), now = Date.now(), n = w.n >= 1 && w.n <= 20 ? Math.floor(w.n) : 5, day0 = new Date(now).setHours(0, 0, 0, 0);
     let today = 0;
@@ -1854,6 +2089,25 @@ class NetworkView extends ItemView {
     g.beginPath(); trace(); g.lineTo(px(n - 1), H); g.lineTo(px(0), H); g.closePath(); g.fillStyle = fill; g.fill();
     g.beginPath(); trace(); g.strokeStyle = rgba(C.sand, 0.75); g.lineWidth = 1.2; g.lineJoin = 'round'; g.stroke();
     g.beginPath(); g.arc(px(n - 1), py(b[n - 1]), 2, 0, TAU); g.fillStyle = C.sand; g.fill();
+  }
+  w_chart(el, w) {
+    const f = w.path && this.app.vault.getAbstractFileByPath(w.path);
+    if (!el._spark) { el._spark = document.createElement('canvas'); el._spark.className = 'rn-spark'; }
+    const draw = (name, c) => {
+      if (!c) { this.card(el, name, '', '', [{ k: 'no numbers found yet', v: '' }], { foot: 'a table column, key: 12 lines, or a chart' }); return; }
+      const v = c.vals, last = v[v.length - 1], d = last - v[v.length - 2];
+      const foot = `${c.label ? `${c.label} · ` : ''}last ${v.length} · ${d > 0 ? '+' : d < 0 ? '−' : '±'}${chartFmt(Math.abs(d))}`;
+      this.card(el, name, chartFmt(last), 'num', [], { body: el._spark, foot, onHead: () => this.goToNote(f.path), headPath: f.path });
+      this.noteCardDbl(el, f.path);
+      const lo = Math.min(...v), hi = Math.max(...v), base = lo - (hi - lo) * 0.15;
+      this.drawSpark(el._spark, v.map((x) => x - base));
+    };
+    if (!f || f.extension !== 'md') { el._csig = ''; this.card(el, w.path ? baseName(w.path) : 'Chart', '', '', [{ k: 'note not found', v: '' }], { foot: 'right-click to pick another' }); return; }
+    const name = f.basename || baseName(f.path), sig = `${f.path}|${f.stat.mtime}`;
+    if (el._csig === sig) { draw(name, el._chart); return; }
+    el._csig = sig;
+    if (el._chart === undefined) this.card(el, name, '', '', [{ k: 'reading…', v: '' }]);
+    this.app.vault.cachedRead(f).then((text) => { if (el._csig !== sig) return; el._chart = chartNums(text); draw(name, el._chart); }).catch(() => {});
   }
   openTasks() {
     const MC = this.app.metadataCache;
@@ -2051,7 +2305,8 @@ class NetworkView extends ItemView {
       el._wbody.addEventListener('click', (e) => this.boxClick(e, el._wpath));
     }
     el._wpath = f.path;
-    this.card(el, f.basename || baseName(f.path), agoShort(f.stat.mtime), 'calm', [], { body: el._wbody, onHead: () => this.goToNote(f.path) });
+    this.card(el, f.basename || baseName(f.path), agoShort(f.stat.mtime), 'calm', [], { body: el._wbody, onHead: () => this.goToNote(f.path), headPath: f.path });
+    this.noteCardDbl(el, f.path);
     const sig = `${f.path}|${f.stat.mtime}`;
     if (el._wsig !== sig) { el._wsig = sig; this.wRenderNote(el, f).catch(() => {}); }
   }
@@ -2100,7 +2355,7 @@ class NetworkView extends ItemView {
       const el = this.cardEls.get(id);
       if (el && el.scrollIntoView) el.scrollIntoView({ block: 'nearest' });
     };
-    if (type === 'note') this.pickFor('note', (p) => put({ path: p }));
+    if (type === 'note' || type === 'chart') this.pickFor('note', (p) => put({ path: p }));
     else if (type === 'folder') this.pickFor('source', (s) => put({ src: s }));
     else put(type === 'recent' ? { n: 5 } : type === 'spark' ? { span: '14d' } : {});
   }
@@ -2151,14 +2406,40 @@ class NetworkView extends ItemView {
   addMenu(e) {
     if (!Menu) return null;
     const menu = new Menu(), have = new Set(this.columns().map((w) => w.type)), hid = this.plugin.settings.hiddenCards || {};
-    for (const [type, k] of Object.entries(WIDGETS)) menu.addItem((it) => {
-      it.setTitle(k.name).setIcon(k.icon);
+    const item = (m, type, title) => m.addItem((it) => {
+      const k = WIDGETS[type];
+      it.setTitle(title || k.name).setIcon(k.icon);
       if (!k.many && have.has(type)) { if (it.setChecked) it.setChecked(true); if (it.setDisabled) it.setDisabled(true); } else it.onClick(() => this.addWidget(type));
     });
+    menu.addItem((it) => { it.setTitle('Keep here what you track and what is still to do').setIcon('lightbulb'); if (it.setDisabled) it.setDisabled(true); });
+    menu.addSeparator();
+    item(menu, 'chart');
+    menu.addItem((it) => it.setTitle('New chart note…').setIcon('file-plus').onClick(() => this.newChartNote()));
+    item(menu, 'tasks');
+    item(menu, 'note', 'A note (to-do, clients, reminders, a goal)…');
+    menu.addSeparator();
+    menu.addItem((it) => it.setTitle('More boards…').setIcon('layout-list').onClick(() => this.moreMenu(e)));
     const loaded = new Set(this.plugin.hub.allCards().map((c) => c.key)), off = Object.entries(hid).filter(([key]) => loaded.has(key));
     if (off.length) { menu.addSeparator(); for (const [key, label] of off) menu.addItem((it) => it.setTitle(`Show ${label}`).setIcon('eye').onClick(() => this.showCard(key))); }
     menu.showAtMouseEvent(e);
+    this.moreItem = item;
     return menu;
+  }
+  moreMenu(e) {
+    if (!Menu || !this.moreItem) return null;
+    const menu = new Menu();
+    for (const type of ['recent', 'spark', 'inbox', 'today', 'opened', 'stats', 'loose', 'folder']) if (WIDGETS[type]) this.moreItem(menu, type);
+    menu.showAtMouseEvent(e);
+    return menu;
+  }
+  async newChartNote() {
+    const V = this.app.vault, has = (p) => V.getAbstractFileByPath && V.getAbstractFileByPath(p);
+    let path = 'Progress chart.md';
+    for (let i = 2; has(path) && i < 99; i++) path = `Progress chart ${i}.md`;
+    const d = new Date(), day = (k) => { const x = new Date(d.getTime() - k * 864e5); return `${x.getFullYear()}-${String(x.getMonth() + 1).padStart(2, '0')}-${String(x.getDate()).padStart(2, '0')}`; };
+    const text = `# Progress chart\n\nAdd a row each day. The board draws the rightmost column of numbers ($, k, % all work).\n\n| Day | Value |\n|---|---|\n| ${day(2)} | 100 |\n| ${day(1)} | 120 |\n| ${day(0)} | 135 |\n`;
+    try { await V.create(path, text); } catch (err) { console.warn('Rho Network: could not make the chart note', err); return; }
+    this.wEdit((list) => { let id = 'w:chart'; if (list.some((w) => w.id === id)) id = `w:chart:${Date.now().toString(36)}`; list.push({ id, type: 'chart', path }); });
   }
   widgetMenu(id, e) {
     const w = this.colOf && this.colOf.get(id);
@@ -2175,9 +2456,9 @@ class NetworkView extends ItemView {
     else if (w.type === 'inbox') {
       item(w.folder ? 'Pick another folder…' : 'Pick the inbox folder…', 'folder', () => this.pickFor('dir', (f) => this.setWidget(id, { folder: f })));
       if (w.folder) item('Find it by its name again', 'search', set({ folder: undefined }));
-    } else if (w.type === 'note') {
+    } else if (w.type === 'note' || w.type === 'chart') {
       if (w.path) item('Open the note', 'file-text', () => this.goToNote(w.path));
-      item('Show another note…', 'file', () => this.pickFor('note', (p) => this.setWidget(id, { path: p })));
+      item(w.type === 'chart' ? 'Chart another note…' : 'Show another note…', 'file', () => this.pickFor('note', (p) => this.setWidget(id, { path: p })));
     } else if (w.type === 'folder') item('Show another folder or tag…', 'folder', () => this.pickFor('source', (s) => this.setWidget(id, { src: s })));
     else own = false;
     if (own) menu.addSeparator();
@@ -2211,19 +2492,18 @@ class NetworkView extends ItemView {
       d.base = kids.length ? kids[0].offsetTop : 0;
       d.gap = kids.length > 1 ? Math.max(0, kids[1].offsetTop - kids[0].offsetTop - kids[0].offsetHeight) : 10;
       d.max = d.base + kids.reduce((s, k) => s + k.offsetHeight, 0) + d.gap * (kids.length - 1) - d.h;
+      d.others = kids.filter((k) => k !== d.el);
+      d.slots = [d.base];
+      for (const k of d.others) d.slots.push(d.slots[d.slots.length - 1] + k.offsetHeight + d.gap);
+      d.at = kids.indexOf(d.el);
       d.el.classList.add('lifted'); this.cards.classList.add('sorting');
       try { d.el.setPointerCapture(d.pid); } catch {   }
     }
-    const top = Math.max(d.base, Math.min(d.max, d.top0 + dy)), others = this.colEls().filter((k) => k !== d.el);
-    let y = d.base, at = 0, best = Infinity;
-    for (let i = 0; i <= others.length; i++) {
-      const gap = Math.abs(top - y);
-      if (gap < best) { best = gap; at = i; }
-      if (i < others.length) y += others[i].offsetHeight + d.gap;
-    }
-    const ref = others[at] || this.cfoot;
-    if (d.el.nextElementSibling !== ref) this.flip(() => this.cards.insertBefore(d.el, ref), d.el);
-    d.el.style.transform = `translateY(${top - d.el.offsetTop}px)`;
+    const top = Math.max(d.base, Math.min(d.max, d.top0 + dy)), others = d.others, S = d.slots;
+    let at = 0, best = Infinity;
+    for (let i = 0; i < S.length; i++) { const gap = Math.abs(top - S[i]); if (gap < best) { best = gap; at = i; } }
+    if (at !== d.at) { d.at = at; this.flip(() => this.cards.insertBefore(d.el, others[at] || this.cfoot), d.el); }
+    d.el.style.transform = `translateY(${top - S[at]}px)`;
   }
   dragDone() {
     const d = this.drag;
@@ -2237,14 +2517,11 @@ class NetworkView extends ItemView {
   flip(change, skip) {
     const kids = this.colEls().filter((k) => k !== skip), was = kids.map((k) => k.getBoundingClientRect().top);
     change();
-    kids.forEach((k, i) => {
-      k.classList.add('rn-snap'); k.style.removeProperty('transform');
-      const dy = was[i] - k.getBoundingClientRect().top;
-      if (!dy) { k.classList.remove('rn-snap'); return; }
-      k.style.transform = `translateY(${dy}px)`;
-      void k.offsetHeight;
-      k.classList.remove('rn-snap'); k.style.removeProperty('transform');
-    });
+    for (const k of kids) { k.classList.add('rn-snap'); k.style.removeProperty('transform'); }
+    const dys = kids.map((k, i) => was[i] - k.getBoundingClientRect().top);
+    kids.forEach((k, i) => { if (dys[i]) k.style.transform = `translateY(${dys[i]}px)`; });
+    if (kids.length) void kids[0].offsetHeight;
+    for (const k of kids) { k.classList.remove('rn-snap'); k.style.removeProperty('transform'); }
   }
 
   get scope() { return this.scopes[this.scopes.length - 1]; }
@@ -2313,7 +2590,7 @@ class NetworkView extends ItemView {
       nbrs: (p) => nbr[idx.get(p)].map((j) => all[j]) });
     this.grouping = grp.mode;
     const lm = this.lmemo || (this.lmemo = new Map()), lc = this.lcache || (this.lcache = new Map());
-    const sp0 = settingOf(this.plugin.settings, 'ringSpacing') / 100, spc = RING_GAIN * sp0, lo ={ groupOf: grp.groupOf, outer, fresh, belt2, memo: lm, globe: 1 };
+    const sp0 = pctOf(settingOf(this.plugin.settings, 'ringSpacing')) / 100, spc = RING_GAIN * sp0, lo ={ groupOf: grp.groupOf, outer, fresh, belt2, memo: lm, globe: 1 };
     const csp = (this.coreSp || (this.coreSp = spc)) / LAND_GAIN, CL = layout(members, hub, { ...lo, spacing: csp, fitOnly: true, oldLanes: true, globe: 1 });
     const globeR = GLOBE_R * Math.max(1, Math.min(2.6, (0.075 * CL.rmax) / GLOBE_R));
     const { nodes, rings, rmax, outerMax, outerIn, belt2: b2, grow, spr, capped } = layout(members, hub, { ...lo, cache: lc, spacing: spc, tilt: settingOf(this.plugin.settings, 'ringTilt') / 100, globe: this.globeScale(), globeR });
@@ -2412,6 +2689,11 @@ class NetworkView extends ItemView {
     this.extCore = viewExtent(CL.rings.filter((r) => (!r.outer || (r.giant && !capped)) && !r.far), CL.rmax, 1.75 * CL.rmax, DB(CL.outerMax || 0) / DB(1.75 * CL.rmax));
     this.extOpen = viewExtent(CL.rings, CL.rmax, Math.max(CL.outerMax || 0, 1.75 * CL.rmax), 6);
     { const E = this.ext, O = this.extOpen; if (E && O) { E.x = Math.min(E.x, 2.1 * O.x); E.up = Math.min(E.up, 2.1 * O.up); } }
+    if (spc === this.coreSp) {
+      this.inRings = rings.filter((r) => (!r.outer || (r.giant && !capped)) && !r.far && !r.fresh && r.radius > 0)
+        .map((r) => ({ radius: r.radius, rout: r.rout, spread: r.spread, incl: r.incl, inclFit: r.inclFit, asc: r.asc }));
+      this.inRmax = rmax; this.inOm = outerMax || 0; this.extIn = null;
+    }
     this.qNodes = null; this.pNodes = null;
     if (this.focus !== null && !this.rings[this.focus]) this.focus = null;
     this.crumbs();
@@ -2491,7 +2773,7 @@ class NetworkView extends ItemView {
     else this.scopeUp();
   }
   syncToggles() {
-    for (const [k, b] of this.togEls || []) b.classList.toggle('on', !!settingOf(this.plugin.settings, k));
+    for (const m of [this.togEls, this.qtogEls]) for (const [k, b] of m || []) b.classList.toggle('on', !!settingOf(this.plugin.settings, k));
   }
   cycleGrouping() {
     const st = this.plugin.settings, i = GROUP_MODES.indexOf(settingOf(st, 'groupBy'));
@@ -2501,7 +2783,7 @@ class NetworkView extends ItemView {
   theme() { return THEMES[settingOf(this.plugin.settings, 'theme')] || THEMES.deep; }
   planetScale() { return (this.sv('planetSize') / 100) * 0.7; }
   sv(key) { const e = this.evv && this.evv[key]; return e === undefined ? settingOf(this.plugin.settings, key) : e; }
-  globeScale() { return settingOf(this.plugin.settings, 'globeSize') / 100; }
+  globeScale() { return (settingOf(this.plugin.settings, 'globeSize') / 100) * 2; }
   paintTheme() {
     const st = this.plugin.settings, th = settingOf(st, 'theme'), cl = this.contentEl.classList, el = this.contentEl.style;
     cl.toggle('rn-paper', th === 'paper'); cl.toggle('rn-dusk', th === 'dusk'); cl.toggle('rn-ember', th === 'ember');
@@ -2560,7 +2842,7 @@ class NetworkView extends ItemView {
     else if (key === 'darkness') { this.liftKey = null; this.paintTheme(); }
     else if (key === 'glow') {   }
     else if (key === 'stars') this.starsDirty = true;
-    else if (key === 'quality') { this.scale = 0; this.ftimes.length = 0; if (this.resize()) this.redraw(); }
+    else if (key === 'quality') { this.scale = 0; this.ftimes.length = 0; this.qDrop = null; if (this.resize()) this.redraw(); }
     else if (key === 'groupBy') { this.xfStart(null); this.regroup(); }
     else if (key === 'ringSpacing' || key === 'ringTilt') later(180, () => this.reflow());
     else if (key === 'belt2') later(180, () => this.reflow(true));
@@ -2571,6 +2853,7 @@ class NetworkView extends ItemView {
     else if (key === 'openLoops' || key === 'comets') { this.loopsKey = null; this.workDue = true; }
     else if (key === 'rockets') { const A = this.act; if (A && A.ambAt) A.ambAt = Math.min(A.ambAt, performance.now() + 900); }
     else if (key === 'flyToNotes') { if (!settingOf(this.plugin.settings, 'flyToNotes')) this.cgRelease(); }
+    else if (key === 'hints') this.hint();
     this.syncToggles();
     if (this.gear) this.gearSync();
   }
@@ -2644,7 +2927,9 @@ class NetworkView extends ItemView {
     mk('span', '', head).textContent = 'SETTINGS';
     const x = mk('span', 'rn-gear-x', head); x.textContent = '✕'; x.title = 'Close (Esc)'; x.onclick = () => this.closeGear();
     this.gearRows = new Map(); this.gearAnchors = []; this.gearTabEls = new Map();
-    const tabs = mk('div', 'rn-gtabs', g), body = (this.gearBody = mk('div', 'rn-gbody', g)), items = [];
+    const tabs = mk('div', 'rn-gtabs', g), find = mk('input', 'rn-gfind', g), body = (this.gearBody = mk('div', 'rn-gbody', g)), items = [], F = [];
+    this.gearFind = find;
+    let curSec = '';
     wheelScroll(body); body.addEventListener('scroll', () => this.gearLit(), { passive: true });
     for (const name of SETTINGS_TABS) {
       const t = mk('span', 'rn-gtab', tabs); t.textContent = name; t.onclick = () => this.gearTab(name); this.gearTabEls.set(name, t);
@@ -2655,12 +2940,13 @@ class NetworkView extends ItemView {
       if (o.hidden || (o.only && !this.plugin.settings[o.only])) continue;
       if (tabName !== lastTab) {
         let at = null;
-        if (lastTab !== null) { at = mk('div', 'rn-gdiv', body); mk('span', '', at).textContent = tabName; }
-        this.gearAnchors.push([tabName, at]); lastTab = tabName;
+        if (lastTab !== null) { at = mk('div', 'rn-gdiv', body); mk('span', '', at).textContent = tabName; F.push({ el: at, kind: 'div' }); }
+        this.gearAnchors.push([tabName, at]); lastTab = tabName; curSec = '';
       }
-      if (o.sec) { mk('div', 'rn-gsec', body).textContent = o.sec; continue; }
+      if (o.sec) { const s = mk('div', 'rn-gsec', body); s.textContent = o.sec; curSec = o.sec; F.push({ el: s, kind: 'sec' }); continue; }
       const row = mk('div', 'rn-grow', body), lab = mk('div', 'rn-glabel', row);
-      mk('span', '', lab).textContent = o.name;
+      const nm = mk('span', '', lab); nm.textContent = o.name;
+      if (o.exp) mk('i', 'rn-exp', nm).textContent = 'EXPERIMENTAL';
       const val = mk('b', '', lab);
       let ctl, rst = null;
       if (o.range) {
@@ -2689,9 +2975,15 @@ class NetworkView extends ItemView {
         ctl = mk('span', 'rn-gtoggle', lab); ctl.onclick = () => P.setSetting(o.key, !settingOf(P.settings, o.key));
       } else if (o.list) {
         ctl = mk('div', 'rn-chips', row); ctl.paint = folderChips(ctl, this.app, P, o.key);
+      } else if (o.act) {
+        ctl = mk('span', 'rn-gbtn', lab); ctl.textContent = o.btn || 'Go'; ctl.onclick = () => this.doAct(o.act);
+        F.push({ el: row, kind: 'row', o, sec: curSec, tab: tabName }); continue;
       }
       this.gearRows.set(o.key, { o, ctl, val, rst });
+      F.push({ el: row, kind: 'row', o, sec: curSec, tab: tabName });
     }
+    const none = mk('div', 'rn-gnone rn-hidden', body); none.textContent = 'No setting matches';
+    settingsFindBox(find, F, none);
     this.gearBtn.classList.add('on'); this.contentEl.toggleClass('rn-gear-on', true);
     this.gearSync();
     this.gearTab(this.gearTabName || 'General', true);
@@ -2717,30 +3009,38 @@ class NetworkView extends ItemView {
   }
   closeGear() {
     if (!this.gear) return;
-    this.gear.remove(); this.gear = null; this.gearRows = null; this.gearBody = null; this.gearAnchors = null; this.gearTabEls = null;
+    this.gear.remove(); this.gear = null; this.gearRows = null; this.gearBody = null; this.gearAnchors = null; this.gearTabEls = null; this.gearFind = null;
     this.gearBtn.classList.remove('on'); this.contentEl.toggleClass('rn-gear-on', false);
     try { this.contentEl.focus({ preventScroll: true }); } catch {   }
   }
-  welcomeSoon(ms = WELCOME_MS) {
+  welcomeAuto() {
     const S = this.plugin.settings;
-    if (this.welGone || this.welcomeEl || (!this.wantWel && (S.welcomed || S.videoTools))) return;
+    if (S.videoTools) return null;
+    if (!S.welcomed) return 'full';
+    return (S.guideSeen | 0) < GUIDE_V ? 'news' : null;
+  }
+  welcomeSoon(ms = WELCOME_MS) {
+    if (this.welGone || this.welcomeEl || (!this.wantWel && !this.welcomeAuto())) return;
     clearTimeout(this.welT); this.welT = setTimeout(() => this.welcomeTry(), ms);
   }
   welcomeTry() {
     this.welT = 0;
-    const S = this.plugin.settings;
-    if (this.welGone || this.welcomeEl || (!this.wantWel && (S.welcomed || S.videoTools))) return;
+    if (this.welGone || this.welcomeEl || (!this.wantWel && !this.welcomeAuto())) return;
     if (this.intro || this.tour || this.look || this.lapse || this.shown || this.gear || this.helpEl) { this.welcomeSoon(WELCOME_RETRY_MS); return; }
-    this.openWelcome(0);
+    this.openWelcome(0, this.wantWel ? 'full' : this.welcomeAuto());
   }
-  openWelcome(at = 0) {
+  openWelcome(at = 0, kind = 'full') {
     if (this.welGone) return;
     clearTimeout(this.welT); this.welT = 0; this.wantWel = false;
     if (this.tour) this.endTour();
     if (this.look) this.setLook(false);
     this.closeHelp();
     const P = this.plugin;
-    if (!P.settings.welcomed) { P.settings.welcomed = true; P.saveSettings(); }
+    const steps = kind === 'news' ? NEWS_STEPS : WELCOME_STEPS;
+    if (this.welcomeEl && this.welSteps !== steps) this.closeWelcome();
+    this.welSteps = steps;
+    const S = P.settings;
+    if (!S.welcomed || (S.guideSeen | 0) < GUIDE_V) { S.welcomed = true; S.guideSeen = GUIDE_V; P.saveSettings(); }
     if (!this.welcomeEl) {
       const mk = (tag, cls, parent) => { const d = parent.appendChild(document.createElement(tag)); if (cls) d.className = cls; return d; };
       const w = (this.welcomeEl = mk('div', 'rn-welcome', this.contentEl));
@@ -2748,7 +3048,7 @@ class NetworkView extends ItemView {
       const foot = mk('div', 'rn-wel-foot', w);
       const skip = mk('span', 'rn-wel-btn rn-wel-skip', foot); skip.textContent = 'SKIP'; skip.title = 'Close (Esc) · "How to use" in the command palette shows it again'; skip.onclick = () => this.closeWelcome();
       this.welDots = mk('span', 'rn-wel-dots', foot);
-      WELCOME_STEPS.forEach((s, i) => { const d = mk('i', '', this.welDots); d.title = s[0]; d.onclick = () => this.welcomeStep(i); });
+      steps.forEach((s, i) => { const d = mk('i', '', this.welDots); d.title = s[0]; d.onclick = () => this.welcomeStep(i); });
       this.welBack = mk('span', 'rn-wel-btn rn-wel-back', foot); this.welBack.textContent = '‹ BACK'; this.welBack.onclick = () => this.welcomeStep(this.welAt - 1);
       this.welNext = mk('span', 'rn-wel-btn rn-wel-next', foot); this.welNext.onclick = () => this.welcomeNext();
     }
@@ -2756,17 +3056,19 @@ class NetworkView extends ItemView {
   }
   welcomeStep(i) {
     if (!this.welcomeEl) return;
-    const n = WELCOME_STEPS.length; i = Math.max(0, Math.min(n - 1, i | 0)); this.welAt = i;
-    const [title, text] = WELCOME_STEPS[i];
-    this.welKick.textContent = `RHO NETWORK · ${i + 1} / ${n}`; this.welTitle.textContent = title;
+    const steps = this.welSteps || WELCOME_STEPS;
+    const n = steps.length; i = Math.max(0, Math.min(n - 1, i | 0)); this.welAt = i;
+    const [title, text] = steps[i];
+    this.welKick.textContent = `${steps === NEWS_STEPS ? "WHAT'S NEW" : 'RHO NETWORK'} · ${i + 1} / ${n}`; this.welTitle.textContent = title;
     this.welText.textContent = ''; richText(this.welText, text);
     [...this.welDots.children].forEach((d, j) => d.classList.toggle('on', j === i));
     this.welBack.classList.toggle('rn-off', i === 0);
     this.welNext.textContent = i === n - 1 ? 'GOT IT' : 'NEXT ›';
   }
-  welcomeNext() { if (this.welAt >= WELCOME_STEPS.length - 1) this.closeWelcome(); else this.welcomeStep(this.welAt + 1); }
+  welcomeNext() { if (this.welAt >= (this.welSteps || WELCOME_STEPS).length - 1) this.closeWelcome(); else this.welcomeStep(this.welAt + 1); }
   closeWelcome() {
     if (!this.welcomeEl) return;
+    this.welSteps = null;
     this.welcomeEl.remove(); this.welcomeEl = null; this.welKick = this.welTitle = this.welText = this.welDots = this.welBack = this.welNext = null;
     try { this.contentEl.focus({ preventScroll: true }); } catch {   }
   }
@@ -2776,24 +3078,51 @@ class NetworkView extends ItemView {
     this.closeWelcome();
     const mk = (tag, cls, parent) => { const d = parent.appendChild(document.createElement(tag)); if (cls) d.className = cls; return d; };
     const h = (this.helpEl = mk('div', 'rn-help', this.contentEl));
-    const head = mk('div', 'rn-help-head', h); mk('span', '', head).textContent = 'HOW TO USE';
+    const head = mk('div', 'rn-help-head', h); mk('span', 'rn-help-title', head).textContent = 'How to use';
     const x = mk('span', 'rn-help-x', head); x.textContent = '✕'; x.title = 'Close (Esc or ?)'; x.onclick = () => this.closeHelp();
+    const quick = mk('div', 'rn-help-quick', h); this.togEls = new Map();
+    for (const [key, label, tip] of [['ringNames', 'RINGS', 'Ring names on/off'], ['nearNames', 'NAMES', 'Names of the planets near the mouse on/off']]) {
+      const b = mk('span', 'rn-tog', quick); b.textContent = label; b.title = tip;
+      b.onclick = () => this.plugin.setSetting(key, !settingOf(this.plugin.settings, key));
+      this.togEls.set(key, b);
+    }
+    for (const [label, tip, go] of [['VIEW', 'Viewing spot: everything else hidden (O; O or Esc to come back)', () => this.setLook(true)],
+      ['TOUR', 'Cinematic tour: the camera drifts on its own (A; any key or click ends it)', () => this.startTour()]]) {
+      const b = mk('span', 'rn-tog', quick); b.textContent = label; b.title = tip;
+      b.onclick = () => { this.closeHelp(false); go(); };
+    }
+    this.syncToggles();
+    const tabs = mk('div', 'rn-help-tabs', h);
     const body = mk('div', 'rn-help-body', h); wheelScroll(body);
     const keys = [...this.plugin.hub.keys.entries()].map(([k, o]) => [k.toUpperCase(), String(o.label || '').toLowerCase()]);
-    for (const [sec, rows] of helpSheet(keys)) {
-      const col = mk('div', 'rn-help-sec', body); mk('div', 'rn-help-h', col).textContent = sec;
+    const sheet = helpSheet(keys), secs = [];
+    const show = (i) => {
+      this.helpTab = i;
+      secs.forEach((s, j) => s.classList.toggle('rn-hidden', j !== i));
+      [...tabs.children].forEach((t, j) => t.classList.toggle('on', j === i));
+      body.scrollTop = 0;
+    };
+    sheet.forEach(([sec, rows], i) => {
+      const t = mk('span', 'rn-help-tab', tabs); t.textContent = sec; t.onclick = () => show(i);
+      const col = mk('div', 'rn-help-sec', body); secs.push(col);
       for (const [k, what] of rows) { const r = mk('div', 'rn-help-r', col); mk('b', '', r).textContent = k; mk('span', '', r).textContent = what; }
-    }
+    });
+    show(Math.max(0, Math.min(sheet.length - 1, this.helpTab | 0)));
     const foot = mk('div', 'rn-help-foot', h); foot.textContent = 'New here? ';
     const again = mk('span', 'rn-help-again', foot); again.textContent = 'The welcome, step by step ›'; again.onclick = () => this.openWelcome(0);
     this.helpBtn.classList.add('on');
   }
   closeHelp(refocus = true) {
     if (!this.helpEl) return;
-    this.helpEl.remove(); this.helpEl = null; this.helpBtn.classList.remove('on');
+    const el = this.helpEl; this.helpEl = null; this.helpBtn.classList.remove('on'); this.togEls = new Map();
+    el.classList.add('rn-out'); setTimeout(() => el.remove(), 170);
     if (refocus) try { this.contentEl.focus({ preventScroll: true }); } catch {   }
   }
   toggleHelp() { if (this.helpEl) this.closeHelp(); else this.openHelp(); }
+  doAct(a) {
+    if (this.gear) this.closeGear();
+    if (a === 'look') this.setLook(true); else if (a === 'tour') this.startTour(); else if (a === 'help') { if (!this.helpEl) this.openHelp(); }
+  }
   gearSync() {
     const S = this.plugin.settings;
     for (const [key, { o, ctl, val, rst }] of this.gearRows || []) {
@@ -2828,6 +3157,24 @@ class NetworkView extends ItemView {
   suggHide() {
     clearTimeout(this.suggT); this.suggT = 0; this.suggTok++; this.suggRows = []; this.suggAt = -1;
     if (this.suggEl) this.suggEl.classList.add('rn-hidden');
+    this.suggBest = []; this.suggPeekAt = -1; this.suggHov = -1; if (this.suggPv) this.suggPv.classList.add('rn-hidden');
+  }
+  suggPeek(i) {
+    const P = this.suggPv, b = this.suggBest && this.suggBest[i]; if (!P) return;
+    const vw = this.contentEl && this.contentEl.clientWidth;
+    if (!b || (vw && vw < 900)) { this.suggPeekAt = -1; P.classList.add('rn-hidden'); return; }
+    if (this.suggPeekAt === i && !P.classList.contains('rn-hidden')) return;
+    this.suggPeekAt = i; P.textContent = '';
+    const pn = this.byPath && this.byPath.get(b.p), tone = suggTone(pn && pn.color);
+    for (const k in tone) P.style.setProperty(k, tone[k]);
+    const n = P.appendChild(document.createElement('div')); n.className = 'rn-sugg-pv-n'; n.textContent = baseName(b.p);
+    const lines = peekLines(b.text, b.at);
+    if (!lines.length) { const e = P.appendChild(document.createElement('div')); e.className = 'rn-sugg-pv-l rn-sugg-pv-e'; e.textContent = 'An empty note'; }
+    for (const ln of lines) {
+      const l = P.appendChild(document.createElement('div')); l.className = 'rn-sugg-pv-l' + (ln.h ? ' rn-sugg-pv-hd' : '') + (ln.gap ? ' rn-sugg-pv-gap' : '');
+      for (const [part, hit] of splitHits(ln.t, this.suggTerms || [])) { const sp = l.appendChild(document.createElement(hit ? 'b' : 'span')); sp.textContent = part; }
+    }
+    P.classList.remove('rn-hidden');
   }
   async suggest(q) {
     const V = this.vix, tok = this.suggTok; if (!V) return;
@@ -2859,9 +3206,10 @@ class NetworkView extends ItemView {
     const E = this.suggEl; if (!E) return;
     E.textContent = '';
     const h = E.appendChild(document.createElement('div')); h.className = 'rn-sugg-h';
-    h.textContent = busy ? 'READING THE NOTES…' : best.length ? 'IN THE NOTES' : named ? 'NO OTHER NOTE MENTIONS IT' : 'NO NOTE MENTIONS IT';
-    this.suggRows = best.map((b) => b.p);
+    h.textContent = busy ? 'Reading your notes…' : best.length ? 'In your notes' : named ? 'No other note mentions it' : 'No note mentions it';
+    this.suggRows = best.map((b) => b.p); this.suggBest = best.slice(); this.suggTerms = terms;
     if (this.suggAt >= best.length) this.suggAt = -1;
+    if (!E.onmouseleave) E.onmouseleave = () => { this.suggHov = -1; this.suggPeek(this.suggAt); };
     best.forEach((b, i) => {
       const r = E.appendChild(document.createElement('div')); r.className = 'rn-sugg-r' + (i === this.suggAt ? ' on' : '');
       const pn = this.byPath && this.byPath.get(b.p), tone = suggTone(pn && pn.color);
@@ -2872,14 +3220,18 @@ class NetworkView extends ItemView {
         const sp = sn.appendChild(document.createElement(hit ? 'b' : 'span')); sp.textContent = part;
       }
       r.onclick = () => this.suggGo(i);
+      r.onmouseenter = () => { this.suggHov = i; this.suggPeek(i); };
     });
     E.classList.remove('rn-hidden');
+    const keep = this.suggAt >= 0 ? this.suggAt : this.suggHov >= 0 && this.suggHov < best.length ? this.suggHov : -1;
+    this.suggPeekAt = -1; this.suggPeek(keep);
   }
   suggMove(d) {
     const n = this.suggRows.length, E = this.suggEl; if (!n || !E || E.classList.contains('rn-hidden')) return false;
     this.suggAt = this.suggAt < 0 ? (d > 0 ? 0 : n - 1) : (this.suggAt + d + n) % n;
     const kids = Array.from(E.children);
     for (let i = 1; i < kids.length; i++) kids[i].classList.toggle('on', i - 1 === this.suggAt);
+    this.suggPeek(this.suggAt);
     return true;
   }
   suggOpen() {
@@ -2888,12 +3240,28 @@ class NetworkView extends ItemView {
   }
   suggGo(i) { const p = this.suggRows[i]; this.suggHide(); if (p) this.goToNote(p); }
 
-  card(el, name, state, cls, rows, { down = false, foot = '', ver = null, body = null, onHead = null } = {}) {
+  tapNote(path, single) {
+    const t = performance.now(), L = this.rowClickAt;
+    if (L && L.path === path && t - L.t < 450) { this.rowClickAt = null; this.openNote(path); return; }
+    this.rowClickAt = { path, t };
+    single();
+  }
+  noteCardDbl(el, path) {
+    el._dblPath = path;
+    if (el._dblSet) return;
+    el._dblSet = true;
+    el.addEventListener('dblclick', (e) => {
+      if (e.target && e.target.closest && e.target.closest('a')) return;
+      try { window.getSelection().removeAllRanges(); } catch (_) {}
+      if (el._dblPath) this.openNote(el._dblPath);
+    });
+  }
+  card(el, name, state, cls, rows, { down = false, foot = '', ver = null, body = null, onHead = null, headPath = null, tip = '' } = {}) {
     el.textContent = ''; this.cardIn(el); el.classList.toggle('down', down); el.dataset.label = name;
     const head = el.appendChild(document.createElement('div')); head.className = 'rn-head';
     head.title = 'Drag to move it · right-click for its menu';
     const nm = head.appendChild(document.createElement('span')); nm.className = 'rn-hname'; nm.textContent = name;
-    if (onHead) { nm.classList.add('go'); nm.onclick = onHead; nm.title = 'Show this note on the map'; }
+    if (onHead) { nm.classList.add('go'); nm.onclick = headPath ? () => this.tapNote(headPath, onHead) : onHead; nm.title = headPath ? 'Show this note on the map · double-click to open it' : 'Show this note on the map'; }
     if (ver) { const v = nm.appendChild(document.createElement('span')); v.className = 'rn-ver'; v.textContent = ver.text; v.title = ver.title; }
     if (state) { const st = head.appendChild(document.createElement('span')); st.className = cls || ''; st.textContent = state; }
     for (const r of rows) {
@@ -2901,7 +3269,9 @@ class NetworkView extends ItemView {
       row.appendChild(document.createElement('span')).textContent = r.k;
       const b = row.appendChild(document.createElement('b')); b.textContent = r.v; if (r.cls) b.className = r.cls;
       if (r.title) row.title = r.title;
-      if (r.click) row.onclick = r.click;
+      if (r.click && r.path) {
+        row.onclick = () => this.tapNote(r.path, r.click);
+      } else if (r.click) row.onclick = r.click;
     }
     if (body) el.appendChild(body);
     if (foot) { const f = el.appendChild(document.createElement('div')); f.className = 'rn-foot'; f.textContent = foot; }
@@ -3011,7 +3381,7 @@ class NetworkView extends ItemView {
     if (!f) return;
     if (this.shown !== path && how !== 'pinlink') this.pinNote();
     if (this.shown !== path) { this.flushEdit(); this.edit = null; this.countView(path); this.boxDrag = null; this.scrollFrac = null; }
-    this.shown = path;
+    this.shown = path; this.keepLayout();
     this.syncTuck();
     this.boxHead();
     const n = this.byPath.get(path);
@@ -3396,7 +3766,8 @@ class NetworkView extends ItemView {
     let dir = T.dir === undefined ? (R() < 0.5 ? -1 : 1) : (R() < 0.2 ? -T.dir : T.dir);
     const seen = T.seen || (T.seen = {});
     let pull = null, pullK = null;
-    for (const k of ['horizon', 'milky']) {
+    const sk = ['horizon', 'milky'].filter((k) => TOUR_KINDS.includes(k));
+    for (const k of sk) {
       if (!this.tourCan(k)) continue;
       const at = k === 'horizon' ? this.holeSpot : this.bandAt, o = skyAim(at.x, at.y, this.sky, W, H, 0.5, 0.4, this.yaw, 0).yaw - this.yaw;
       const s = seen[k] === undefined ? -99 : seen[k], sp = pullK === null ? 0 : (seen[pullK] === undefined ? -99 : seen[pullK]);
@@ -3405,7 +3776,7 @@ class NetworkView extends ItemView {
     const far = pull !== null && Math.abs(pull) > TOUR_SWING * 0.8 && R() < 0.9;
     if (far) dir = pull > 0 ? 1 : -1;
     const aims = {};
-    for (const k of ['horizon', 'milky']) {
+    for (const k of sk) {
       if (!this.tourCan(k)) continue;
       const at = k === 'horizon' ? this.holeSpot : this.bandAt;
       const a = skyAim(at.x, at.y, this.sky, W, H, k === 'horizon' ? (dir > 0 ? 0.34 : 0.66) : 0.5, k === 'horizon' ? 0.4 : 0.42, this.yaw, TOUR_AIM_HW);
@@ -3413,27 +3784,29 @@ class NetworkView extends ItemView {
     }
     const free = {};
     for (const k of TOUR_FREE_KINDS) { const f = this.tourFree(k); if (f) free[k] = f; }
-    const near = ['horizon', 'milky'].filter((k) => aims[k] && !T.last.includes(k) && (seen[k] === undefined || T.n - seen[k] >= 4));
+    const near = sk.filter((k) => aims[k] && !T.last.includes(k) && (seen[k] === undefined || T.n - seen[k] >= 4));
     const all = TOUR_KINDS.filter((k) => k !== 'top' && (TOUR_FREE_KINDS.includes(k) ? free[k] : this.tourCan(k) && (k !== 'horizon' && k !== 'milky' || aims[k])) && (k !== 'skim' || this.pitch <= 0.9));
-    const topDue = T.n >= 2 && !T.last.includes('top') && (seen.top === undefined || T.n - seen.top >= 10) && R() < 0.35;
+    const topDue = TOUR_KINDS.includes('top') && T.n >= 2 && !T.last.includes('top') && (seen.top === undefined || T.n - seen.top >= 10) && R() < 0.35;
     const fast = far && Math.abs(pull) > TOUR_SWING * 1.5 && R() < 0.5 ? all.filter((k) => (k === 'skim' || k === 'orbit') && !T.last.includes(k)) : [];
-    const first = T.n === 0, pool0 = first ? all.concat('top') : all;
-    let kind = first ? pool0[Math.min(pool0.length - 1, Math.floor(R() * pool0.length))] : topDue ? 'top' : near.length && R() < 0.4 ? near[Math.min(near.length - 1, Math.floor(R() * near.length))] : tourPick(R, T.last, fast.length ? fast : all);
+    const first = T.n === 0, pool0 = first ? all.concat(TOUR_KINDS.includes('top') ? ['top'] : []) : all;
+    const lastC = T.last[0] === 'crane' || T.last[0] === 'crane3' ? T.last.concat('crane', 'crane3') : T.last;
+    let kind = first ?pool0[Math.min(pool0.length - 1, Math.floor(R() * pool0.length))] : topDue ? 'top' : near.length && R() < 0.4 ? near[Math.min(near.length - 1, Math.floor(R() * near.length))] : tourPick(R, lastC, fast.length ? fast : all);
     T.last = [kind, ...T.last].slice(0, 3);
     if (kind === 'horizon' || kind === 'milky' || kind === 'top') seen[kind] = T.n;
     const isFree = TOUR_FREE_KINDS.includes(kind), span = (m) => m[0] + R() * (m[1] - m[0]);
-    let dur = span(kind === 'crane' ? TOUR_CRANE_MS : isFree ? TOUR_FREE_MS : TOUR_SHOT_MS);
-    const mid = { orbit: 0.42, crane: 0.66, ring: 0.65 }[kind], up = mid === undefined ? R() < 0.6 : R() < 0.2 ? !(this.pitch < mid) : this.pitch < mid;
-    const P = { yaw0: this.yaw + (first && !isFree ? (R() * 2 - 1) * TOUR_START_SWING : 0), zmin: Math.max(this.zoomMin || ZOOM_MIN, (this.zoomLand || 0) * TOUR_LAND), zmax: this.zoomMax || 3.2, dir, up, aimYaw: this.yaw, aimPitch: REST_PITCH };
+    let dur = span(kind === 'crane' || kind === 'crane3' ? TOUR_CRANE_MS : isFree ? TOUR_FREE_MS : TOUR_SHOT_MS);
+    const mid = { orbit: 0.35, crane: 0.88, crane3: 0.88, ring: 0.65 }[kind], up = mid === undefined ? R() < 0.6 : R() < 0.2 ? !(this.pitch < mid) : this.pitch < mid;
+    const P = { yaw0: this.yaw + (first && !isFree ? (R() * 2 - 1) * TOUR_START_SWING : 0), zmin: Math.max(this.zoomMin || ZOOM_MIN, (this.zoomLand || 0) * TOUR_LAND), wmin: this.zoomMin || ZOOM_MIN, zmax: this.zoomMax || 3.2, dir, up, aimYaw: this.yaw, aimPitch: REST_PITCH };
     if (aims[kind]) { P.aimYaw = aims[kind].yaw; P.aimPitch = Math.max(TOUR_PITCH[0] + 0.04, Math.min(0.8, aims[kind].pitch)); }
     if (isFree) P.fp = free[kind];
     P.zo = isFree || kind === 'crane' || kind === 'ring' || kind === 'flat' || kind === 'milky' ? 0 : kind === 'top' ? (R() < 0.5 ? TOUR_FAR_TOP : 0) : R() < 1 / 7 ? 0 : -(0.12 + 0.08 * R());
-    P.rj = kind === 'crane' || isFree ? 1 : 0.85 + 0.3 * R();
-    P.pj = kind === 'orbit' || kind === 'skim' || kind === 'dive' ? (R() * 2 - 1) * 0.08 : 0;
+    if (TOUR_ZT[kind]) P.zo = 0;
+    P.rj = kind === 'crane' || kind === 'crane3' || isFree ? 1 : 0.85 + 0.3 * R();
+    P.pj = kind === 'orbit' || kind === 'skim' || kind === 'dive' ? (R() * 2 - 1) * (TOUR_ZT[kind] ? 0.03 : 0.08) : 0;
     let name = TOUR_NAMES[kind], ring;
     if (kind === 'ring') {
       const ids = this.tourRings(); ring = ids[Math.min(ids.length - 1, Math.floor(R() * ids.length))];
-      const rg = this.rings[ring]; P.rz = Math.max(1, Math.min(2.4, (this.rmax * 0.95) / (rg.radius + rg.spread * (REACH + 0.1) + 30))); name = `RING · ${String(rg.name).toUpperCase().slice(0, 28)}`;
+      const rg = this.rings[ring]; P.rz = Math.max(1, Math.min(2.4, (this.rmax * 0.95) / (rg.radius + (rg.rout || rg.spread * (REACH + 0.1)) + 30))); name = `RING · ${String(rg.name).toUpperCase().slice(0, 28)}`;
     }
     const prev = T.shot, p0 = tourBase(kind, 0, 0, P), fany = isFree || !!(prev && TOUR_FREE_KINDS.includes(prev.kind));
     P.y0 = this.yaw; P.p0 = this.pitch; P.f0 = this.zoom;
@@ -3476,7 +3849,9 @@ class NetworkView extends ItemView {
   }
   closeNote() {
     this.dropPin(true);
-    this.flushEdit(); this.edit = null; this.shown = null; this.fitFor = null; this.boxDrag = null; this.box.classList.remove('open', 'rn-loading', 'rn-glide', 'rn-warm', 'rn-measure-w'); this.boxBody.textContent = ''; this.boxBody.rnTall = false; if (this.boxComp) { this.removeChild(this.boxComp); this.boxComp = null; } this.syncTuck();
+    this.flushEdit(); this.boxToken++;
+    if (this.shown) this.keepLayout();
+    this.edit = null; this.shown = null; this.fitFor = null; this.boxDrag = null; this.box.classList.remove('open', 'rn-loading', 'rn-glide', 'rn-warm', 'rn-measure-w'); this.boxBody.textContent = ''; this.boxBody.rnTall = false; if (this.boxComp) { this.removeChild(this.boxComp); this.boxComp = null; } this.syncTuck();
     this.loadHide(); this.keepIn = null;
     this.cgRelease();
     if (this.zoomBack != null) { if (Math.abs(Math.log(this.zoomBack / this.zoom)) > 0.01) this.zoomTo = this.zoomBack; this.zoomBack = null; }
@@ -3613,7 +3988,7 @@ class NetworkView extends ItemView {
     const token = ++this.boxToken;
     try {
       const text = await this.app.vault.read(f);
-      if (token !== this.boxToken) return;
+      if (token !== this.boxToken || this.shown !== f.path) return;
       if (this.boxComp) { this.removeChild(this.boxComp); this.boxComp = null; }
       this.boxBody.textContent = ''; this.boxBody.scrollTop = 0; this.boxBody.rnTall = text.length >= NOTE_TALL;
       const wrap = this.boxBody.appendChild(document.createElement('div')); wrap.className = 'rn-editwrap';
@@ -3641,14 +4016,36 @@ class NetworkView extends ItemView {
   async flushEdit() {
     const E = this.edit; clearTimeout(this.editT);
     if (!E || !E.dirty) return;
-    const text = E.area.value; E.dirty = false;
     const f = this.app.vault.getAbstractFileByPath(E.path); if (!f) return;
+    let how = '', mine = '';
+    const step = (cur) => {
+      mine = E.area.value; E.dirty = false;
+      if (cur === E.base || cur === mine) { E.base = mine; return mine; }
+      const m = this.mergeEdit(E.base, mine, cur), a = E.area, live = this.edit === E;
+      const s0 = a.selectionStart || 0, s1 = a.selectionEnd || 0, top = a.scrollTop;
+      if (!m) { how = 'lost'; E.base = cur; if (live) { a.value = cur; E.draw(); a.setSelectionRange(Math.min(s0, cur.length), Math.min(s1, cur.length)); a.scrollTop = top; } return cur; }
+      how = 'merged'; E.base = m.text;
+      if (live) { const mv = (p) => p >= m.end ? p + m.delta : Math.min(p, m.at); a.value = m.text; E.draw(); a.setSelectionRange(mv(s0), mv(s1)); a.scrollTop = top; }
+      return m.text;
+    };
     try {
-      const cur = await this.app.vault.read(f);
-      if (cur !== E.base) { E.base = cur; if (this.edit === E && !E.dirty) { E.area.value = cur; E.draw(); } this.toast('changed elsewhere · not saved'); return; }
-      E.base = text;
-      await this.app.vault.modify(f, text);
-    } catch (e) { this.note(`ERROR saving ${E.path}: ${e && e.message ? e.message : e}`); this.toast('could not save'); }
+      const V = this.app.vault;
+      if (typeof V.process === 'function') await V.process(f, step);
+      else { const cur = await V.read(f), out = step(cur); if (out !== cur) await V.modify(f, out); }
+      if (how === 'merged') this.toast('changed elsewhere · merged with yours');
+      if (how === 'lost') {
+        let kept = false; try { await navigator.clipboard.writeText(mine); kept = true; } catch {   }
+        this.note(`edit of ${E.path} not saved: the same part changed elsewhere${kept ? ' (your text is on the clipboard)' : ''}`);
+        this.toast(kept ? 'changed elsewhere · not saved · your text is on the clipboard' : 'changed elsewhere · not saved', 4000);
+      }
+    } catch (e) { E.dirty = true; this.note(`ERROR saving ${E.path}: ${e && e.message ? e.message : e}`); this.toast('could not save'); }
+  }
+  mergeEdit(base, mine, theirs) {
+    const span = (x) => { const n = Math.min(base.length, x.length); let p = 0; while (p < n && base.charCodeAt(p) === x.charCodeAt(p)) p++; let s = 0; while (s < n - p && base.charCodeAt(base.length - 1 - s) === x.charCodeAt(x.length - 1 - s)) s++; return { a: p, b: base.length - s, r: x.slice(p, x.length - s) }; };
+    const A = span(mine), B = span(theirs), delta = B.r.length - (B.b - B.a);
+    if (A.b <= B.a && A.a < B.a) { const sh = A.r.length - (A.b - A.a); return { text: base.slice(0, A.a) + A.r + base.slice(A.b, B.a) + B.r + base.slice(B.b), at: B.a + sh, end: B.b + sh, delta }; }
+    if (B.b <= A.a && B.a < A.a) return { text: base.slice(0, B.a) + B.r + base.slice(B.b, A.a) + A.r + base.slice(A.b), at: B.a, end: B.b, delta };
+    return null;
   }
   async editChanged(f) {
     const E = this.edit; if (!E || E.path !== f.path) return;
@@ -3661,11 +4058,14 @@ class NetworkView extends ItemView {
     const gap = this.qLast ? t - this.qLast : 16.7; this.qLast = t;
     if (gap > 250 || this.intro) return;
     if (settingOf(this.plugin.settings, 'quality') !== 'balanced') return;
-    const f = this.ftimes; f.push(gap);
+    const f = this.ftimes;
+    if ((this.paceK || 1) > 1) { f.length = 0; return; }
+    f.push(gap);
     if (f.length < 120) return;
     const avg = f.reduce((a, b) => a + b, 0) / f.length; f.length = 0;
     if (avg > 23 && this.dpr > this.scaleMin + 0.01) {
       this.scale = this.scaleMin; if (this.resize()) this.redraw();
+      const qd = this.qDrop; this.qDrop = { at: performance.now(), n: qd ? qd.n + 1 : 1 };
       this.note(`frames slow (${avg.toFixed(1)} ms, drawing ${ms.toFixed(1)} ms): now drawn at ${this.dpr.toFixed(2)}×`);
     }
   }
@@ -3784,7 +4184,7 @@ class NetworkView extends ItemView {
     if (still || (was && this.focus === null)) { this.focusStill = this.focus !== null; return; }
     this.focusStill = false; this.zoomBack = null; this.keepIn = null;
     const ring = this.focus !== null && this.rings[this.focus];
-    this.zoomTo = ring ? Math.max(1, Math.min(2.4, (this.rmax * 0.95) / (ring.radius + ring.spread * (REACH + 0.1) + 30))) : 1;
+    this.zoomTo = ring ? Math.max(1, Math.min(2.4, (this.rmax * 0.95) / (ring.radius + (ring.rout || ring.spread * (REACH + 0.1)) + 30))) : 1;
   }
 
   input(el) {
@@ -3852,6 +4252,7 @@ class NetworkView extends ItemView {
     }, true);
     const awake = (e) => {
       this.idleAt = performance.now();
+      if (e.target && el.contains(e.target)) this.stirAt = this.idleAt;
       if (!this.tour) return;
       if (e.type === 'mousemove') { this.tourMouse(); return; }
       this.endTour();
@@ -3897,7 +4298,7 @@ class NetworkView extends ItemView {
   ringClick(i) { this.toggleFocus(i, true); }
 
   pick(mx, my) {
-    let best = null, bd = 144;
+    let best = null, bd = PICK_D2 * Math.max(1, this.planetScale()) ** 2;
     for (const n of this.nodes) {
       if (n.path === this.hub || (n.v ?? 1) < 0.4) continue;
       let x = n.px, y = n.py;
@@ -3938,7 +4339,7 @@ class NetworkView extends ItemView {
     const dev = window.devicePixelRatio || 1;
     this.scaleMin = Math.max(1, dev);
     const Q = settingOf(this.plugin.settings, 'quality');
-    this.dpr = Q === 'high' ? Math.max(2, dev) : Q === 'low' ? this.scaleMin : Math.max(this.scaleMin, this.scale || Math.max(2, dev));
+    this.dpr = Q === 'high' ? Math.max(2, dev) : Q === 'low' ? Math.min(this.scaleMin, 1.5) : Math.max(this.scaleMin, this.scale || Math.max(2, dev));
     const cw = Math.round(this.W * this.dpr), ch = Math.round(this.H * this.dpr), fresh = this.canvas.width !== cw || this.canvas.height !== ch;
     if (fresh) { this.canvas.width = cw; this.canvas.height = ch; }
     this.contentEl.toggleClass('narrow', this.W < 980);
@@ -3998,12 +4399,13 @@ class NetworkView extends ItemView {
     const I = this.intro; if (!I) return 0;
     const Z0 = 16, BELOW = -0.87;
     if (!I.t0) {
-      I.n = (I.n || 0) + 1;
-      if (I.n === 2) for (const n of this.novas) this.nebulaSprite(n);
+      if (this.rdy) I.n = (I.n || 0) + 1;
+      if (I.n === 2 && !I.neb) { I.neb = 1; for (const n of this.novas) this.nebulaSprite(n); }
+      if (!this.rdy) { this.zoom = Z0; this.pitch = BELOW; return 1; }
       if (I.n < 4 || ((this.lastCost || 0) > 30 && I.n < 90) || (I.n < 150 && !this.backdropDone(I))) { this.zoom = Z0; this.pitch = BELOW; return 1; }
-      I.t0 = t;
-    }
-    const e = t - I.t0, ss = (a, b, v) => { const k = Math.max(0, Math.min(1, (v - a) / (b - a))); return k * k * k * (k * (k * 6 - 15) + 10); };
+      I.t0 = t; I.e = 0;
+    } else I.e = (I.e || 0) + dtMs;
+    const e = I.e, ss = (a, b, v) => { const k = Math.max(0, Math.min(1, (v - a) / (b - a))); return k * k * k * (k * (k * 6 - 15) + 10); };
     const Z1 = this.zoomLand || this.zoomMin || INTRO_ZOOM;
     if (e >= INTRO_MS) { this.intro = null; this.pitch = REST_PITCH; this.zoom = Z1; this.welcomeSoon(); return 0; }
     const u = e / INTRO_MS, k = u * u * (6 - 8 * u + 3 * u * u), yd = 0.6 * k;
@@ -4014,6 +4416,18 @@ class NetworkView extends ItemView {
     return 1 - ss(0, FADE_MS, e) ** 1.5;
   }
   opening() { return !!(this.intro && !this.intro.t0); }
+  busy(t) {
+    return !this.rdyDone || t - (this.stirAt || 0) < REST_AFTER_MS || !!(this.intro || this.boot || this.tour || this.xit || this.fly || this.aim || this.lapse || this.press)
+      || this.zoomTo != null || this.rockets.length > 0 || this.flashes.length > 0 || this.meteors.length > 0;
+  }
+  drawReady(gap) {
+    if (this.rdyDone) return true;
+    const shown = !document.hidden && this.W > 2 && this.H > 2, ok = shown && this.app.workspace.layoutReady !== false && this.steady() && gap > 0 && gap < 50;
+    this.rdyN = ok ? (this.rdyN || 0) + 1 : 0;
+    if (shown) this.rdyV = (this.rdyV || 0) + 1;
+    if (this.rdyN >= 8 || this.rdyV >= 240) { this.rdyDone = true; this.note(`ready to draw after ${this.rdyV} frames`); }
+    return !!this.rdyDone;
+  }
   backdropDone(I) {
     const B = this.bake, up = this.steady() && this.sky && !this.skyJob && (!B || !B.c || B.done) && this.vig && !this.vigJob && this.holeReady !== false;
     I.sn = up ? (I.sn || 0) + 1 : 0;
@@ -4024,7 +4438,7 @@ class NetworkView extends ItemView {
     this.intro = null; this.zoomTo = this.zoomLand || this.zoomMin || INTRO_ZOOM;
     this.welcomeSoon();
     const s = (this.k || 0) * this.zoomTo;
-    this.note(`landing ${this.W}x${this.H} k ${(this.k || 0).toFixed(4)} zoom ${this.zoomTo.toFixed(4)} zoomMin ${(this.zoomMin || 0).toFixed(4)} rmax ${Math.round((this.rmax || 0) * s)}px outerMax ${Math.round((this.outerMax || 0) * s)}px globe ${Math.round(GLOBE_R * (this.gk || 1) * s)}px spacing ${settingOf(this.plugin.settings, 'ringSpacing')}% globeSize ${settingOf(this.plugin.settings, 'globeSize')}%`);
+    this.note(`landing ${this.W}x${this.H} k ${(this.k || 0).toFixed(4)} zoom ${this.zoomTo.toFixed(4)} zoomMin ${(this.zoomMin || 0).toFixed(4)} rmax ${Math.round((this.rmax || 0) * s)}px outerMax ${Math.round((this.outerMax || 0) * s)}px globe ${Math.round(GLOBE_R * (this.gk || 1) * s)}px spacing ${settingOf(this.plugin.settings, 'ringSpacing')} (${pctOf(settingOf(this.plugin.settings, 'ringSpacing'))}%) globeSize ${settingOf(this.plugin.settings, 'globeSize')}%`);
   }
 
   stepNodes(foc, WV, Cy, Sy, Cp, Sp, KZ, DD, RMX, ccx, ccy) {
@@ -4033,7 +4447,7 @@ class NetworkView extends ItemView {
     const big = this.big, Q = this.quota, QF = Math.max(Q, PLANET_FOCUS), mxs = this.mouse.x, mys = this.mouse.y, inView = mxs >= 0;
     const PL = this.plist || (this.plist = []);
     PL.length = 0;
-    let hover = null, hd = 144 * Math.max(1, this.planetScale()) ** 2;
+    let hover = null, hd = PICK_D2 * Math.max(1, this.planetScale()) ** 2;
     const L0 = this.morph ? this.morph.L0 : null, ME = this.morphE, TL = this.tmpL || (this.tmpL = { x: 0, y: 0, z: 0 });
     for (let k = 0, M = nodes.length; k < M; k++) {
       const n = nodes[k];
@@ -4151,6 +4565,8 @@ class NetworkView extends ItemView {
     const zo = Math.max(0, Math.min(1, Math.log(zm / 0.15) / Math.log(4)));
     const sz = this.planetScale();
     const sv = this.sparse || 1, zs = (zm < 1 ? Math.pow(zm, -0.85 * (sv - 1)) : 1) * (1 + 0.35 * (sv - 1)) * sz, rmin = Math.max(0.7, 1.1 * (1 + 0.8 * (sv - 1)) * sz);
+    this.pMaxPx = this.pMaxRun || rmin; this.pMaxRun = rmin;
+    this.pBase = this.pBaseRun || 0; this.pBaseRun = 0; this.pWa = 1.232 * (1 + 0.35 * (sv - 1)) * sz; this.pWe = -0.85 * (sv - 1); this.pRmin = rmin;
     let near = null;
     const nnk = this.tgl('nearNames', !!settingOf(this.plugin.settings, 'nearNames')), lpk = this.tgl('openLoops', !!settingOf(this.plugin.settings, 'openLoops')), pS = this.pcS();
     if (lpk <= 0 && this.loopHold) { this.loopHold = false; this.workDue = true; }
@@ -4185,6 +4601,8 @@ class NetworkView extends ItemView {
       if (!n) break;
       const v = n.v, px = n.px, py = n.py, pn = n.pn;
       let r = Math.max(rmin, (1.4 + Math.min(3.2, Math.sqrt(n.sz) * 0.5)) * (n.ps / this.k) * 1.1 * 1.12 * zg * zs);
+      if (r > this.pMaxRun) this.pMaxRun = r;
+      { const b0 = 1.4 + Math.min(3.2, Math.sqrt(n.sz) * 0.5); if (b0 > this.pBaseRun) this.pBaseRun = b0; }
       n.star = feat.get(n.path) || 0;
       if (n.star) r *= 1.35;
       if (this.intro) { const c = 7 * Math.max(1, sz); if (r > c) r = c + (r - c) * (this.intro.w || 0); }
@@ -4485,7 +4903,7 @@ class NetworkView extends ItemView {
       const rz = Math.max(0.55, Math.min(1, (R * kz) / 330)), kr = (ink ? PAPER.rock : 1) * (1 + BELT_NEAR.size * nb), sq = 1.7 * rz * kr, rb = 1.8 * rz * kr, zz = (rz - 0.55) / 0.45;
       const sz = (R * kz * belt.c) / 1.45, thin = sz >= 110 ? 1 : Math.pow(sz / 110, 1.5);
       const frac = (0.75 + 0.25 * zz) * thin * (1 + BELT_NEAR.more * nb), af = (1 + 0.33 * zz) * (1 + BELT_NEAR.light * nb), nf = 0.45 + BELT_NEAR.far * nb;
-      const HZ = G && G.hz && nb > 0.02 ? G.hz : null;
+      const HZ = null;
       if (HZ) {
         const hz = belt.haze || (belt.haze = makeHaze(belt, belt === this.belt ? BELT_HAZE.n1 : BELT_HAZE.n2)), HF = HZ.F, ha = BELT_HAZE.a * nb, d2 = dp * dp;
         for (let i = 0; i < hz.length && ho + 8 <= HF.length; i++) {
@@ -4798,25 +5216,26 @@ class NetworkView extends ItemView {
       if (M.width !== mw || M.height !== mh) { M.width = mw; M.height = mh; }
       const g = M.getContext('2d');
       g.setTransform(1, 0, 0, 1, 0, 0); g.globalCompositeOperation = 'source-over'; g.globalAlpha = 1; g.clearRect(0, 0, mw, mh);
-      g.setTransform(d, 0, 0, d, 0, 0); g.imageSmoothingEnabled = true; g.globalAlpha = 1 - ck; lay(g, ox, oy);
+      g.setTransform(d, 0, 0, d, 0, 0); g.imageSmoothingEnabled = true; g.globalAlpha = 1 - ck; lay(g, qx, qy);
       g.globalCompositeOperation = 'lighter'; g.imageSmoothingEnabled = false; g.globalAlpha = ck; lay(g, qx, qy);
       g.globalCompositeOperation = 'source-over'; g.imageSmoothingEnabled = true; g.globalAlpha = 1;
       ctx.save(); ctx.setTransform(1, 0, 0, 1, 0, 0); ctx.globalAlpha = sk; ctx.drawImage(M, 0, 0); ctx.restore();
       this.skyMixAt = performance.now();
     } else if (ck >= 0.99) {
       ctx.globalAlpha = sk; ctx.imageSmoothingEnabled = false; lay(ctx, qx, qy); ctx.imageSmoothingEnabled = true;
-    } else { ctx.globalAlpha = sk; lay(ctx, ox, oy); }
+    } else { ctx.globalAlpha = sk; lay(ctx, qx, qy); }
     const TB = this.tbk || (this.tbk = Array.from({ length: 64 }, () => []));
     for (const L of TB) L.length = 0;
     const tnow = this.wnow || performance.now(), TO = this.twOut, tout = TO ? 1 - smooth01((tnow - TO.at) / SET_XF) : 0;
     if (TO && tout <= 0.004) this.twOut = null;
     const twA = (s, m) => {
-      let sx = s.x + ox; if (sx < 0) sx += F.width;
+      let sx = s.x + qx; if (sx < 0) sx += F.width;
       if (sx > W && !this.fr) return;
+      sx = Math.round(sx * d) / d;
       let k = m;
       if (s.at) { const u = smooth01((tnow - s.at) / SET_XF); if (u >= 1) s.at = 0; else k *= u; }
       const a = sk * s.a * 0.7 * k;
-      if (a > 0.004) TB[stepOf(a)].push(sx, s.y + oy, s.big ? 2 : 1);
+      if (a > 0.004) TB[stepOf(a)].push(sx, Math.round((s.y + qy) * d) / d, s.big ? 2 : 1);
     };
     for (const s of this.twinkle) twA(s, 1);
     if (TO && tout > 0.004) for (const s of TO.L) twA(s, tout);
@@ -4836,7 +5255,7 @@ class NetworkView extends ItemView {
     if (this.cx !== undefined) {
       const R = (this.outerMax || 1.8 * (this.rmax || 400)) * (this.k || 1) * (this.zoomLand || this.zoom || 1) * PAPER.clearR, q = Math.sin(REST_PITCH);
       const sd = ink ? 1 : 1 + 1.0 * Math.max(0, settingOf(this.plugin.settings, 'stars') / 100 - 1), Rd = ink ? R * CLEAR_GROW : Math.min(R, 0.9 * W) * CLEAR_D.grow;
-      const zL = this.zoomLand || 0, zM = this.zoomMin || 0, zu = zL > 0 && zM > 0 && zL > zM * 1.0001 && this.zoom < zL ? Math.min(1, Math.log(zL / this.zoom) / Math.log(zL / zM) / 0.67) : 0, zf = 1 - zu * zu * (3 - 2 * zu);
+      const zL0 = this.zoomLand || 0, zL = zL0 * CLEAR_FULL, zM = this.zoomMin || 0, zu = zL0 > 0 && zM > 0 && zL > zM * 1.0001 && this.zoom < zL ? Math.min(1, Math.log(zL / this.zoom) / Math.log(zL / zM) / 0.67) : 0, zf = 1 - zu * zu * (3 - 2 * zu);
       const ck = Math.min(ink ? 0.8 : 0.92, (ink ? 1 : 0.9) * PAPER.clear * sd * Math.max(0, Math.min(1, (W - (ink ? R : Math.min(R, 0.63 * W))) / (0.5 * W)))), fwk = this.glowKeep() * zf;
       if (Rd > 4 && ck * fwk > 0.01 && !ink) this.clearSky(ctx, Rd, q, ck, fwk);
       else if (Rd > 4 && ck * fwk > 0.01) {
@@ -4897,10 +5316,14 @@ class NetworkView extends ItemView {
       this.lift = lift; this.liftKey = lkey;
     }
     this.back = { LB, lcx, G: this.glowFrame(W, H, TH, dk, S) }; this.paintBack(true);
-    const dtMs = Math.min(100, Math.max(0, t - (this.lastT || t))); this.lastT = t;
+    this.rdy = this.drawReady(t - (this.lastT || t));
+    const dtCap = Math.max(34, 2 * (this.paceK || 1) * (this.rafGap || 16.7));
+    const dtMs = Math.min(dtCap, Math.max(0, t - (this.lastT || t))); this.lastT = t;
     let black = this.introCam(t, dtMs);
-    if (this.boot && !this.opening()) this.bootOut();
-    if (this.dawnOn && !this.opening()) this.dawnCards();
+    if ((this.boot || this.dawnOn) && !this.opening() && this.rdy && (this.intro || this.backdropDone(this.bdI || (this.bdI = {})) || (this.bdN = (this.bdN || 0) + 1) > 150)) {
+      if (this.boot) this.bootOut();
+      if (this.dawnOn) this.dawnCards();
+    }
     if (!this.tour && this.tourIdleDue()) this.startTour();
     const pointing = performance.now() - (this.lastMove || 0) < 2500 && (this.hover || this.hoverMoon || this.overLabel);
     const spinK = settingOf(S, 'spin') / 100, stillTo = this.cg ? 1 : 0;
@@ -4911,13 +5334,15 @@ class NetworkView extends ItemView {
     const tm = this.mt;
     {
       const sn = this.shown && this.byPath.get(this.shown), hold = sn && sn !== this.hubNode && sn.ring !== undefined ? sn.ring : -1;
+      const hv = pointing && this.hover, hring = hv && hv !== this.hubNode && hv.ring !== undefined ? hv.ring : -1;
       const f = 1 - Math.exp(-dtMs / 350), rs = this.rings;
+      const vw = this.tour || this.xit || this.cg || this.fly || this.aim || this.fr ? 0 : (this.spinV || 0);
       for (let i = 0; i < rs.length; i++) {
-        const r = rs[i], to = i === hold ? 1 : 0;
+        const r = rs[i], to = i === hold ? 1 : i === hring ? 0.7 : 0;
         if (!r.w || (!r.hold && !to)) continue;
         r.hold = (r.hold || 0) + (to - (r.hold || 0)) * f;
         if (Math.abs(r.hold - to) < 1e-3) r.hold = to;
-        r.ph = (r.ph || 0) + r.w * dtMs * runK * r.hold;
+        r.ph = (r.ph || 0) + (r.w * runK + (i === hold ? 0 : vw)) * dtMs * r.hold;
       }
     }
     const want = this.canvas.classList.contains('dragging') || this.shown ? 0 : SPIN * spinK;
@@ -4939,7 +5364,7 @@ class NetworkView extends ItemView {
     } else if (!this.fr) this.yaw += this.spinV * dtMs;
     if (this.zoomTo !== null && !this.intro && !(this.xit && this.xit.soft)) {
       const lz = Math.log(this.zoomTo / this.zoom);
-      if (Math.abs(lz) < 2e-4) { this.zoom = this.zoomTo; this.zoomTo = null; } else this.zoom *= Math.exp(lz * (1 - Math.exp(-dtMs / 130)));
+      if (Math.abs(lz) < 2e-4) { this.zoom = this.zoomTo; this.zoomTo = null; this.zoomEnd = performance.now(); } else this.zoom *= Math.exp(lz * (1 - Math.exp(-dtMs / 130)));
     }
     this.spin += 0.000144 * dtMs * spinK;
     const narrow = W < 980;
@@ -4955,20 +5380,30 @@ class NetworkView extends ItemView {
     if (this.gsTo !== undefined) { const t = Math.max(0, Math.min(1, (performance.now() - (this.gsAt || 0)) / 650)), e = t * t * (3 - 2 * t); this.gsv = this.gsFrom + (this.gsTo - this.gsFrom) * e; if (t >= 1) this.gsTo = undefined; }
     else if (this.gsv === undefined) this.gsv = this.globeScale();
     this.gk = Math.max(1, Math.min(2.6, 0.5 / this.k, (0.075 * (this.globeReach || R0)) / GLOBE_R)) * this.gsv;
-    const EA = this.extAll || E, fit = (X) => Math.max(ZOOM_MIN, Math.min(1, (W * 0.085) / (X.x * this.k), (H * 0.175) / ((X.up + X.down) * this.k)));
-    const EO = this.extOpen || EA, landRaw = Math.min(1, (W * 0.6) / (EO.x * this.k), (H * 0.94) / ((EO.up + EO.down) * this.k));
+    const EA = this.extAll || E, fit = (X) => Math.max(zFloor, Math.min(1, (W * 0.085) / (X.x * this.k), (H * 0.175) / ((X.up + X.down) * this.k)));
+    const EO = this.extOpen || EA, landRaw = Math.min(1, (W * 0.5) / (EO.x * this.k), H / ((EO.up + EO.down) * this.k));
+    const zFloor = Math.min(ZOOM_MIN, landRaw * ZOOM_OUT_LAND);
     const fitAll = Math.min(1, (W * 0.45) / (EA.x * this.k), (H * 0.45) / (Math.max(EA.up, EA.down) * this.k)), zg = fit(EA);
-    this.zoomMin = Math.max(ZOOM_MIN, Math.min(fitAll, Math.max(zg, landRaw * ZOOM_OUT_LAND)));
+    this.zoomMin = Math.max(1e-5, Math.min(landRaw, (W * 0.4) / (EA.x * this.k), (H * 0.8) / ((EA.up + EA.down) * this.k)));
+    void fitAll; void zg;
     if (this.keepK) {
       const f = this.keepK / (this.k * this.zoom), lim = (z) => Math.max(this.zoomMin, Math.min(this.zoomMax || 14, z * f));
       this.keepK = 0; this.zoom = lim(this.zoom); if (this.zoomTo !== null) this.zoomTo = lim(this.zoomTo);
     }
     { const M = this.morph; if (M && M.kz) { if (this.zoomTo !== null) M.kz = 0; else this.zoom = Math.max(this.zoomMin, Math.min(this.zoomMax || 14, M.kz / this.k)); } }
+    if (this.inRings && (!this.extIn || this.extInW !== W)) {
+      const L = landRaw < 1 ? -Math.log(landRaw) : 0, rm = Math.max(this.inRmax || R0, (this.inOm || 0) / 1.8), dm = Math.exp((L * L) / (L + 0.5));
+      this.extIn = viewExtent(this.inRings, rm, 0, dm, 1); this.extInOld = viewExtent(this.inRings, rm, 0, dm, 0.65); this.extInW = W;
+    }
+    const capIn = this.extIn ? (W * 0.48) / (this.extIn.x * this.k) : 1, capOld = this.extInOld ? (W * 0.48) / (this.extInOld.x * this.k) : 0;
+    void capIn; void capOld;
     this.zoomLand = Math.max(this.zoomMin, landRaw);
     if (this.openOut) { this.openOut = false; this.zoom = this.zoomLand; }
     { const M = this.morph; if (M && M.land && !this.intro) { if (this.zoomTo !== null) M.land = false; else this.zoom = this.zoomLand; } }
     const zm = this.zoomMin, lo = this.zoom < 1 && zm < 1 ? Math.min(1, Math.log(this.zoom) / Math.log(zm)) : 0;
-    { const k = Math.max(0, Math.min(1, (lo - 0.3) / 0.5)); this.crisp = (settingOf(S, 'quality') === 'balanced' && this.dpr >= 2 ? CRISP_MAX * (1 - k * k * (3 - 2 * k)) : 0) * (this.fr ? 1 - this.fr.w : 1); }
+    { const k = Math.max(0, Math.min(1, (lo - 0.3) / 0.5)), want = (settingOf(S, 'quality') === 'balanced' && this.dpr >= 2 ? CRISP_MAX * (1 - k * k * (3 - 2 * k)) : 0) * (this.fr ? 1 - this.fr.w : 1);
+      const cn = performance.now(), cdt = this.crispAt ? Math.min(250, cn - this.crispAt) : 1e9; this.crispAt = cn;
+      this.crisp = this.crisp == null ? want : this.crisp + (want - this.crisp) * Math.min(1, cdt / 350); if (Math.abs(want - this.crisp) < 0.002) this.crisp = want; }
     const cyC = H / 2 + ((EA.up - EA.down) * this.k * zm) / 2;
     this.cy = H / 2 + (cyC - H / 2) * lo * lo * (3 - 2 * lo) - this.shiftY;
     if (this.fr) this.cy += (H * FREE_CYP - this.shiftY - this.cy) * this.fr.w;
@@ -5117,7 +5552,7 @@ class NetworkView extends ItemView {
         this.ringXY[i] = RB;
       }
       const t0 = rS >= 0 && PX.tones[i] !== ring.tone ? PX.tones[i] || null : undefined, tw = t0 === undefined ? (ring.tone ? 1.6 : 1) : (t0 ? 1.6 : 1) + ((ring.tone ? 1.6 : 1) - (t0 ? 1.6 : 1)) * rS;
-      const base = (foc === null ? 0.11 : foc === i ? 0.32 : 0.045) * rvk * (TH.ink ? PAPER.orbit : 1) * tw;
+      const base = (foc === null ? 0.11 : foc === i ? 0.32 : 0.045) * rvk * (TH.ink ? PAPER.orbit : 1) * tw * (foc === i ? 1 : settingOf(S, 'orbitBright') / 100);
       const tc = (c) => (c ? (TH.ink ? inkOf(c) : c) : C.text);
       ctx.strokeStyle = foc === i ? C.sand : t0 !== undefined ? this.mixCol(tc(t0), tc(ring.tone), rS) : tc(ring.tone); ctx.lineWidth = thin(1);
       for (let b = 0; b < 8; b++) {
@@ -5155,7 +5590,10 @@ class NetworkView extends ItemView {
     this.paintRim(RIM_BELTS);
     if (this.rippleQ.length && t - this.lastRipple > this.rippleGap) { const s = this.rippleQ.shift(); this.ripples.push({ t0: t, s, dur: 3000 * (0.8 + 0.25 * s) }); this.lastRipple = t; }
     this.ripples = this.ripples.filter((r) => t - r.t0 < r.dur);
-    const GR = GLOBE_R * (this.gk || 1);
+    const zMin = this.zoomMin || 1, sMin = (this.k || 1) * zMin, fz = zMin < 1 ? Math.pow(zMin, this.pWe || 0) : 1;
+    const pW = Math.max((this.pBase || 0) * (this.pWa || 1) * fz / (this.k || 1), (this.pRmin || 0) / sMin);
+    const GR = Math.max(GLOBE_R * (this.gk || 1), Math.max(1.2, (this.gsv || 2) * 0.55) * pW);
+    this.gR = GR;
     for (const rp of this.ripples) {
       const age = (t - rp.t0) / rp.dur, rr = GR * (1.08 + 2.6 * (0.55 + 0.45 * rp.s) * age);
       ctx.strokeStyle = rgba(globeColor, 0.22 * (0.4 + 0.6 * rp.s) * Math.pow(1 - age, 1.6) * thinA(1)); ctx.lineWidth = thin(1); ctx.beginPath();
@@ -5172,7 +5610,8 @@ class NetworkView extends ItemView {
     if (hoverMoon) hover = null;
     this.hover = hover; this.hoverMoon = hoverMoon;
     const hp = hover && !this.editing && !this.tour && hover.path !== this.shown && hover.path !== this.hub ? hover.path : null;
-    if (hp !== this.preWant) { this.preWant = hp; this.preAt = performance.now(); }
+    const zooming = this.zoomTo !== null || performance.now() - (this.zoomEnd || 0) < 250;
+    if (hp !== this.preWant || zooming) { this.preWant = hp; this.preAt = performance.now(); }
     else if (hp && (!this.pre || this.pre.path !== hp) && performance.now() - this.preAt > 120) this.prerender(hp);
     const inFocus = (n) => foc === null || n.ring === foc;
     const shown = (this.shown && this.byPath.get(this.shown)) || null, hubNode = this.hubNode;
@@ -5469,13 +5908,13 @@ class NetworkView extends ItemView {
     ctx.globalAlpha = 1;
     this.drawHoles(at);
     const NV = settingOf(this.plugin.settings, 'novas'), nk = NV === 'rare' ? 3 : 1;
-    if (!this.nextNova) this.nextNova = pnow + (300000 + Math.random() * 900000) * nk;
+    if (!this.nextNova) this.nextNova = pnow + (120000 + Math.random() * 240000) * nk;
     if (NV === 'off') this.nextNova = Math.max(this.nextNova, pnow + 300000);
     else if (pnow > this.nextNova) {
       const x = W * (0.08 + Math.random() * 0.84), y = H * (0.08 + Math.random() * 0.84);
       this.novas.push(this.newNova(x, y, false));
       this.saveNovas();
-      this.nextNova = pnow + (1200000 + Math.random() * 1500000) * nk;
+      this.nextNova = pnow + (480000 + Math.random() * 600000) * nk;
       if (Math.random() < TWIN_P) this.twin = { at: pnow + 1800 + Math.random() * 2400, x, y, of: this.novas[this.novas.length - 1] };
     }
     if (this.twin && pnow > this.twin.at && NV !== 'off') {
@@ -6260,6 +6699,7 @@ class NetworkView extends ItemView {
       if (c.s >= CHAT_AT) { if (!c.q) { c.q = true; this.note(`quiet: ${path} keeps being rewritten, no more rockets for it while it does`); } return; }
       c.q = false;
     }
+    if (A.seenAt > 0 && now - A.seenAt > AWAY_MS) { if (kind === 'delete') this.gone(path, now); return; }
     A.work = Math.min(3, this.workLevel(now) + 0.5);
     if (A.work >= 1) A.ambAt = Math.min(A.ambAt || Infinity, now + 500 + 1500 * Math.random());
     const B = A.burst || (A.burst = { t0: now, last: now, paths: new Set() });
@@ -6430,6 +6870,14 @@ class NetworkView extends ItemView {
     A.load += ((this.lastCost || 0) - A.load) * 0.05;
     if (A.heat) { A.heat *= Math.exp(-Math.max(0, now - A.heatAt) / 1100); if (A.heat < 0.004) A.heat = 0; }
     A.heatAt = now;
+    const away = A.seenAt > 0 && now - A.seenAt > AWAY_MS;
+    A.seenAt = now;
+    if (away) {
+      for (const e of A.queue) if (e.n && e.n.v < 1) e.n.v = 1;
+      for (const n of A.fade.keys()) n.v = 1;
+      A.queue.length = 0; A.fade.clear(); A.pend.clear(); A.burst = null; A.flood = null; A.cap = null; A.win.length = 0; A.wh = 0;
+      A.work = 0; A.workAt = now;
+    }
     if (this.lapse) { this.rockets.length = 0; this.flashes.length = 0; this.rocks.length = 0; A.queue.length = 0; A.fade.clear(); A.burst = null; return; }
     const Q = A.queue;
     if (Q.length) {
@@ -6482,10 +6930,10 @@ class NetworkView extends ItemView {
     for (let j = 0; j < 8; j++) {
       const L = B[j]; if (!L.length) continue;
       const k = (j + 1) / 8;
-      ctx.beginPath();
-      for (let m = 0; m < L.length; m += 4) { ctx.moveTo(L[m], L[m + 1]); ctx.lineTo(L[m + 2], L[m + 3]); }
-      ctx.strokeStyle = C.sand; ctx.globalAlpha = 0.16 * k; ctx.lineWidth = 3; ctx.stroke();
-      ctx.strokeStyle = '#fffaf0'; ctx.globalAlpha = 0.55 * k * k; ctx.lineWidth = 0.9; ctx.stroke();
+      ctx.strokeStyle = C.sand; ctx.globalAlpha = 0.16 * k; ctx.lineWidth = 3;
+      for (let m = 0; m < L.length; m += 4) { ctx.beginPath(); ctx.moveTo(L[m], L[m + 1]); ctx.lineTo(L[m + 2], L[m + 3]); ctx.stroke(); }
+      ctx.strokeStyle = '#fffaf0'; ctx.globalAlpha = 0.55 * k * k; ctx.lineWidth = 0.9;
+      for (let m = 0; m < L.length; m += 4) { ctx.beginPath(); ctx.moveTo(L[m], L[m + 1]); ctx.lineTo(L[m + 2], L[m + 3]); ctx.stroke(); }
     }
     ctx.lineCap = 'butt';
     if (HR.length) {
@@ -7065,7 +7513,7 @@ class NetworkView extends ItemView {
     const lane = (u) => D * (0.03 * Math.sin(TAU * 2 * u + 0.4) + 0.017 * Math.sin(TAU * 4 * u + 0.7));
     const smooth = (e0, e1, v) => { const k = Math.max(0, Math.min(1, (v - e0) / (e1 - e0))); return k * k * (3 - 2 * k); };
     const T0 = 0.85 * L, nz = (x, y, s, seed) => { const f = fbm(x / s, y / s, seed); return x < T0 ? f : f + (fbm((x - L) / s, y / s, seed) - f) * smooth(T0, L, x); };
-    const sc = 0.18, hw = Math.ceil(L * sc), hh = Math.ceil(h * sc), lum = new Float32Array(hw * hh), warm = new Float32Array(hw * hh);
+    const sc = 0.18, hw = Math.ceil(L * sc), hh = Math.ceil(h * sc), lum = new Float32Array(hw * hh), warm = new Float32Array(hw * hh), cool = new Float32Array(hw * hh);
     const cols = Array.from({ length: hw }, (_, qx) => {
       const x = qx / sc, u = x / L, c = core(u);
       return { x, c, c13: c ** 1.3, mid: h / 2 + lane(u), bw: BAND_W * D * wide(u), riftC: 0.4 * Math.sin(TAU * 3 * u + 0.8) + 0.25 * Math.sin(TAU * 7 * u + 2.1), riftW: 0.45 + 0.35 * nz(x, 0, 380, 116), riftOn: Math.max(smooth(0.38, 0.62, nz(x, 0, 520, 119)), 0.9 * c) };
@@ -7088,10 +7536,11 @@ class NetworkView extends ItemView {
         light *= 1 - Math.min(0.94, 0.95 * rift + 0.8 * blot);
         const i = qy * hw + qx;
         lum[i] = light; warm[i] = Math.min(1, 0.9 * c * Math.exp(-((off / (0.3 * D)) ** 2)) + 0.25 * rift);
+        cool[i] = Math.min(1, cl * (1 - c) * (1 - rift));
         if (light > peak) peak = light;
       }
     }
-    const im = g.createImageData(L, h), px = im.data, K = 255 * 0.078;
+    const im = g.createImageData(L, h), px = im.data, K = 255 * 0.09;
     for (let y = 0; y < h; y++) {
       if (y && y % 48 === 0) yield;
       const fy = y * sc, y0 = Math.min(hh - 1, Math.floor(fy)), y1 = Math.min(hh - 1, y0 + 1), ty = fy - y0;
@@ -7103,11 +7552,12 @@ class NetworkView extends ItemView {
         const A = Math.floor(K * l * (0.62 + 0.76 * Math.random()) + Math.random());
         if (A <= 0) continue;
         const w = (warm[j00] * (1 - tx) + warm[j10] * tx) * (1 - ty) + (warm[j01] * (1 - tx) + warm[j11] * tx) * ty, i = (y * L + x) * 4;
-        px[i] = 220 + 22 * w; px[i + 1] = 216 - 14 * w; px[i + 2] = 212 - 52 * w; px[i + 3] = A;
+        const cb = (cool[j00] * (1 - tx) + cool[j10] * tx) * (1 - ty) + (cool[j01] * (1 - tx) + cool[j11] * tx) * ty;
+        px[i] = 220 + 22 * w - 16 * cb; px[i + 1] = 216 - 14 * w - 3 * cb; px[i + 2] = 212 - 52 * w + 22 * cb; px[i + 3] = A;
       }
     }
     g.putImageData(im, 0, 0);
-    for (const [du, da, r] of [[-0.035, 0.6, 9], [-0.05, 0.9, 6], [0.02, -0.7, 7]]) {
+    for (const [du, da, r] of [[-0.035, 0.6, 9], [-0.05, 0.9, 6], [0.02, -0.7, 7], [0.31, -0.35, 8], [0.55, 0.5, 6]]) {
       const x = (uc + du) * L, y = h / 2 + lane(uc + du) + da * BAND_W * D, gr = g.createRadialGradient(x, y, 0, x, y, r);
       gr.addColorStop(0, 'rgba(232,140,150,0.10)'); gr.addColorStop(1, 'rgba(232,140,150,0)'); g.fillStyle = gr; g.fillRect(x - r, y - r, 2 * r, 2 * r);
     }
@@ -7252,14 +7702,25 @@ class RhoSettings extends PluginSettingTab {
       const t = bar.appendChild(document.createElement('div')); t.className = 'rn-stab'; t.textContent = name;
       t.onclick = () => { const at = starts.get(name) || bar; at.scrollIntoView({ behavior: 'smooth', block: 'start' }); };
     }
-    const all = [];
+    const find = bar.appendChild(document.createElement('input')); find.className = 'rn-sfind';
+    const all = [], F = [];
     for (const name of SETTINGS_TABS) for (const o of settingsOn(name)) all.push([name, o]);
-    let lastTab = null;
+    let lastTab = null, curSec = '';
     for (const [tabName, o] of all) {
       if (o.hidden || (o.only && !P.settings[o.only])) continue;
-      if (tabName !== lastTab) { if (lastTab !== null) starts.set(tabName, new Setting(el).setName(tabName).setHeading().settingEl); lastTab = tabName; }
-      if (o.sec) { new Setting(el).setName(o.sec).setHeading(); continue; }
+      if (tabName !== lastTab) {
+        if (lastTab !== null) { const h = new Setting(el).setName(tabName).setHeading().settingEl; starts.set(tabName, h); F.push({ el: h, kind: 'div' }); }
+        lastTab = tabName; curSec = '';
+      }
+      if (o.sec) { F.push({ el: new Setting(el).setName(o.sec).setHeading().settingEl, kind: 'sec' }); curSec = o.sec; continue; }
+      if (o.act) {
+        const s = new Setting(el).setName(o.name).setDesc(o.desc);
+        s.addButton((b) => b.setButtonText(o.btn || 'Go').onClick(() => { try { this.app.setting && this.app.setting.close(); } catch {   } P.mapAct(o.act); }));
+        F.push({ el: s.settingEl, kind: 'row', o, sec: curSec, tab: tabName }); continue;
+      }
       const s = new Setting(el).setName(o.name).setDesc(o.desc), v = settingOf(P.settings, o.key);
+      F.push({ el: s.settingEl, kind: 'row', o, sec: curSec, tab: tabName });
+      if (o.exp && s.nameEl && s.nameEl.appendChild) { const t = document.createElement('i'); t.className = 'rn-exp'; t.textContent = 'EXPERIMENTAL'; s.nameEl.appendChild(t); }
       if (o.range) {
         const [lo, hi, st] = o.range, dflt = DEFAULTS[o.key];
         let sl = null, box = null, rb = null;
@@ -7280,6 +7741,8 @@ class RhoSettings extends PluginSettingTab {
       else if (o.toggle) s.addToggle((c) => c.setValue(v).onChange((x) => P.setSetting(o.key, x)));
       else if (o.list && s.controlEl) { const box = s.controlEl.appendChild(document.createElement('div')); box.className = 'rn-chips rn-chips-tab'; folderChips(box, this.app, P, o.key); }
     }
+    const none = el.appendChild(document.createElement('div')); none.className = 'rn-snone rn-hidden'; none.textContent = 'No setting matches';
+    settingsFindBox(find, F, none);
   }
 }
 
@@ -7316,7 +7779,10 @@ class RhoNetwork extends Plugin {
   async activate() {
     this.diag('globe clicked');
     try {
-      for (const old of this.app.workspace.getLeavesOfType(VIEW)) old.detach();
+      const leaves = this.app.workspace.getLeavesOfType(VIEW);
+      const live = leaves.find((l) => l.view instanceof NetworkView && this.views.has(l.view) && !l.view.closed && !l.view.errEl && l.view.contentEl.isConnected);
+      if (live) { await this.app.workspace.revealLeaf(live); this.diag('tab brought back'); return; }
+      for (const old of leaves) old.detach();
       const leaf = this.app.workspace.getLeaf('tab');
       await leaf.setViewState({ type: VIEW, active: true });
       await this.app.workspace.revealLeaf(leaf);
@@ -7328,6 +7794,14 @@ class RhoNetwork extends Plugin {
     if (!v) { this.wantWelcome = true; this.activate(); return; }
     try { const r = this.app.workspace.revealLeaf(v.leaf); if (r && r.catch) r.catch(() => {}); } catch {   }
     if (v.intro) v.wantWel = true; else v.openWelcome(0);
+  }
+  async mapAct(a) {
+    let v = [...this.views][0];
+    if (!v) { await this.activate(); v = [...this.views][0]; }
+    if (!v) return;
+    try { const r = this.app.workspace.revealLeaf(v.leaf); if (r && r.catch) r.catch(() => {}); } catch {   }
+    const t0 = Date.now(), go = () => { if (v.closed) return; if ((v.intro || !v.sky) && Date.now() - t0 < 8000) { setTimeout(go, 250); return; } v.doAct(a); };
+    go();
   }
   saveSettings() { clearTimeout(this.saveT); this.saveT = 0; try { const r = this.saveData(this.settings); if (r && r.catch) r.catch(() => {}); } catch {   } this.writeSpare(); }
   sparePath() { return `${this.app.vault.configDir}/${this.manifest.id}.json`; }
@@ -7359,4 +7833,4 @@ class RhoNetwork extends Plugin {
 }
 
 module.exports = RhoNetwork;
-module.exports.__test = { setPluginCharts: (on) => { PLUGIN_CHARTS = !!on; }, springStep, starScale, makeRogues, ROGUE_N, rng, ROCKET_CAP, spaceOut, PLANET_GAP, CLASSIC, CLASSIC_TINT, DUSK, TWIN_P, AMB_IDLE, AMB_BUSY, TIDY_MS, NOVA_SHRINK, GRAVE_TE, GRAVE_R, holeSize, holePull, HOLE_RO, HOLE_SQ, HOLE_TILT, ROCKET_VOLLEY, GLOBE_R, NetworkView, Hub, layout, tint, hash, findHub, yawToRight, shortTurn, firstLineOf, ago, makeBelt, beltNear, makeHaze, BELT_HAZE, BELT_NEAR, BELT_GREY, BELT_A, groupNotes,inScope, scopeHub, planetScore, byName, baseName, PLANET_ALL, PLANET_SUM, PLANET_MIN, PLANET_FOCUS, REACH, CORE, RING_CAP, agoShort, topBy, sparkBuckets, foldersOf, WIDGETS, WIDGET_DEFAULT, SPANS, SETTINGS, settingsOn, DEFAULTS, THEMES, settingOf, SETTINGS_V, migrateSettings, excludeList, liftAt, paperLum, RhoSettings, WAVE_MS, FLOOD_QUIET, PAPER, INK, inkOf, PALETTE, SAND, MONO, HALLOWEEN, PRESETS, agePlan, AGE_STEPS, tourPose, skyAim, tourPick, tourBase, orbitEq, blendPose, freeAim, rotX, rotY, smooth5, TOUR_FREE_KINDS, TOUR_RATE, TOUR_FAR, TOUR_FAR_TOP, TOUR_CRANE_MS, TOUR_FREE_MS, TOUR_GLIDE_FREE, TOUR_EXIT_MS, TOUR_ZONE, TOUR_PITCH, TOUR_TOP, FREE_CYP, FREE_KZ, TOUR_KINDS, TOUR_SHOT_MS, TOUR_STILL_MS, TOUR_GLIDE_MS, TOUR_GLIDE_MORE, TOUR_SWING, REST_PITCH, SKY_PX, snapNice, editRuns, BOX_MIN_W, dueOf, dayOf, DUE_KEYS, noteSeams, seamAfter, NOTE_CHUNK_MIN, NOTE_TALL, noteCharts, hasChart, BELT2_PAD, chartSvg, chartEl, xyTicks, suggTerms, contextHit, contextSnippet, splitHits, suggTone, clickOdds, clickKind, turnPose, poseProject, clickPose, CG_UP, RING_GAIN, LAND_GAIN, RIM_VIEW, RIM_BELTS, GLOW_VIEW, GLOW_CORE_K, GLOW_EASE, GLOW_XF, GLOW_EDGE, GLOW_FADE, CLEAR_F0, CLEAR_GROW, SET_XF, SET_FADES, XF_HOLD, XF_FADE, XF_DROP, INK_AMB, INK_RIM, clearStops, driftAt, CG_DRIFT, CG_HZ_Y, CRISP_MAX, BELT1_BAND, BELT1_SKIRT, BOX_EDGE, BOX_EDGE2, PIN_GAP, driftPose, graphQuery, parseGraphGroups, graphColorFn, ROCKETS_IDLE, ROCKETS_BUSY, ROCKETS_PER5_MAX, AMB_MAX, MAIL_MIN, MAIL_GLOW, TOUR_LAND, SET_EASE, SET_EASED, CG_OUTS, CG_TILT, CLEAR_D, CG_HZ_EYE, CG_BELT_EYE, CG_BELT_OUT, WELCOME_STEPS, WELCOME_MS, helpSheet, ZOOM_OUT_LAND, ZOOM_MIN };
+module.exports.__test = { setPluginCharts: (on) => { PLUGIN_CHARTS = !!on; }, springStep, starScale, makeRogues, ROGUE_N, rng, ROCKET_CAP, spaceOut, PLANET_GAP, CLASSIC, CLASSIC_TINT, DUSK, TWIN_P, AMB_IDLE, AMB_BUSY, TIDY_MS, NOVA_SHRINK, GRAVE_TE, GRAVE_R, holeSize, holePull, HOLE_RO, HOLE_SQ, HOLE_TILT, ROCKET_VOLLEY, GLOBE_R, NetworkView, Hub, layout, tint, hash, findHub, yawToRight, shortTurn, firstLineOf, ago, makeBelt, beltNear, makeHaze, BELT_HAZE, BELT_NEAR, BELT_GREY, BELT_A, groupNotes,inScope, scopeHub, planetScore, byName, baseName, PLANET_ALL, PLANET_SUM, PLANET_MIN, PLANET_FOCUS, REACH, CORE, RING_CAP, agoShort, topBy, sparkBuckets, foldersOf, WIDGETS, WIDGET_DEFAULT, chartNums, chartFmt, SPANS, SETTINGS, settingsOn, DEFAULTS, THEMES, settingOf, paceOf, REST_AFTER_MS,pctOf, spcSize, SETTINGS_V, migrateSettings, excludeList, liftAt, paperLum, RhoSettings, WAVE_MS, FLOOD_QUIET, PAPER, INK, inkOf, PALETTE, SAND, MONO, HALLOWEEN, PRESETS, agePlan, AGE_STEPS, tourPose, skyAim, tourPick, tourBase, orbitEq, blendPose, freeAim, rotX, rotY, smooth5, TOUR_FREE_KINDS, TOUR_RATE, TOUR_FAR, TOUR_FAR_TOP, TOUR_CRANE_MS, TOUR_FREE_MS, TOUR_GLIDE_FREE, TOUR_EXIT_MS, TOUR_ZONE, TOUR_PITCH, TOUR_TOP, FREE_CYP, FREE_KZ, TOUR_KINDS, TOUR_ZT, TOUR_ZFAR, TOUR_SHEET, TOUR_DOWN, TOUR_NAMES, TOUR_SHOT_MS, TOUR_STILL_MS, TOUR_GLIDE_MS, TOUR_GLIDE_MORE, TOUR_SWING, REST_PITCH, SKY_PX, snapNice, editRuns, BOX_MIN_W, dueOf, dayOf, DUE_KEYS, noteSeams, seamAfter, NOTE_CHUNK_MIN, NOTE_TALL, noteCharts, hasChart, BELT2_PAD, chartSvg, chartEl, xyTicks, suggTerms, contextHit, contextSnippet, splitHits, peekLines, suggTone, clickOdds, clickKind, turnPose, poseProject, clickPose, CG_UP, RING_GAIN, LAND_GAIN, RIM_VIEW, RIM_BELTS, GLOW_VIEW, GLOW_CORE_K, GLOW_EASE, GLOW_XF, GLOW_EDGE, GLOW_FADE, CLEAR_F0, CLEAR_GROW, SET_XF, SET_FADES, XF_HOLD, XF_FADE, XF_DROP, INK_AMB, INK_RIM, clearStops, driftAt, CG_DRIFT, CG_HZ_Y, CRISP_MAX, BELT1_BAND, BELT1_SKIRT, BOX_EDGE, BOX_EDGE2, PIN_GAP, driftPose, graphQuery, parseGraphGroups, graphColorFn, ROCKETS_IDLE, ROCKETS_BUSY, ROCKETS_PER5_MAX, AMB_MAX, MAIL_MIN, MAIL_GLOW, TOUR_LAND, SET_EASE, SET_EASED, CG_OUTS, CG_TILT, CLEAR_D, CG_HZ_EYE, CG_BELT_EYE, CG_BELT_OUT, WELCOME_STEPS, GUIDE_V, NEWS_STEPS, WELCOME_MS, helpSheet, ZOOM_OUT_LAND, ZOOM_MIN };
